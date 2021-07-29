@@ -12,16 +12,45 @@ public class GenericPoses
     public static final int jumpLegPriority = 15;
     public static final int jumpArmPriority = 10;
 
+    public static PlayerPose Idle = new PlayerPose();
     public static PlayerPose Walking = new PlayerPose();
     public static PlayerPose Jumping = new PlayerPose();
 
     public static void init()
     {
+        setupIdle();
         setupWalking();
         setupJumping();
     }
 
     // TODO: Add swimming, sleeping, sitting, etc poses
+
+    public static void setupIdle()
+    {
+        Idle.addAngle(GenericLimbNames.leftArm, new Vector3d(0, 0, 0), 0);
+        Idle.addAngle(GenericLimbNames.rightArm, new Vector3d(0, 0, 0), 0);
+        Idle.addAngle(GenericLimbNames.lowerLeftArm, new Vector3d(0, 0, 0), 0);
+        Idle.addAngle(GenericLimbNames.lowerRightArm, new Vector3d(0, 0, 0), 0);
+        Idle.addAngle(GenericLimbNames.leftLeg, new Vector3d(0, 0, 0), 0);
+        Idle.addAngle(GenericLimbNames.rightLeg, new Vector3d(0, 0, 0), 0);
+        Idle.addAngle(GenericLimbNames.lowerLeftLeg, new Vector3d(0, 0, 0), 0);
+        Idle.addAngle(GenericLimbNames.lowerRightLeg, new Vector3d(0, 0, 0), 0);
+    }
+
+    public static void addToIdle(PlayerPose toAdd)
+    {
+        Idle = Idle.combine(toAdd);
+    }
+
+    public static void addToWalking(PlayerPose toAdd)
+    {
+        Walking = Walking.combine(toAdd);
+    }
+
+    public static void addToJumping(PlayerPose toAdd)
+    {
+        Jumping = Jumping.combine(toAdd);
+    }
 
     public static void setupWalking()
     {

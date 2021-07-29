@@ -11,6 +11,8 @@ public class AnimationSpeedCalculator
     // Ticks is the amount of ticks it should take for position to change into destination
     public static double ticksToSpeed(Vector3d position, Vector3d destination, float Ticks)
     {
+        // TODO: Look at this, speeds seem variable and wrong
+
         Vector3d toMove = position.subtract(destination);
         Vector3d direction = toMove.normalize();
 

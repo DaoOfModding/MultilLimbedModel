@@ -214,6 +214,7 @@ public class MultiLimbedRenderer
     public static void doModelCalculations(AbstractClientPlayerEntity entityIn, MatrixStack matrixStackIn, float partialTicks, PlayerPoseHandler handler)
     {
         PoseHandler.applyRotations(entityIn, matrixStackIn, partialTicks, 0, partialTicks);
+
         PoseHandler.doPose(entityIn.getUUID(), partialTicks);
 
         handler.getPlayerModel().calculateHeightAdjustment();
@@ -358,7 +359,6 @@ public class MultiLimbedRenderer
 
         entityModel.prepareMobModel(entityIn, f5, f8, partialTicks);
         entityModel.setupAnim(entityIn, f5, f8, totalTicks, f2, f6);
-
 
         PoseHandler.doPose(entityIn.getUUID(), partialTicks);
 

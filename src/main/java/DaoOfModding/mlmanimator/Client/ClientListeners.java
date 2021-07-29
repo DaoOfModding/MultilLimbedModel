@@ -12,6 +12,7 @@ import net.minecraftforge.client.event.*;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(value = Dist.CLIENT)
@@ -20,14 +21,16 @@ public class ClientListeners
     @SubscribeEvent
     public static void playerTick(TickEvent.PlayerTickEvent event)
     {
-        if (event.phase == TickEvent.Phase.START)
+        if (event.side == LogicalSide.CLIENT && event.phase == TickEvent.Phase.START)
         {
+            PoseHandler.addPose(event.player.getUUID(), GenericPoses.Idle);
+
             // Tell the PoseHandler that the player is not jumping if they are on the ground or in water
             if (event.player.isOnGround() || event.player.isInWater())
                 PoseHandler.setJumping(event.player.getUUID(), false);
 
             // If player is moving add the walking pose to the PoseHandler
-            if (Math.abs(event.player.getDeltaMovement().x) + Math.abs(event.player.getDeltaMovement().z) > 0)
+            if (event.player.getDeltaMovement().x != 0 || event.player.getDeltaMovement().z != 0)
                 PoseHandler.addPose(event.player.getUUID(), GenericPoses.Walking);
 
             // Update the PoseHandler

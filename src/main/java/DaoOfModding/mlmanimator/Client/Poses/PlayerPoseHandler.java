@@ -57,6 +57,8 @@ public class PlayerPoseHandler
 
     public void addPose(PlayerPose pose)
     {
+        lock();
+
         // Loop through every limb in the new pose
         for (String limb : pose.getLimbs())
             if (pose.hasAngle(limb))
@@ -66,6 +68,8 @@ public class PlayerPoseHandler
                     currentPose.setAngles(limb, pose.getAngles(limb), pose.getSpeeds(limb), pose.getPriority(limb), pose.getOffset(limb), pose.getAnimationLock(limb));
 
         currentPose.disableHeadLook(pose.isHeadLookDisabled(), pose.getDisableHeadLookPriority());
+
+        unlock();
     }
 
     public boolean isHeadLookDisabled()
@@ -206,7 +210,7 @@ public class PlayerPoseHandler
 
         // Reset stored animation data for any limbs whose target position has changed
         for (String limb : limbs)
-            if (!animationTime.containsKey(limb) || !(renderPose.hasAngle(limb) && oldRenderPose.hasAngle(limb) && renderPose.getAngle(limb).equals(oldRenderPose.getAngle(limb))))
+            if (!animationTime.containsKey(limb) || renderPose.hasAngle(limb) && oldRenderPose.hasAngle(limb) && !renderPose.getAngle(limb).equals(oldRenderPose.getAngle(limb)))
                 animationTime.put(limb, 0f);
 
 
@@ -221,12 +225,11 @@ public class PlayerPoseHandler
             Vector3d angles;
 
             if (renderPose.hasAngle(limb))
-                angles =  animateLimb(limb, getLimbPos(limb), partialTicks);
+                angles = animateLimb(limb, getLimbPos(limb), partialTicks);
             else
                 angles = animateLimb(getLimbPos(limb), new Vector3d(0, 0, 0), AnimationSpeedCalculator.defaultSpeedPerTick, partialTicks);
 
             newRender.addAngle(limb, angles, 1);
-
             newRender.addOffset(limb, animatingPose.getOffset(limb));
         }
 
@@ -329,9 +332,8 @@ public class PlayerPoseHandler
             frame.put(limb, 0);
 
         int currentFrame = frame.get(limb);
-        int aLock = renderPose.getAnimationLock(limb);
 
-        // Grab the renderPos angle for the specified limb
+        // Grab the angle to move to for the specified limb for this frame
         Vector3d moveTo = renderPose.getAngle(limb, currentFrame);
 
         // Create a vector of the amount the limb has to move
@@ -345,6 +347,8 @@ public class PlayerPoseHandler
                 return current;
             else
             {
+                int aLock = renderPose.getAnimationLock(limb);
+
                 // Do nothing if frame locked to this frame
                 if (aLockedFrame.containsKey(aLock))
                     if (aLockedFrame.get(aLock) == currentFrame)
@@ -377,9 +381,11 @@ public class PlayerPoseHandler
 
         double aSpeed = AnimationSpeedCalculator.ticksToSpeed(current, moveTo, TicksRemaining) * partialTicks;
 
-        // If the limbs have to move more that the animation speed, reduce the amount to the animation speed
-        if (moveAmount > aSpeed)
-            toMove = toMove.normalize().scale(aSpeed);
+        // If the limbs have to move less that the animation speed, instantly move to the specified position
+        if (moveAmount <= aSpeed)
+            return moveTo;
+
+        toMove = toMove.normalize().scale(aSpeed);
 
         // Return a vector of the current positions moved towards moveTo by the animation speed
         return current.subtract(toMove);
