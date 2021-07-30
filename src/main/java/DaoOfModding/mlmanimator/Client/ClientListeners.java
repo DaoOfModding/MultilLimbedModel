@@ -34,13 +34,13 @@ public class ClientListeners
             if (event.player.isInWater())
             {
                 // If player is moving in the water apply swimming pose
-                if (event.player.getDeltaMovement().length() != 0)
+                if (event.player.isVisuallySwimming())
                 {
                     // TODO: Swimming pose
                 }
             }
             // If player is moving add the walking pose to the PoseHandler
-            else if (event.player.getDeltaMovement().x != 0 || event.player.getDeltaMovement().z != 0)
+            else if (event.player.animationSpeed > 0.05)
                 PoseHandler.addPose(event.player.getUUID(), GenericPoses.Walking);
 
             // Update the PoseHandler
