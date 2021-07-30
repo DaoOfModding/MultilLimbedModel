@@ -41,17 +41,7 @@ public class PoseHandler
         return null;
     }
 
-    public static void updatePoseHandler(AbstractClientPlayerEntity player)
-    {
-        for (PlayerPoseHandler handler : poses)
-            if (handler.getID() == player.getUUID())
-            {
-                // TODO: Update the pose handler and player model when the players skin changes
-                // Which it freakin does a few seconds after joining the world
-            }
-    }
-
-    public static void applyRotations(PlayerEntity entityLiving, MatrixStack matrixStackIn, float ageInTicks, float rotationYaw, float partialTicks)
+    public static void applyRotations(PlayerEntity entityLiving, MatrixStack matrixStackIn, float rotationYaw, float partialTicks)
     {
         Pose pose = entityLiving.getPose();
         if (pose != Pose.SLEEPING) {
@@ -86,10 +76,12 @@ public class PoseHandler
             handler.setJumping(jump);
     }
 
-    public static void updatePoses()
+    public static void updatePoses(UUID playerID)
     {
-        for (PlayerPoseHandler handlers: poses)
-            handlers.updateRenderPose();
+        PlayerPoseHandler handler = getPlayerPoseHandler(playerID);
+
+        if (handler != null)
+            handler.updateRenderPose();
     }
 
     public static void doPose(UUID playerID, float partialTicks)

@@ -61,11 +61,10 @@ public class PlayerPoseHandler
 
         // Loop through every limb in the new pose
         for (String limb : pose.getLimbs())
-            if (pose.hasAngle(limb))
-                // If the current pose has no angle set for this limb, or the new pose has a higher priority for this limb
-                // Then add the limb pose from the new pose to the current pose
-                if (!currentPose.hasAngle(limb) || currentPose.getPriority(limb) < pose.getPriority(limb))
-                    currentPose.setAngles(limb, pose.getAngles(limb), pose.getSpeeds(limb), pose.getPriority(limb), pose.getOffset(limb), pose.getAnimationLock(limb));
+            // If the current pose has no angle set for this limb, or the new pose has a higher priority for this limb
+            // Then add the limb pose from the new pose to the current pose
+            if (!currentPose.hasAngle(limb) || currentPose.getPriority(limb) < pose.getPriority(limb))
+                currentPose.setAngles(limb, pose.getAngles(limb), pose.getSpeeds(limb), pose.getPriority(limb), pose.getOffset(limb), pose.getAnimationLock(limb));
 
         currentPose.disableHeadLook(pose.isHeadLookDisabled(), pose.getDisableHeadLookPriority());
 

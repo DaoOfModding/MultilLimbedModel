@@ -3,6 +3,7 @@ package DaoOfModding.mlmanimator.Client;
 import DaoOfModding.mlmanimator.Client.Poses.GenericPoses;
 import DaoOfModding.mlmanimator.Client.Poses.PlayerPoseHandler;
 import DaoOfModding.mlmanimator.Client.Poses.PoseHandler;
+import DaoOfModding.mlmanimator.mlmanimator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -29,12 +30,21 @@ public class ClientListeners
             if (event.player.isOnGround() || event.player.isInWater())
                 PoseHandler.setJumping(event.player.getUUID(), false);
 
+            // If player is in the water
+            if (event.player.isInWater())
+            {
+                // If player is moving in the water apply swimming pose
+                if (event.player.getDeltaMovement().length() != 0)
+                {
+                    // TODO: Swimming pose
+                }
+            }
             // If player is moving add the walking pose to the PoseHandler
-            if (event.player.getDeltaMovement().x != 0 || event.player.getDeltaMovement().z != 0)
+            else if (event.player.getDeltaMovement().x != 0 || event.player.getDeltaMovement().z != 0)
                 PoseHandler.addPose(event.player.getUUID(), GenericPoses.Walking);
 
             // Update the PoseHandler
-            PoseHandler.updatePoses();
+            PoseHandler.updatePoses(event.player.getUUID());
         }
     }
 

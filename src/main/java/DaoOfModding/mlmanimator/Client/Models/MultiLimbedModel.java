@@ -34,9 +34,7 @@ public class MultiLimbedModel
 
     public MultiLimbedModel(PlayerModel model)
     {
-        baseModel = model;
-
-        setupDefaultLimbs();
+        this(model, true);
     }
 
     public MultiLimbedModel(PlayerModel model, boolean withLimbs)
