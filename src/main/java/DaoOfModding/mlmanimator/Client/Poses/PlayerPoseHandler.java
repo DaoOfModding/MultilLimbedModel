@@ -8,6 +8,7 @@ import DaoOfModding.mlmanimator.mlmanimator;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.util.math.vector.Vector3d;
+import org.lwjgl.system.CallbackI;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -33,6 +34,10 @@ public class PlayerPoseHandler
     private HashMap<String, Integer> frame = new HashMap<String, Integer>();
     private HashMap<String, Float> animationTime = new HashMap<String, Float>();
     private HashMap<Integer, Integer> aLockedFrame = new HashMap<Integer, Integer>();
+
+    private Vector3d oldPos = new Vector3d(0, 0, 0);
+    private Vector3d newPos = new Vector3d(0, 0, 0);
+    private Vector3d movement = new Vector3d(0, 0, 0);
 
     public PlayerPoseHandler(UUID id, PlayerModel playerModel)
     {
@@ -82,6 +87,18 @@ public class PlayerPoseHandler
         return test;
     }
 
+    public void updatePosition(Vector3d pos)
+    {
+        oldPos = newPos;
+        newPos = pos;
+        movement = newPos.subtract(oldPos);
+    }
+
+    public Vector3d getMovement()
+    {
+        return movement;
+    }
+
     // Updated each ExtendableModel in the player model to be looking in the direction of the player if it is set to do so
     protected void updateHeadLook(boolean lookWithCamera)
     {
@@ -112,7 +129,7 @@ public class PlayerPoseHandler
                 // Add the base head's angles to this model if this limb should currently be looking with the camera
                 if (lookWithCamera)
                 {
-                    angles = angles.add(model.getBaseModel().head.xRot, model.getBaseModel().head.yRot, model.getBaseModel().head.zRot);
+                    angles = angles.add(model.getLookVector().x, model.getLookVector().y, model.getLookVector().z);
                     currentPose.addAngle(limb, angles, 0, 1f, -1);
 
                     baseModel.setNotLookingPitch(0);

@@ -6,6 +6,7 @@ import DaoOfModding.mlmanimator.Client.Poses.PoseHandler;
 import DaoOfModding.mlmanimator.mlmanimator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
+import net.minecraft.client.entity.player.RemoteClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Hand;
 import net.minecraftforge.api.distmarker.Dist;
@@ -24,11 +25,21 @@ public class ClientListeners
     {
         if (event.side == LogicalSide.CLIENT && event.phase == TickEvent.Phase.START)
         {
-            PoseHandler.addPose(event.player.getUUID(), GenericPoses.Idle);
+            PlayerPoseHandler handler = PoseHandler.getPlayerPoseHandler(event.player.getUUID());
+
+            if (handler == null)
+                return;
+
+            handler.updatePosition(event.player.position());
+
+            handler.addPose(GenericPoses.Idle);
 
             // Tell the PoseHandler that the player is not jumping if they are on the ground or in water
             if (event.player.isOnGround() || event.player.isInWater())
-                PoseHandler.setJumping(event.player.getUUID(), false);
+                handler.setJumping(false);
+            else if (event.player instanceof RemoteClientPlayerEntity)
+                if (handler.getMovement().y != 0)
+                    handler.setJumping(true);
 
             // If player is in the water
             if (event.player.isInWater())
@@ -39,12 +50,14 @@ public class ClientListeners
                     // TODO: Swimming pose
                 }
             }
+            else if (PoseHandler.isJumping(event.player.getUUID()))
+                handler.addPose(GenericPoses.Jumping);
             // If player is moving add the walking pose to the PoseHandler
-            else if (event.player.animationSpeed > 0.05)
-                PoseHandler.addPose(event.player.getUUID(), GenericPoses.Walking);
+            else if (handler.getMovement().x != 0 || handler.getMovement().z != 0)
+                handler.addPose(GenericPoses.Walking);
 
             // Update the PoseHandler
-            PoseHandler.updatePoses(event.player.getUUID());
+            handler.updateRenderPose();
         }
     }
 

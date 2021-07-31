@@ -15,6 +15,7 @@ import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.Pose;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
@@ -237,7 +238,9 @@ public class MultiLimbedRenderer
 
     public static boolean renderFirstPerson(AbstractClientPlayerEntity entityIn, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn)
     {
-        PoseHandler.setupPoseHandler(entityIn);
+        if (!PoseHandler.setupPoseHandler(entityIn))
+            return false;
+
         PlayerPoseHandler handler = PoseHandler.getPlayerPoseHandler(entityIn.getUUID());
 
         if(!enableFullBodyFirstPerson)
@@ -279,12 +282,14 @@ public class MultiLimbedRenderer
 
     public static boolean render(AbstractClientPlayerEntity entityIn, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn)
     {
+        if (!PoseHandler.setupPoseHandler(entityIn))
+            return false;
+
         // Toggle off fake third person if this isn't the player entity
         boolean rememberingFake = isFakeThirdPerson();
         if (rememberingFake && entityIn.getUUID().compareTo(Minecraft.getInstance().player.getUUID()) != 0)
             fakeThirdPersonOff();
 
-        PoseHandler.setupPoseHandler(entityIn);
         PlayerPoseHandler handler = PoseHandler.getPlayerPoseHandler(entityIn.getUUID());
 
         render2(handler.getPlayerModel(), entityIn, partialTicks, matrixStackIn, bufferIn, packedLightIn);
@@ -339,26 +344,9 @@ public class MultiLimbedRenderer
             }
         }
 
-        float totalTicks = (float)entityIn.tickCount + partialTicks;
-
-        float f8 = 0.0F;
-        float f5 = 0.0F;
-        if (!shouldSit && entityIn.isAlive()) {
-            f8 = MathHelper.lerp(partialTicks, entityIn.animationSpeedOld, entityIn.animationSpeed);
-            f5 = entityIn.animationPosition - entityIn.animationSpeed * (1.0F - partialTicks);
-            if (entityIn.isBaby()) {
-                f5 *= 3.0F;
-            }
-
-            if (f8 > 1.0F) {
-                f8 = 1.0F;
-            }
-        }
-
         PoseHandler.applyRotations(entityIn, matrixStackIn, f, partialTicks);
 
-        entityModel.prepareMobModel(entityIn, f5, f8, partialTicks);
-        entityModel.setupAnim(entityIn, f5, f8, totalTicks, f2, f6);
+        entityModel.setupAnim(f2, f6);
 
         PoseHandler.doPose(entityIn.getUUID(), partialTicks);
 

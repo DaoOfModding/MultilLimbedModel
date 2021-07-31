@@ -9,6 +9,7 @@ import net.minecraft.entity.Pose;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
 
 import java.util.ArrayList;
@@ -19,17 +20,22 @@ public class PoseHandler
 {
     private static List<PlayerPoseHandler> poses = new ArrayList<PlayerPoseHandler>();
 
-    public static void setupPoseHandler(AbstractClientPlayerEntity player)
+    public static boolean setupPoseHandler(AbstractClientPlayerEntity player)
     {
         // Do nothing if pose handler for this player already exists
         for (PlayerPoseHandler handler : poses)
             if (handler.getID() == player.getUUID())
-                return;
+                return true;
+
+        if (!player.isSkinLoaded())
+            return false;
 
         PlayerRenderer renderer = Minecraft.getInstance().getEntityRenderDispatcher().getSkinMap().get(player.getModelName());
 
         PlayerPoseHandler newHandler = new PlayerPoseHandler(player.getUUID(), renderer.getModel());
         poses.add(newHandler);
+
+        return true;
     }
 
     public static PlayerPoseHandler getPlayerPoseHandler(UUID playerID)
@@ -68,20 +74,24 @@ public class PoseHandler
         }
     }
 
-    public static void setJumping(UUID playerID, boolean jump)
+    public static boolean isJumping(UUID playerID)
     {
         PlayerPoseHandler handler = getPlayerPoseHandler(playerID);
 
         if (handler != null)
-            handler.setJumping(jump);
+            return handler.isJumping();
+
+        return false;
     }
 
-    public static void updatePoses(UUID playerID)
+    public static Vector3d getMovement(UUID playerID)
     {
         PlayerPoseHandler handler = getPlayerPoseHandler(playerID);
 
         if (handler != null)
-            handler.updateRenderPose();
+            return handler.getMovement();
+
+        return new Vector3d(0, 0, 0);
     }
 
     public static void doPose(UUID playerID, float partialTicks)

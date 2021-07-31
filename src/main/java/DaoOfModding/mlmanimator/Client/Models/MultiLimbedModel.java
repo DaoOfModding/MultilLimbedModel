@@ -20,6 +20,8 @@ public class MultiLimbedModel
 
     private float lowestModelHeight = 0;
 
+    private Vector3d lookVector = new Vector3d(0, 0, 0);
+
     PlayerModel baseModel;
 
     ExtendableModelRenderer body;
@@ -181,16 +183,24 @@ public class MultiLimbedModel
     // Adds specified limb onto the body
     public void addLimb(String limb, ExtendableModelRenderer limbModel)
     {
-        addLimb(limb, limbModel, body);
+        addLimb(limb, limbModel, GenericLimbNames.body);
     }
 
     // Adds specified limb onto the specified limb
-    public void addLimb(String limb, ExtendableModelRenderer limbModel, ExtendableModelRenderer addTo)
+    public void addLimb(String limb, ExtendableModelRenderer limbModel, String addTo)
     {
         lock();
 
-        addTo.addChild(limbModel);
-        addLimbReference(limb, limbModel);
+        ExtendableModelRenderer toAdd = getLimb(addTo);
+
+        if (toAdd == null)
+            toAdd = getFirstPersonLimb(addTo);
+
+        if (toAdd != null)
+        {
+            toAdd.addChild(limbModel);
+            addLimbReference(limb, limbModel);
+        }
 
         unlock();
     }
@@ -229,12 +239,19 @@ public class MultiLimbedModel
 
     public void prepareMobModel(PlayerEntity entityIn, float limbSwing, float limbSwingAmount, float partialTick)
     {
-        baseModel.prepareMobModel(entityIn, limbSwing, limbSwingAmount, partialTick);
+        // baseModel.prepareMobModel(entityIn, limbSwing, limbSwingAmount, partialTick);
     }
 
-    public void setupAnim(PlayerEntity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch)
+    public void setupAnim(float netHeadYaw, float headPitch)
     {
-        baseModel.setupAnim(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
+        lookVector = new Vector3d(headPitch * ((float)Math.PI / 180F), netHeadYaw * ((float)Math.PI / 180F), 0);
+
+        // baseModel.setupAnim(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
+    }
+
+    public Vector3d getLookVector()
+    {
+        return lookVector;
     }
 
     public RenderType renderType(ResourceLocation resourcelocation)
