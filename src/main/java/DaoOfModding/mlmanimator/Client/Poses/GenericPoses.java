@@ -84,8 +84,8 @@ public class GenericPoses
 
     public static void setupJumping()
     {
-        Jumping.addAngle(GenericLimbNames.leftArm, new Vector3d(Math.toRadians(-180), Math.toRadians(0), Math.toRadians(30)), jumpArmPriority);
-        Jumping.addAngle(GenericLimbNames.rightArm, new Vector3d(Math.toRadians(-180), Math.toRadians(0), Math.toRadians(-30)), jumpArmPriority);
+        Jumping.addAngle(GenericLimbNames.leftArm, new Vector3d(Math.toRadians(-180), Math.toRadians(0), Math.toRadians(30)), jumpArmPriority, 5f, -1);
+        Jumping.addAngle(GenericLimbNames.rightArm, new Vector3d(Math.toRadians(-180), Math.toRadians(0), Math.toRadians(-30)), jumpArmPriority, 5f, -1);
 
         Jumping.addAngle(GenericLimbNames.leftLeg, new Vector3d(Math.toRadians(0), Math.toRadians(0), 0), jumpLegPriority, 1f, -1);
         Jumping.addAngle(GenericLimbNames.rightLeg, new Vector3d(Math.toRadians(0), Math.toRadians(0), 0), jumpLegPriority, 1f, -1);

@@ -9,6 +9,7 @@ import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.entity.player.RemoteClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Hand;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.*;
 import net.minecraftforge.event.TickEvent;
@@ -37,9 +38,19 @@ public class ClientListeners
             // Tell the PoseHandler that the player is not jumping if they are on the ground or in water
             if (event.player.isOnGround() || event.player.isInWater())
                 handler.setJumping(false);
-            else if (event.player instanceof RemoteClientPlayerEntity)
-                if (handler.getMovement().y != 0)
+            //  Otherwise check if the player is jumping
+            else if (!handler.isJumping())
+            {
+                // Multiply the down vector by -1 to create an up direction vector
+                Vector3d up = handler.getDownVector().multiply(-1, -1, -1);
+
+                // Multiply the movement vector by the up direction vector to get the amount of movement going upwards
+                Vector3d upMovement = handler.getMovement().multiply(up);
+
+                // Check if there is any upwards movement and set jumping to true if so
+                if (upMovement.x > 0 || upMovement.y > 0 || upMovement.z > 0)
                     handler.setJumping(true);
+            }
 
             // If player is in the water
             if (event.player.isInWater())
@@ -51,7 +62,17 @@ public class ClientListeners
                 }
             }
             else if (PoseHandler.isJumping(event.player.getUUID()))
-                handler.addPose(GenericPoses.Jumping);
+            {
+                // Multiply the down vector by -1 to create an up direction vector
+                Vector3d up = handler.getDownVector().multiply(-1, -1, -1);
+
+                // Multiply the movement vector by the up direction vector to get the amount of movement going upwards
+                Vector3d upMovement = handler.getMovement().multiply(up);
+
+                // Check if there is any upwards movement and apply the jumping pose if so
+                if (upMovement.x > 0 || upMovement.y > 0 || upMovement.z > 0)
+                    handler.addPose(GenericPoses.Jumping);
+            }
             // If player is moving add the walking pose to the PoseHandler
             else if (handler.getMovement().x != 0 || handler.getMovement().z != 0)
                 handler.addPose(GenericPoses.Walking);
@@ -63,14 +84,14 @@ public class ClientListeners
 
     @SubscribeEvent
     public static void playerJump(LivingEvent.LivingJumpEvent event)
-    {
+    {/*
         if (event.getEntity() instanceof PlayerEntity)
         {
             PlayerPoseHandler handler = PoseHandler.getPlayerPoseHandler(event.getEntity().getUUID());
 
             if (handler != null)
                 handler.setJumping(true);
-        }
+        }*/
     }
 
     @SubscribeEvent

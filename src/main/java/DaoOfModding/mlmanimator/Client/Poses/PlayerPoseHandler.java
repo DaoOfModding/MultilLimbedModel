@@ -24,7 +24,6 @@ public class PlayerPoseHandler
     PlayerPose renderPose = new PlayerPose();
     PlayerPose oldRenderPose = new PlayerPose();
     PlayerPose animatingPose = new PlayerPose();
-
     boolean locked = false;
 
     private boolean isJumping = false;
@@ -38,6 +37,9 @@ public class PlayerPoseHandler
     private Vector3d oldPos = new Vector3d(0, 0, 0);
     private Vector3d newPos = new Vector3d(0, 0, 0);
     private Vector3d movement = new Vector3d(0, 0, 0);
+
+    private Vector3d down = new Vector3d(0, -1, 0);
+    public static final Vector3d defaultDown = new Vector3d(0, -1, 0);
 
     public PlayerPoseHandler(UUID id, PlayerModel playerModel)
     {
@@ -94,6 +96,16 @@ public class PlayerPoseHandler
         movement = newPos.subtract(oldPos);
     }
 
+    public Vector3d getDownVector()
+    {
+        return down;
+    }
+
+    public void setDownDirection(Vector3d newDown)
+    {
+        down = newDown;
+    }
+
     public Vector3d getMovement()
     {
         return movement;
@@ -147,8 +159,6 @@ public class PlayerPoseHandler
         {
             if (jumpCooldown > 0)
                 jumpCooldown -= 1;
-
-            currentPose = currentPose.combine(GenericPoses.Jumping);
         }
     }
 
