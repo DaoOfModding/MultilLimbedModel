@@ -360,6 +360,7 @@ public class ExtendableModelRenderer extends ModelRenderer
         yRot += rotationOffset.y;
         zRot += rotationOffset.z;
 
+
         matrixStackIn.translate((double)(this.x), (double)(this.y), (double)(this.z));
         if (this.zRot != 0.0F) {
             matrixStackIn.mulPose(Vector3f.ZP.rotation(this.zRot));

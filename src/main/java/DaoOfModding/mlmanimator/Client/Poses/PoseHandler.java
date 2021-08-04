@@ -19,6 +19,7 @@ import java.util.UUID;
 public class PoseHandler
 {
     private static List<PlayerPoseHandler> poses = new ArrayList<PlayerPoseHandler>();
+    private static boolean loaded = false;
 
     public static boolean setupPoseHandler(AbstractClientPlayerEntity player)
     {
@@ -35,7 +36,14 @@ public class PoseHandler
         PlayerPoseHandler newHandler = new PlayerPoseHandler(player.getUUID(), renderer.getModel());
         poses.add(newHandler);
 
+        loaded = true;
+
         return true;
+    }
+
+    public static boolean hasLoaded()
+    {
+        return loaded;
     }
 
     public static PlayerPoseHandler getPlayerPoseHandler(UUID playerID)

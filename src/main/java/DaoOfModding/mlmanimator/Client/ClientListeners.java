@@ -1,19 +1,18 @@
 package DaoOfModding.mlmanimator.Client;
 
+import DaoOfModding.mlmanimator.Client.Physics.Gravity;
 import DaoOfModding.mlmanimator.Client.Poses.GenericPoses;
 import DaoOfModding.mlmanimator.Client.Poses.PlayerPoseHandler;
 import DaoOfModding.mlmanimator.Client.Poses.PoseHandler;
-import DaoOfModding.mlmanimator.mlmanimator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.entity.player.RemoteClientPlayerEntity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3f;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.*;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
@@ -21,6 +20,14 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(value = Dist.CLIENT)
 public class ClientListeners
 {
+    // Override the FOV so that it is no longer broken due to player movement_speed being 0
+    @SubscribeEvent
+    public static void fovUpdate(FOVUpdateEvent event)
+    {
+        if (event.getFov() == 0.5f)
+            event.setNewfov(1);
+    }
+
     @SubscribeEvent
     public static void playerTick(TickEvent.PlayerTickEvent event)
     {
@@ -30,6 +37,15 @@ public class ClientListeners
 
             if (handler == null)
                 return;
+
+            // handler.setDownRotation(new Vector3f(90, 0, 0));
+
+            event.player.setNoGravity(true);
+
+            if (event.player instanceof ClientPlayerEntity)
+                Gravity.move((ClientPlayerEntity)event.player);
+
+            Gravity.fall(event.player);
 
             handler.updatePosition(event.player.position());
 
@@ -42,10 +58,11 @@ public class ClientListeners
             else if (!handler.isJumping())
             {
                 // Multiply the down vector by -1 to create an up direction vector
-                Vector3d up = handler.getDownVector().multiply(-1, -1, -1);
+                Vector3f up = handler.getDownVector();
+                up.mul(-1);
 
                 // Multiply the movement vector by the up direction vector to get the amount of movement going upwards
-                Vector3d upMovement = handler.getMovement().multiply(up);
+                Vector3d upMovement = handler.getMovement().multiply(up.x(), up.y(), up.z());
 
                 // Check if there is any upwards movement and set jumping to true if so
                 if (upMovement.x > 0 || upMovement.y > 0 || upMovement.z > 0)
@@ -64,10 +81,11 @@ public class ClientListeners
             else if (PoseHandler.isJumping(event.player.getUUID()))
             {
                 // Multiply the down vector by -1 to create an up direction vector
-                Vector3d up = handler.getDownVector().multiply(-1, -1, -1);
+                Vector3f up = handler.getDownVector();
+                up.mul(-1);
 
                 // Multiply the movement vector by the up direction vector to get the amount of movement going upwards
-                Vector3d upMovement = handler.getMovement().multiply(up);
+                Vector3d upMovement = handler.getMovement().multiply(up.x(), up.y(), up.z());
 
                 // Check if there is any upwards movement and apply the jumping pose if so
                 if (upMovement.x > 0 || upMovement.y > 0 || upMovement.z > 0)
@@ -81,18 +99,16 @@ public class ClientListeners
             handler.updateRenderPose();
         }
     }
-
+/*
     @SubscribeEvent
     public static void playerJump(LivingEvent.LivingJumpEvent event)
-    {/*
+    {
         if (event.getEntity() instanceof PlayerEntity)
         {
-            PlayerPoseHandler handler = PoseHandler.getPlayerPoseHandler(event.getEntity().getUUID());
-
-            if (handler != null)
-                handler.setJumping(true);
-        }*/
-    }
+            Gravity.unJump((PlayerEntity)event.getEntity());
+            Gravity.jump((PlayerEntity)event.getEntity());
+        }
+    }*/
 
     @SubscribeEvent
     public static void renderFirstPerson(RenderHandEvent event)

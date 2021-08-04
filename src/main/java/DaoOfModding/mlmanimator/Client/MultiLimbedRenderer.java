@@ -22,6 +22,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceContext;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3f;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
@@ -261,7 +262,6 @@ public class MultiLimbedRenderer
         matrixStackIn.pushPose();
 
         matrixStackIn.scale(-1.0F, -1.0F, 1.0F);
-        //matrixStackIn.translate(0.0D, 0, 0.0D);
 
         currentModel = entityModel;
         currentEntity = entityIn;
@@ -292,7 +292,7 @@ public class MultiLimbedRenderer
 
         PlayerPoseHandler handler = PoseHandler.getPlayerPoseHandler(entityIn.getUUID());
 
-        render2(handler.getPlayerModel(), entityIn, partialTicks, matrixStackIn, bufferIn, packedLightIn);
+        render2(handler, entityIn, partialTicks, matrixStackIn, bufferIn, packedLightIn);
 
         // Toggle fake third person back on if necessary
         if (rememberingFake)
@@ -301,10 +301,14 @@ public class MultiLimbedRenderer
         return true;
     }
 
-    public static void render2(MultiLimbedModel entityModel, AbstractClientPlayerEntity entityIn, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn)
+    public static void render2(PlayerPoseHandler handler, AbstractClientPlayerEntity entityIn, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn)
     {
         matrixStackIn.pushPose();
 
+        // Rotate the matrixStack around the players down vector
+        handler.rotateMatrixDown(matrixStackIn);
+
+        MultiLimbedModel entityModel = handler.getPlayerModel();
         boolean shouldSit = PoseHandler.shouldSit(entityIn);
 
         entityModel.getBaseModel().riding = shouldSit;
@@ -355,6 +359,10 @@ public class MultiLimbedRenderer
 
         matrixStackIn.scale(-1.0F, -1.0F, 1.0F);
         matrixStackIn.translate(0.0D, 0 - height, 0.0D);
+
+        // This does weird things, why?
+        //Vector3f heightAdjustment = handler.rotateVectorDown(new Vector3f(0, -height, 0));
+        //matrixStackIn.translate(heightAdjustment.x(), heightAdjustment.y(), heightAdjustment.z());
 
         currentModel = entityModel;
         currentEntity = entityIn;
