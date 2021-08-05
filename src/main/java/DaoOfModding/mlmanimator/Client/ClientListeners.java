@@ -20,18 +20,14 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber(value = Dist.CLIENT)
 public class ClientListeners
 {
-    // Override the FOV so that it is no longer broken due to player movement_speed being 0
-    @SubscribeEvent
-    public static void fovUpdate(FOVUpdateEvent event)
-    {
-        if (event.getFov() == 0.5f)
-            event.setNewfov(1);
-    }
-
     @SubscribeEvent
     public static void playerTick(TickEvent.PlayerTickEvent event)
     {
-        if (event.side == LogicalSide.CLIENT && event.phase == TickEvent.Phase.START)
+        // Do nothing on the server
+        if (event.side == LogicalSide.SERVER)
+            return;
+
+        if (event.phase == TickEvent.Phase.START)
         {
             PlayerPoseHandler handler = PoseHandler.getPlayerPoseHandler(event.player.getUUID());
 
@@ -97,7 +93,13 @@ public class ClientListeners
 
             // Update the PoseHandler
             handler.updateRenderPose();
+
+            // Disable player movement for the base Minecraft tick
+            Gravity.disableMovement(event.player);
         }
+        // Re-enable player movement at the end of the player tick
+        else if (event.phase == TickEvent.Phase.END)
+            Gravity.enableMovement(event.player);
     }
 /*
     @SubscribeEvent

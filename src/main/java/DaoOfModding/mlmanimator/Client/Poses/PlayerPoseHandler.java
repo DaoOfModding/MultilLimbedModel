@@ -45,6 +45,8 @@ public class PlayerPoseHandler
     private Quaternion downZRot = Vector3f.ZP.rotation(0);
     public static final Vector3f defaultDown = new Vector3f(0, -1, 0);
 
+    public float fov = 1;
+
     public PlayerPoseHandler(UUID id, PlayerModel playerModel)
     {
         playerID = id;

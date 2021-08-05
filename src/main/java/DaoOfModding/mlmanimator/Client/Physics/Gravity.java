@@ -3,6 +3,7 @@ package DaoOfModding.mlmanimator.Client.Physics;
 import DaoOfModding.mlmanimator.Client.Poses.PlayerPoseHandler;
 import DaoOfModding.mlmanimator.Client.Poses.PoseHandler;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.AttributeModifierManager;
@@ -26,19 +27,31 @@ public class Gravity
 
     public static double getSpeed(PlayerEntity player)
     {
+        // Grab the movement speed attribute
+        ModifiableAttributeInstance moveSpeed = player.getAttributes().getInstance(Attributes.MOVEMENT_SPEED);
+
+        // Get the players movement speed
+        double speed = moveSpeed.getValue();
+
+        return speed;
+    }
+
+    public static void enableMovement(PlayerEntity player)
+    {
         // Grab the movement speed attribute and remove the modifier that stops movement
         ModifiableAttributeInstance moveSpeed = player.getAttributes().getInstance(Attributes.MOVEMENT_SPEED);
 
         if (moveSpeed.hasModifier(STOP_MOVE))
             moveSpeed.removePermanentModifier(STOP_MOVE_ID);
+    }
 
-        // Get the players movement speed
-        double speed = moveSpeed.getValue();
+    public static void disableMovement(PlayerEntity player)
+    {
+        // Grab the movement speed attribute and add the modifier that stops movement
+        ModifiableAttributeInstance moveSpeed = player.getAttributes().getInstance(Attributes.MOVEMENT_SPEED);
 
-        // Add the modifier to stop movement
-        moveSpeed.addPermanentModifier(STOP_MOVE);
-
-        return speed;
+        if (!moveSpeed.hasModifier(STOP_MOVE))
+            moveSpeed.addPermanentModifier(STOP_MOVE);
     }
 
     public static void fall(PlayerEntity faller)
