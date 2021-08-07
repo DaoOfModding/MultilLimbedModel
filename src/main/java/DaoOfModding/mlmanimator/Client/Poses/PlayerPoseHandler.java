@@ -8,6 +8,7 @@ import DaoOfModding.mlmanimator.mlmanimator;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.vector.*;
 import org.lwjgl.system.CallbackI;
 
@@ -34,16 +35,6 @@ public class PlayerPoseHandler
     private HashMap<String, Integer> frame = new HashMap<String, Integer>();
     private HashMap<String, Float> animationTime = new HashMap<String, Float>();
     private HashMap<Integer, Integer> aLockedFrame = new HashMap<Integer, Integer>();
-
-    private Vector3d oldPos = new Vector3d(0, 0, 0);
-    private Vector3d newPos = new Vector3d(0, 0, 0);
-    private Vector3d movement = new Vector3d(0, 0, 0);
-
-    private Vector3f downRotation = new Vector3f(0, 0, 0);
-    private Quaternion downXRot = Vector3f.XP.rotation(0);
-    private Quaternion downYRot = Vector3f.YP.rotation(0);
-    private Quaternion downZRot = Vector3f.ZP.rotation(0);
-    public static final Vector3f defaultDown = new Vector3f(0, -1, 0);
 
     public float fov = 1;
 
@@ -94,67 +85,6 @@ public class PlayerPoseHandler
 
         return test;
     }
-
-    public void updatePosition(Vector3d pos)
-    {
-        oldPos = newPos;
-        newPos = pos;
-        movement = newPos.subtract(oldPos);
-    }
-
-    public Vector3f getDownVector()
-    {
-        return rotateVectorDown(defaultDown);
-    }
-
-    // Set the down rotation in degrees
-    public void setDownRotation(Vector3f newRotation)
-    {
-        downRotation = newRotation;
-
-        downXRot = Vector3f.XP.rotation((float)Math.toRadians(downRotation.x()));
-        downYRot = Vector3f.YP.rotation((float)Math.toRadians(downRotation.y()));
-        downZRot = Vector3f.ZP.rotation((float)Math.toRadians(downRotation.z()));
-    }
-
-    public Vector3f getDownRotationDegrees()
-    {
-        return downRotation;
-    }
-
-    // Rotate a vector to have the same down direction at this player
-    public Vector3f rotateVectorDown(Vector3f toRotate)
-    {
-        Vector3f rotating = toRotate.copy();
-        rotating.transform(downZRot);
-        rotating.transform(downYRot);
-        rotating.transform(downXRot);
-
-        return rotating;
-    }
-
-    public Vector3d rotateVectorDown(Vector3d toRotate)
-    {
-        Vector3f rotating = new Vector3f((float)toRotate.x, (float)toRotate.y, (float)toRotate.z);
-        rotating.transform(downZRot);
-        rotating.transform(downYRot);
-        rotating.transform(downXRot);
-
-        return new Vector3d(rotating.x(), rotating.y(), rotating.z());
-    }
-
-    public void rotateMatrixDown(MatrixStack stack)
-    {
-        stack.mulPose(downZRot);
-        stack.mulPose(downYRot);
-        stack.mulPose(downXRot);
-    }
-
-    public Vector3d getMovement()
-    {
-        return movement;
-    }
-
     // Updated each ExtendableModel in the player model to be looking in the direction of the player if it is set to do so
     protected void updateHeadLook(boolean lookWithCamera)
     {

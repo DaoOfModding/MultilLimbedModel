@@ -12,6 +12,7 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.InputEvent;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
@@ -29,9 +30,14 @@ public class KeybindControl
     {
         if (Minecraft.getInstance().options.keyJump.getKeyBinding().isDown())
         {
+            // Cancel vanilla jump
             Minecraft.getInstance().options.keyJump.getKeyBinding().setDown(false);
 
+            // Do a gravity-based jump
             Gravity.tryJump(Minecraft.getInstance().player);
+
+            // Tell forge a jump has been done
+            ForgeHooks.onLivingJump(Minecraft.getInstance().player);
         }
     }
 }

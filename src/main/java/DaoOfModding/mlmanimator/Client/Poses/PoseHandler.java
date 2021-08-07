@@ -92,16 +92,6 @@ public class PoseHandler
         return false;
     }
 
-    public static Vector3d getMovement(UUID playerID)
-    {
-        PlayerPoseHandler handler = getPlayerPoseHandler(playerID);
-
-        if (handler != null)
-            return handler.getMovement();
-
-        return new Vector3d(0, 0, 0);
-    }
-
     public static void doPose(UUID playerID, float partialTicks)
     {
         PlayerPoseHandler handler = getPlayerPoseHandler(playerID);

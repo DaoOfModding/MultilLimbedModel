@@ -5,22 +5,55 @@ import DaoOfModding.mlmanimator.Client.Poses.PoseHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.client.renderer.entity.PlayerRenderer;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.AttributeModifierManager;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.potion.Effects;
+import net.minecraft.util.ReuseableStream;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.shapes.IBooleanFunction;
+import net.minecraft.util.math.shapes.ISelectionContext;
+import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 public class Gravity
 {
+    private static List<PlayerGravityHandler> gravityHandlers = new ArrayList<PlayerGravityHandler>();
+
+    public static void setupGravityHandler(PlayerEntity player)
+    {
+        // Do nothing if pose handler for this player already exists
+        for (PlayerGravityHandler handler : gravityHandlers)
+            if (handler.getID() == player.getUUID())
+                return;
+
+        PlayerGravityHandler newHandler = new PlayerGravityHandler(player);
+        gravityHandlers.add(newHandler);
+    }
+
+    public static PlayerGravityHandler getPlayerGravityHandler(UUID playerID)
+    {
+        for (PlayerGravityHandler handler : gravityHandlers)
+            if (handler.getID() == playerID)
+                return handler;
+
+        return null;
+    }
+
     private static int count = 0;
     private static final UUID STOP_MOVE_ID = UUID.randomUUID();
     private static final AttributeModifier STOP_MOVE = new AttributeModifier(STOP_MOVE_ID, "Stop movement", -1, AttributeModifier.Operation.MULTIPLY_TOTAL);
@@ -59,11 +92,7 @@ public class Gravity
         if (faller.isInWater() || faller.hasEffect(Effects.LEVITATION) || faller.abilities.flying)
             return;
 
-        // Do nothing if the PlayerPoseHandler has yet to load
-        PlayerPoseHandler handler = PoseHandler.getPlayerPoseHandler(faller.getUUID());
-
-        if (handler == null)
-            return;
+        PlayerGravityHandler handler = getPlayerGravityHandler(faller.getUUID());
 
         Vector3d movement = getFluidFallingAdjustedMovement(0.08, faller);
 
@@ -77,7 +106,7 @@ public class Gravity
         {
             Vector3d movement = faller.getDeltaMovement();
 
-            PlayerPoseHandler handler = PoseHandler.getPlayerPoseHandler(faller.getUUID());
+            PlayerGravityHandler handler = getPlayerGravityHandler(faller.getUUID());
             Vector3f down = handler.getDownVector();
             Vector3d downMovement = movement.multiply(down.x(), down.y(), down.z());
             double totalDownMovement = (downMovement.x + downMovement.y + downMovement.z) * -1;
@@ -101,20 +130,6 @@ public class Gravity
             return faller.getDeltaMovement();
     }
 
-    // Negate the effects of a jump
-    public static void unJump(PlayerEntity jumper)
-    {
-        // Do nothing if the PlayerPoseHandler has yet to load
-        PlayerPoseHandler handler = PoseHandler.getPlayerPoseHandler(jumper.getUUID());
-
-        if (handler == null)
-            return;
-
-        // Get the jump vector and remove it from the players delta movement
-        Vector3d jumping = getJumpVector(jumper, false);
-        jumper.setDeltaMovement(jumper.getDeltaMovement().subtract(jumping));
-    }
-
     public static void tryJump(PlayerEntity jumper)
     {
         // Do nothing if the PlayerPoseHandler has yet to load
@@ -129,9 +144,19 @@ public class Gravity
 
     public static boolean isOnGround(PlayerEntity test)
     {
-        // TODO: this
+        PlayerGravityHandler handler = getPlayerGravityHandler(test.getUUID());
 
-        return test.isOnGround();
+        // get a vector of the minimum amount the player can fall
+        Vector3d fallMove = new Vector3d(handler.getDownVector().x(), handler.getDownVector().y(), handler.getDownVector().z()).scale(1.0E-7D);
+
+        // Get a vector of the resulting player position when they attempt to fall down
+        Vector3d vector3d = collide(test, fallMove);
+
+        // If the player can fall then they are not on the ground
+        if (fallMove.x == vector3d.x && fallMove.y == vector3d.y && fallMove.z == vector3d.z)
+            return false;
+
+        return true;
     }
 
     public static void move(ClientPlayerEntity player)
@@ -142,11 +167,7 @@ public class Gravity
 
         double speed = getSpeed(player);
 
-        // Do nothing if the PlayerPoseHandler has yet to load
-        PlayerPoseHandler handler = PoseHandler.getPlayerPoseHandler(player.getUUID());
-
-        if (handler == null)
-            return;
+        PlayerGravityHandler handler = getPlayerGravityHandler(player.getUUID());
 
         // Get the forward movement vector when player is facing (0, 0, 1)
         Vector3f movementf = new Vector3f(player.input.leftImpulse, 0, player.input.forwardImpulse);
@@ -207,8 +228,10 @@ public class Gravity
         // If this jump is gravity adjusted rotate it to be jumping against gravity
         if (gravityAdjusted)
         {
-            PlayerPoseHandler handler = PoseHandler.getPlayerPoseHandler(jumper.getUUID());
+            PlayerGravityHandler handler = getPlayerGravityHandler(jumper.getUUID());
             jumping = handler.rotateVectorDown(jumping);
+
+            // TODO: ... This is jumping in the wrong direction when rotated around anything other than 0 for some reason...!?
         }
 
         return jumping;
@@ -226,16 +249,54 @@ public class Gravity
     {
         PlayerPoseHandler handler = PoseHandler.getPlayerPoseHandler(jumper.getUUID());
 
+        PlayerGravityHandler ghandler = getPlayerGravityHandler(jumper.getUUID());
+
         // Calculate the position of the block below the player
         Vector3d below = jumper.position();
         Vector3f heightAdjustment = new Vector3f(0, handler.getPlayerModel().getHeightAdjustment() + 0.5f, 0);
 
         // Adjust for gravity if gravity adjusted
         if (gravityAdjusted)
-            heightAdjustment = handler.rotateVectorDown(heightAdjustment);
+            heightAdjustment = ghandler.rotateVectorDown(heightAdjustment);
 
         below.subtract(heightAdjustment.x(), heightAdjustment.y(), heightAdjustment.z());
 
         return new BlockPos(below.x, below.y, below.z);
+    }
+
+    // Ripped directly from Entity BECAUSE IT'S FREAKIN PRIVATE >:(
+    public static Vector3d collide(Entity player, Vector3d p_213306_1_)
+    {
+        // TODO: Collide not working with gravity not default
+
+        AxisAlignedBB axisalignedbb = player.getBoundingBox();
+        ISelectionContext iselectioncontext = ISelectionContext.of(player);
+        VoxelShape voxelshape = player.level.getWorldBorder().getCollisionShape();
+        Stream<VoxelShape> stream = VoxelShapes.joinIsNotEmpty(voxelshape, VoxelShapes.create(axisalignedbb.deflate(1.0E-7D)), IBooleanFunction.AND) ? Stream.empty() : Stream.of(voxelshape);
+        Stream<VoxelShape> stream1 = player.level.getEntityCollisions(player, axisalignedbb.expandTowards(p_213306_1_), (p_233561_0_) -> {
+            return true;
+        });
+        ReuseableStream<VoxelShape> reuseablestream = new ReuseableStream<>(Stream.concat(stream1, stream));
+        Vector3d vector3d = p_213306_1_.lengthSqr() == 0.0D ? p_213306_1_ : player.collideBoundingBoxHeuristically(player, p_213306_1_, axisalignedbb, player.level, iselectioncontext, reuseablestream);
+        boolean flag = p_213306_1_.x != vector3d.x;
+        boolean flag1 = p_213306_1_.y != vector3d.y;
+        boolean flag2 = p_213306_1_.z != vector3d.z;
+        boolean flag3 = player.isOnGround() || flag1 && p_213306_1_.y < 0.0D;
+        if (player.maxUpStep > 0.0F && flag3 && (flag || flag2)) {
+            Vector3d vector3d1 = player.collideBoundingBoxHeuristically(player, new Vector3d(p_213306_1_.x, (double)player.maxUpStep, p_213306_1_.z), axisalignedbb, player.level, iselectioncontext, reuseablestream);
+            Vector3d vector3d2 = player.collideBoundingBoxHeuristically(player, new Vector3d(0.0D, (double)player.maxUpStep, 0.0D), axisalignedbb.expandTowards(p_213306_1_.x, 0.0D, p_213306_1_.z), player.level, iselectioncontext, reuseablestream);
+            if (vector3d2.y < (double)player.maxUpStep) {
+                Vector3d vector3d3 = player.collideBoundingBoxHeuristically(player, new Vector3d(p_213306_1_.x, 0.0D, p_213306_1_.z), axisalignedbb.move(vector3d2), player.level, iselectioncontext, reuseablestream).add(vector3d2);
+                if (player.getHorizontalDistanceSqr(vector3d3) > player.getHorizontalDistanceSqr(vector3d1)) {
+                    vector3d1 = vector3d3;
+                }
+            }
+
+            if (player.getHorizontalDistanceSqr(vector3d1) > player.getHorizontalDistanceSqr(vector3d)) {
+                return vector3d1.add(player.collideBoundingBoxHeuristically(player, new Vector3d(0.0D, -vector3d1.y + p_213306_1_.y, 0.0D), axisalignedbb.move(vector3d1), player.level, iselectioncontext, reuseablestream));
+            }
+        }
+
+        return vector3d;
     }
 }

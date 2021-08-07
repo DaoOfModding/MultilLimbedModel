@@ -1,6 +1,7 @@
 package DaoOfModding.mlmanimator.Client;
 
 import DaoOfModding.mlmanimator.Client.Physics.Gravity;
+import DaoOfModding.mlmanimator.Client.Physics.PlayerGravityHandler;
 import DaoOfModding.mlmanimator.Client.Poses.GenericPoses;
 import DaoOfModding.mlmanimator.Client.Poses.PlayerPoseHandler;
 import DaoOfModding.mlmanimator.Client.Poses.PoseHandler;
@@ -13,9 +14,13 @@ import net.minecraft.util.math.vector.Vector3f;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.*;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
+import org.lwjgl.system.CallbackI;
 
 @Mod.EventBusSubscriber(value = Dist.CLIENT)
 public class ClientListeners
@@ -27,9 +32,11 @@ public class ClientListeners
         if (event.side == LogicalSide.SERVER)
             return;
 
+
         if (event.phase == TickEvent.Phase.START)
         {
             PlayerPoseHandler handler = PoseHandler.getPlayerPoseHandler(event.player.getUUID());
+            PlayerGravityHandler ghandler = Gravity.getPlayerGravityHandler(event.player.getUUID());
 
             if (handler == null)
                 return;
@@ -38,27 +45,35 @@ public class ClientListeners
 
             event.player.setNoGravity(true);
 
+            // TODO: Make event.player.isControlledByLocalInstance() false to disable all vanilla movement calculations
+            // Alternatively: Take over event.player.travel
+            // GOAL: friction takes effect properly based on the gravity
+            // Alternate2: Make customer ClientPlayerEntity that works with gravity
+            // PlayerController Line 345
+
+            ghandler.updateBB();
+
             if (event.player instanceof ClientPlayerEntity)
                 Gravity.move((ClientPlayerEntity)event.player);
 
             Gravity.fall(event.player);
 
-            handler.updatePosition(event.player.position());
+            ghandler.updatePosition(event.player.position());
 
             handler.addPose(GenericPoses.Idle);
 
             // Tell the PoseHandler that the player is not jumping if they are on the ground or in water
-            if (event.player.isOnGround() || event.player.isInWater())
+            if (Gravity.isOnGround(event.player) || event.player.isInWater())
                 handler.setJumping(false);
             //  Otherwise check if the player is jumping
             else if (!handler.isJumping())
             {
                 // Multiply the down vector by -1 to create an up direction vector
-                Vector3f up = handler.getDownVector();
+                Vector3f up = ghandler.getDownVector();
                 up.mul(-1);
 
                 // Multiply the movement vector by the up direction vector to get the amount of movement going upwards
-                Vector3d upMovement = handler.getMovement().multiply(up.x(), up.y(), up.z());
+                Vector3d upMovement = ghandler.getMovement().multiply(up.x(), up.y(), up.z());
 
                 // Check if there is any upwards movement and set jumping to true if so
                 if (upMovement.x > 0 || upMovement.y > 0 || upMovement.z > 0)
@@ -77,18 +92,18 @@ public class ClientListeners
             else if (PoseHandler.isJumping(event.player.getUUID()))
             {
                 // Multiply the down vector by -1 to create an up direction vector
-                Vector3f up = handler.getDownVector();
+                Vector3f up = ghandler.getDownVector();
                 up.mul(-1);
 
                 // Multiply the movement vector by the up direction vector to get the amount of movement going upwards
-                Vector3d upMovement = handler.getMovement().multiply(up.x(), up.y(), up.z());
+                Vector3d upMovement = ghandler.getMovement().multiply(up.x(), up.y(), up.z());
 
                 // Check if there is any upwards movement and apply the jumping pose if so
                 if (upMovement.x > 0 || upMovement.y > 0 || upMovement.z > 0)
                     handler.addPose(GenericPoses.Jumping);
             }
             // If player is moving add the walking pose to the PoseHandler
-            else if (handler.getMovement().x != 0 || handler.getMovement().z != 0)
+            else if (ghandler.getMovement().x != 0 || ghandler.getMovement().z != 0)
                 handler.addPose(GenericPoses.Walking);
 
             // Update the PoseHandler
@@ -101,16 +116,6 @@ public class ClientListeners
         else if (event.phase == TickEvent.Phase.END)
             Gravity.enableMovement(event.player);
     }
-/*
-    @SubscribeEvent
-    public static void playerJump(LivingEvent.LivingJumpEvent event)
-    {
-        if (event.getEntity() instanceof PlayerEntity)
-        {
-            Gravity.unJump((PlayerEntity)event.getEntity());
-            Gravity.jump((PlayerEntity)event.getEntity());
-        }
-    }*/
 
     @SubscribeEvent
     public static void renderFirstPerson(RenderHandEvent event)
@@ -155,5 +160,17 @@ public class ClientListeners
             MultiLimbedRenderer.pushBackCamera(event.getRenderPartialTicks());
 
         MultiLimbedRenderer.rotateCamera(event);
+    }
+
+    @SubscribeEvent
+    public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event)
+    {
+        Gravity.setupGravityHandler(event.getPlayer());
+    }
+
+    @SubscribeEvent
+    public static void test(ClientPlayerNetworkEvent event)
+    {
+        System.out.println("YAY?");
     }
 }
