@@ -1,6 +1,7 @@
 package DaoOfModding.mlmanimator.Client;
 
 import DaoOfModding.mlmanimator.Client.Physics.Gravity;
+import DaoOfModding.mlmanimator.Client.Physics.GravityClientPlayerEntity;
 import DaoOfModding.mlmanimator.Client.Physics.PlayerGravityHandler;
 import DaoOfModding.mlmanimator.Client.Poses.GenericPoses;
 import DaoOfModding.mlmanimator.Client.Poses.PlayerPoseHandler;
@@ -8,6 +9,10 @@ import DaoOfModding.mlmanimator.Client.Poses.PoseHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.client.network.play.ClientPlayNetHandler;
+import net.minecraft.client.util.ClientRecipeBook;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.stats.StatisticsManager;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
@@ -169,8 +174,23 @@ public class ClientListeners
     }
 
     @SubscribeEvent
-    public static void test(ClientPlayerNetworkEvent event)
+    public static void onClientPlayerJoin(ClientPlayerNetworkEvent.LoggedInEvent event)
     {
-        System.out.println("YAY?");
+        // Replaced the player character entity with a gravity player entity
+        if (event.getPlayer().getUUID() == Minecraft.getInstance().player.getUUID())
+        {
+            ClientWorld world = Minecraft.getInstance().player.clientLevel;
+            ClientPlayNetHandler connection = Minecraft.getInstance().player.connection;
+
+            GravityClientPlayerEntity player = new GravityClientPlayerEntity(Minecraft.getInstance(), world, connection, new StatisticsManager(), new ClientRecipeBook(), false, false);
+
+            player.yRot = -180.0F;
+            if (Minecraft.getInstance().getSingleplayerServer() != null)
+                Minecraft.getInstance().getSingleplayerServer().setUUID(player.getUUID());
+
+            Minecraft.getInstance().player = player;
+            Minecraft.getInstance().player.resetPos();
+        }
+
     }
 }
