@@ -1,27 +1,17 @@
 package DaoOfModding.mlmanimator.Client.Physics;
 
-import DaoOfModding.mlmanimator.Client.Poses.PlayerPoseHandler;
-import DaoOfModding.mlmanimator.Client.Poses.PoseHandler;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.renderer.entity.PlayerRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.AttributeModifierManager;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.attributes.ModifiableAttributeInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.potion.Effects;
 import net.minecraft.util.ReuseableStream;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.shapes.IBooleanFunction;
 import net.minecraft.util.math.shapes.ISelectionContext;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
 
@@ -43,31 +33,11 @@ public class Gravity
 
         PlayerGravityHandler newHandler = new PlayerGravityHandler(player);
         gravityHandlers.add(newHandler);
+
+        //newHandler.setDownRotation(new Vector3f(90,0,0));
     }
-
-    public static PlayerGravityHandler getPlayerGravityHandler(UUID playerID)
-    {
-        for (PlayerGravityHandler handler : gravityHandlers)
-            if (handler.getID() == playerID)
-                return handler;
-
-        return null;
-    }
-
-    private static int count = 0;
     private static final UUID STOP_MOVE_ID = UUID.randomUUID();
     private static final AttributeModifier STOP_MOVE = new AttributeModifier(STOP_MOVE_ID, "Stop movement", -1, AttributeModifier.Operation.MULTIPLY_TOTAL);
-
-    public static double getSpeed(PlayerEntity player)
-    {
-        // Grab the movement speed attribute
-        ModifiableAttributeInstance moveSpeed = player.getAttributes().getInstance(Attributes.MOVEMENT_SPEED);
-
-        // Get the players movement speed
-        double speed = moveSpeed.getValue();
-
-        return speed;
-    }
 
     public static void enableMovement(PlayerEntity player)
     {
@@ -85,6 +55,15 @@ public class Gravity
 
         if (!moveSpeed.hasModifier(STOP_MOVE))
             moveSpeed.addPermanentModifier(STOP_MOVE);
+    }
+
+    public static PlayerGravityHandler getPlayerGravityHandler(UUID playerID)
+    {
+        for (PlayerGravityHandler handler : gravityHandlers)
+            if (handler.getID() == playerID)
+                return handler;
+
+        return null;
     }
 
     public static void fall(PlayerEntity faller)
@@ -130,18 +109,6 @@ public class Gravity
             return faller.getDeltaMovement();
     }
 
-    public static void tryJump(PlayerEntity jumper)
-    {
-        // Do nothing if the PlayerPoseHandler has yet to load
-        PlayerPoseHandler handler = PoseHandler.getPlayerPoseHandler(jumper.getUUID());
-
-        if (handler == null)
-            return;
-
-        if (!handler.isJumping() && isOnGround(jumper))
-            jump(jumper);
-    }
-
     public static boolean isOnGround(PlayerEntity test)
     {
         PlayerGravityHandler handler = getPlayerGravityHandler(test.getUUID());
@@ -157,111 +124,6 @@ public class Gravity
             return false;
 
         return true;
-    }
-
-    public static void move(ClientPlayerEntity player)
-    {
-        // Only walk if player is standing on the ground and not in water
-        if (!Gravity.isOnGround(player) || player.isInWater())
-            return;
-
-        double speed = getSpeed(player);
-
-        PlayerGravityHandler handler = getPlayerGravityHandler(player.getUUID());
-
-        // Get the forward movement vector when player is facing (0, 0, 1)
-        Vector3f movementf = new Vector3f(player.input.leftImpulse, 0, player.input.forwardImpulse);
-        movementf.normalize();
-
-        // Get the direction the player is looking, ignoring how far up or down they are looking
-        Vector3d direction = player.getForward();
-        direction = direction.multiply(1, 0, 1);
-        direction = direction.normalize();
-
-        // Calculate the amount the movement vector has to be rotated around the Y axis to match the players forward direction
-        Quaternion yRot = Vector3f.YP.rotation((float)Math.atan2(direction.x(), direction.z()));
-
-        // Rotate the forward movement vector around the yRot quaternion
-        movementf.transform(yRot);
-
-        // Rotate the direction to be moving in accordance with gravity
-        Vector3d movement = handler.rotateVectorDown(new Vector3d(movementf.x(), movementf.y(), movementf.z()));
-
-        // Calculate the amount to move this tick and the max speed that player can be moving
-        movement = movement.multiply(speed, speed, speed);
-
-        player.setDeltaMovement(player.getDeltaMovement().add(movement));
-    }
-
-    // Make the specified player jump adhering to gravity
-    private static void jump(PlayerEntity jumper)
-    {
-        // Do nothing if the PlayerPoseHandler has yet to load
-        PlayerPoseHandler handler = PoseHandler.getPlayerPoseHandler(jumper.getUUID());
-
-        if (handler == null)
-            return;
-
-        handler.setJumping(true);
-
-        // Get the jump vector and add it to the players delta movement
-        Vector3d jumping = getJumpVector(jumper, true).multiply(0.5, 0.5, 0.5);
-
-        jumper.setDeltaMovement(jumper.getDeltaMovement().add(jumping));
-    }
-
-    // Returns a vector containing the momentum of a player jump
-    public static Vector3d getJumpVector(PlayerEntity jumper, boolean gravityAdjusted)
-    {
-        float f = getJumpPower(jumper, gravityAdjusted);
-        if (jumper.hasEffect(Effects.JUMP))
-            f += 0.1F * (float)(jumper.getEffect(Effects.JUMP).getAmplifier() + 1);
-
-        Vector3d jumping = new Vector3d(0, f, 0);
-
-        if (jumper.isSprinting())
-        {
-            float f1 = jumper.yRot * ((float)Math.PI / 180F);
-            jumping.add((-MathHelper.sin(f1) * 0.2F), 0.0D, (MathHelper.cos(f1) * 0.2F));
-        }
-
-        // If this jump is gravity adjusted rotate it to be jumping against gravity
-        if (gravityAdjusted)
-        {
-            PlayerGravityHandler handler = getPlayerGravityHandler(jumper.getUUID());
-            jumping = handler.rotateVectorDown(jumping);
-
-            // TODO: ... This is jumping in the wrong direction when rotated around anything other than 0 for some reason...!?
-        }
-
-        return jumping;
-    }
-
-    public static float getJumpPower(PlayerEntity jumper, boolean gravityAdjusted)
-    {
-        float f = jumper.level.getBlockState(jumper.blockPosition()).getBlock().getJumpFactor();
-        float f1 = jumper.level.getBlockState(getBlockPosBelow(jumper, gravityAdjusted)).getBlock().getJumpFactor();
-
-        return (double)f == 1.0D ? f1 : f;
-    }
-
-    public static BlockPos getBlockPosBelow(PlayerEntity jumper, boolean gravityAdjusted)
-    {
-        PlayerPoseHandler handler = PoseHandler.getPlayerPoseHandler(jumper.getUUID());
-
-        PlayerGravityHandler ghandler = getPlayerGravityHandler(jumper.getUUID());
-
-        // Calculate the position of the block below the player
-        Vector3d below = jumper.position();
-        Vector3f heightAdjustment = new Vector3f(0, handler.getPlayerModel().getHeightAdjustment() + 0.5f, 0);
-
-        // Adjust for gravity if gravity adjusted
-        if (gravityAdjusted)
-            heightAdjustment = ghandler.rotateVectorDown(heightAdjustment);
-
-        below.subtract(heightAdjustment.x(), heightAdjustment.y(), heightAdjustment.z());
-
-        return new BlockPos(below.x, below.y, below.z);
     }
 
     // Ripped directly from Entity BECAUSE IT'S FREAKIN PRIVATE >:(

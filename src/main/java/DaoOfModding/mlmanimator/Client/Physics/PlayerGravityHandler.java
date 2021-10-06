@@ -1,10 +1,10 @@
 package DaoOfModding.mlmanimator.Client.Physics;
 
-import DaoOfModding.mlmanimator.Client.Poses.PlayerPoseHandler;
 import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.potion.Effects;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
@@ -42,6 +42,29 @@ public class PlayerGravityHandler
         movement = newPos.subtract(oldPos);
     }
 
+    public Vector3d getJumpVector(PlayerEntity player, float jumpPower)
+    {
+        float f = jumpPower;
+
+        if (player.hasEffect(Effects.JUMP))
+            f += 0.1F * (float)(player.getEffect(Effects.JUMP).getAmplifier() + 1);
+
+        Vector3d delta = player.getDeltaMovement();
+        Vector3d jumping = new Vector3d(0, f, 0);
+
+        if (player.isSprinting())
+        {
+            float f1 = player.yRot * ((float)Math.PI / 180F);
+            jumping.add((-MathHelper.sin(f1) * 0.2F), 0.0D, (MathHelper.cos(f1) * 0.2F));
+        }
+
+        // TODO: ... This is jumping in the wrong direction when rotated around anything other than 0 for some reason...!?
+        // Rotate jump vector to be jumping against gravity
+        jumping = rotateVectorDown(jumping);
+
+        return delta.add(jumping);
+    }
+
     public void updateBB()
     {
         if (movement.length() > 0)
@@ -56,6 +79,13 @@ public class PlayerGravityHandler
     public Vector3f getDownVector()
     {
         return rotateVectorDown(defaultDown);
+    }
+
+    public Vector3d getDownMovement(Vector3d movement)
+    {
+        Vector3d toMult = rotateVectorDown(new Vector3d(0, 1, 0));
+
+        return movement.multiply(toMult);
     }
 
     // Set the down rotation in degrees

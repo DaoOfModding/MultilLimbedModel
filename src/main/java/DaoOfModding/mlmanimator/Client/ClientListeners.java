@@ -58,9 +58,6 @@ public class ClientListeners
 
             ghandler.updateBB();
 
-            if (event.player instanceof ClientPlayerEntity)
-                Gravity.move((ClientPlayerEntity)event.player);
-
             Gravity.fall(event.player);
 
             ghandler.updatePosition(event.player.position());
@@ -113,13 +110,7 @@ public class ClientListeners
 
             // Update the PoseHandler
             handler.updateRenderPose();
-
-            // Disable player movement for the base Minecraft tick
-            Gravity.disableMovement(event.player);
         }
-        // Re-enable player movement at the end of the player tick
-        else if (event.phase == TickEvent.Phase.END)
-            Gravity.enableMovement(event.player);
     }
 
     @SubscribeEvent
