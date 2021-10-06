@@ -6,6 +6,7 @@ import DaoOfModding.mlmanimator.Client.Models.MultiLimbedModel;
 import DaoOfModding.mlmanimator.Client.MultiLimbedRenderer;
 import DaoOfModding.mlmanimator.mlmanimator;
 import com.mojang.blaze3d.matrix.MatrixStack;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -410,5 +411,41 @@ public class PlayerPoseHandler
 
         // Return a vector of the current position moved towards moveTo by the animation speed
         return new Vector3d(current.x - toMove.x, current.y - toMove.y, current.z - toMove.z);
+    }
+
+    public void doDefaultPoses(ClientPlayerEntity player)
+    {
+        addPose(GenericPoses.Idle);
+
+        // Tell the PoseHandler that the player is not jumping if they are on the ground or in water
+        if (player.isOnGround() || player.isInWater())
+            setJumping(false);
+            //  Otherwise check if the player is jumping
+        else if (!isJumping())
+        {
+            // Check if there is any upwards movement and set jumping to true if so
+            if (player.getDeltaMovement().y > 0)
+                setJumping(true);
+        }
+
+        // If player is in the water
+        if (player.isInWater())
+        {
+            // If player is moving in the water apply swimming pose
+            if (player.isVisuallySwimming())
+            {
+                // TODO: Swimming pose
+            }
+        }
+        else if (PoseHandler.isJumping(player.getUUID()))
+        {
+            addPose(GenericPoses.Jumping);
+        }
+        // If player is moving add the walking pose to the PoseHandler
+        else if (player.getDeltaMovement().x != 0 || player.getDeltaMovement().z != 0)
+            addPose(GenericPoses.Walking);
+
+        // Update the PoseHandler
+        updateRenderPose();
     }
 }

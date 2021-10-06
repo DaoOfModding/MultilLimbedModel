@@ -1,8 +1,6 @@
 package DaoOfModding.mlmanimator.Client;
 
 import DaoOfModding.mlmanimator.Client.Models.MultiLimbedModel;
-import DaoOfModding.mlmanimator.Client.Physics.Gravity;
-import DaoOfModding.mlmanimator.Client.Physics.PlayerGravityHandler;
 import DaoOfModding.mlmanimator.Client.Poses.PlayerPoseHandler;
 import DaoOfModding.mlmanimator.Client.Poses.PoseHandler;
 import DaoOfModding.mlmanimator.mlmanimator;
@@ -17,7 +15,6 @@ import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.Pose;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
@@ -306,11 +303,6 @@ public class MultiLimbedRenderer
     public static void render2(PlayerPoseHandler handler, AbstractClientPlayerEntity entityIn, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn)
     {
         matrixStackIn.pushPose();
-
-        PlayerGravityHandler ghandler = Gravity.getPlayerGravityHandler(entityIn.getUUID());
-
-        // Rotate the matrixStack around the players down vector
-        ghandler.rotateMatrixDown(matrixStackIn);
 
         MultiLimbedModel entityModel = handler.getPlayerModel();
         boolean shouldSit = PoseHandler.shouldSit(entityIn);
