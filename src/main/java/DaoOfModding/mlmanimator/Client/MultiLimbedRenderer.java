@@ -238,9 +238,6 @@ public class MultiLimbedRenderer
 
     public static boolean renderFirstPerson(AbstractClientPlayerEntity entityIn, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn)
     {
-        if (!PoseHandler.setupPoseHandler(entityIn))
-            return false;
-
         PlayerPoseHandler handler = PoseHandler.getPlayerPoseHandler(entityIn.getUUID());
 
         if(!enableFullBodyFirstPerson)
@@ -281,9 +278,6 @@ public class MultiLimbedRenderer
 
     public static boolean render(AbstractClientPlayerEntity entityIn, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn)
     {
-        if (!PoseHandler.setupPoseHandler(entityIn))
-            return false;
-
         // Toggle off fake third person if this isn't the player entity
         boolean rememberingFake = isFakeThirdPerson();
         if (rememberingFake && entityIn.getUUID().compareTo(Minecraft.getInstance().player.getUUID()) != 0)

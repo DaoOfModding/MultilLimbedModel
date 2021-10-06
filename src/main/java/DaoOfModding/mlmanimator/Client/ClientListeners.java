@@ -46,6 +46,10 @@ public class ClientListeners
             return;
         }
 
+        // Do nothing if pose handler does not exist or can't be setup
+        if (!PoseHandler.setupPoseHandler(Minecraft.getInstance().player))
+            return;
+
         // If MultiLimbedRenderer renders the player, cancel the render event
         event.setCanceled(MultiLimbedRenderer.renderFirstPerson(Minecraft.getInstance().player, event.getPartialTicks(), event.getMatrixStack(), event.getBuffers(), event.getLight()));
     }
@@ -53,6 +57,10 @@ public class ClientListeners
     @SubscribeEvent
     public static void renderPlayer(RenderPlayerEvent.Pre event)
     {
+        // Do nothing if pose handler does not exist or can't be setup
+        if (!PoseHandler.setupPoseHandler((AbstractClientPlayerEntity)event.getPlayer()))
+            return;
+
         // If MultiLimbedRenderer renders the player, cancel the render event
         event.setCanceled(MultiLimbedRenderer.render((AbstractClientPlayerEntity)event.getPlayer(), event.getPartialRenderTick(), event.getMatrixStack(), event.getBuffers(), event.getLight()));
     }
