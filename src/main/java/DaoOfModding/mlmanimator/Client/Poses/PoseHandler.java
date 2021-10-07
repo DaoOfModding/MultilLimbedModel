@@ -46,6 +46,13 @@ public class PoseHandler
         return loaded;
     }
 
+    public static void addPoseHandler(PlayerPoseHandler handler)
+    {
+        poses.add(handler);
+
+        loaded = true;
+    }
+
     public static PlayerPoseHandler getPlayerPoseHandler(UUID playerID)
     {
         for (PlayerPoseHandler handler : poses)

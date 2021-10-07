@@ -20,6 +20,7 @@ public class ExtendableModelRenderer extends ModelRenderer
 
     private ExtendableModelRenderer parent = null;
     private ArrayList<ExtendableModelRenderer> child = new ArrayList<ExtendableModelRenderer>();
+    private ArrayList<Quad> quads = new ArrayList<Quad>();
 
     private Vector3f[] points = new Vector3f[8];
 
@@ -106,6 +107,17 @@ public class ExtendableModelRenderer extends ModelRenderer
     {
         oldNotLookingPitch = notLookingPitch;
         notLookingPitch = pitch;
+    }
+
+    public void addQuad(Quad newQuad)
+    {
+        quads.add(newQuad);
+    }
+
+    public void removeQuad(Quad quad)
+    {
+        if (quads.contains(quad))
+            quads.remove(quad);
     }
 
     public float getNotLookingPitch()
@@ -276,7 +288,12 @@ public class ExtendableModelRenderer extends ModelRenderer
         if (MultiLimbedRenderer.isFakeThirdPerson() && !renderFirstPerson)
             fakerender(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
         else
+        {
             super.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+
+            for (Quad quad : quads)
+                quad.render(matrixStackIn, packedLightIn, packedOverlayIn);
+        }
 
         xRot -= rotationOffset.x;
         yRot -= rotationOffset.y;

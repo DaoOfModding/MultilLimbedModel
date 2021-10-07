@@ -265,7 +265,6 @@ public class MultiLimbedModel
 
         matrixStackIn.pushPose();
 
-        // Render the body, as all limbs are children or sub-children of the body, this should render everything
         for (ExtendableModelRenderer model : firstPersonLimbs.values())
             model.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
 
