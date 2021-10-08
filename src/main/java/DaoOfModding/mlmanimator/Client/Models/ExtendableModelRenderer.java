@@ -1,5 +1,7 @@
 package DaoOfModding.mlmanimator.Client.Models;
 
+import DaoOfModding.mlmanimator.Client.Models.Quads.Quad;
+import DaoOfModding.mlmanimator.Client.Models.Quads.QuadLinkage;
 import DaoOfModding.mlmanimator.Client.MultiLimbedRenderer;
 import DaoOfModding.mlmanimator.Client.AnimationFramework.resizeModule;
 import com.mojang.blaze3d.matrix.MatrixStack;
@@ -7,7 +9,9 @@ import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.renderer.model.Model;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.*;
+import org.lwjgl.system.MathUtil;
 
 import java.util.ArrayList;
 
@@ -20,7 +24,11 @@ public class ExtendableModelRenderer extends ModelRenderer
 
     private ExtendableModelRenderer parent = null;
     private ArrayList<ExtendableModelRenderer> child = new ArrayList<ExtendableModelRenderer>();
+    // List of quads to draw
     private ArrayList<Quad> quads = new ArrayList<Quad>();
+
+    // List of quad vertexes attached to this model
+    private ArrayList<QuadLinkage> quadLinkage = new ArrayList<QuadLinkage>();
 
     private Vector3f[] points = new Vector3f[8];
 
@@ -118,6 +126,17 @@ public class ExtendableModelRenderer extends ModelRenderer
     {
         if (quads.contains(quad))
             quads.remove(quad);
+    }
+
+    public void addQuadLinkage(QuadLinkage link)
+    {
+        quadLinkage.add(link);
+    }
+
+    public void removeQuadLinkage(QuadLinkage link)
+    {
+        if (quadLinkage.contains(link))
+            quadLinkage.remove(link);
     }
 
     public float getNotLookingPitch()
@@ -345,11 +364,33 @@ public class ExtendableModelRenderer extends ModelRenderer
 
         minHeight = min;
 
+        // Update any quad linkages now so it doesn't have to run through the same loop again
+        updateQuadLinkages(rotator);
+
         // Calculate the min height of children
         for (ExtendableModelRenderer testChild : child)
             testChild.calculateMinHeight(matrixStackIn);
 
         matrixStackIn.popPose();
+    }
+
+    // Update the position of any linked quads vertices
+    public void updateQuadLinkages(Matrix4f rotator)
+    {
+        Vector3d minPos = new Vector3d(points[0].x(), points[0].y(), points[0].z());
+        Vector3d maxPos = new Vector3d(points[7].x(), points[7].y(), points[7].z());
+
+        for (QuadLinkage link : quadLinkage)
+        {
+            Vector3d relativePos = link.getRelativePos();
+
+            Vector3d position = minPos.multiply(new Vector3d(1, 1, 1).subtract(relativePos)).add(maxPos.multiply(relativePos));
+
+            Vector4f positon4f = new Vector4f((float)position.x, (float)position.y, (float)position.z, 1);
+            positon4f.transform(rotator);
+
+            link.updatePos(new Vector3d(positon4f.x(), positon4f.y(), positon4f.z()));
+        }
     }
 
     // Returns a the height of the topmost point of this model

@@ -1,5 +1,7 @@
 package DaoOfModding.mlmanimator.Client.Models;
 
+import DaoOfModding.mlmanimator.Client.Models.Quads.Quad;
+import DaoOfModding.mlmanimator.Client.Models.Quads.QuadLinkage;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.renderer.RenderType;

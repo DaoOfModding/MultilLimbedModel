@@ -1,4 +1,4 @@
-package DaoOfModding.mlmanimator.Client.Models;
+package DaoOfModding.mlmanimator.Client.Models.Quads;
 
 import DaoOfModding.mlmanimator.Client.MultiLimbedRenderer;
 import DaoOfModding.mlmanimator.mlmanimator;
@@ -9,12 +9,14 @@ import net.minecraft.util.math.vector.*;
 
 public class Quad
 {
+    public static enum QuadVertex { TopLeft, TopRight, BottomRight, BottomLeft };
+
     private static final Vector2f texUV[] = {new Vector2f(0, 0), new Vector2f(1, 0), new Vector2f(1, 1), new Vector2f(0, 1)};
 
-    private Vector3d quadPos[] = new Vector3d[4];
-    private Vector3d normal[] = new Vector3d[4];
-    private Vector4f color = new Vector4f(1, 1, 1, 1);
-    private ResourceLocation customTexture = new ResourceLocation(mlmanimator.MODID, "textures/blank.png");
+    protected Vector3d quadPos[] = new Vector3d[4];
+    protected Vector3d normal[] = new Vector3d[4];
+    protected Vector4f color = new Vector4f(1, 1, 1, 1);
+    protected ResourceLocation customTexture = new ResourceLocation(mlmanimator.MODID, "textures/blank.png");
 
     public Quad(Vector3d topLeft, Vector3d topRight, Vector3d bottomRight, Vector3d bottomLeft)
     {
@@ -31,12 +33,23 @@ public class Quad
         calculateNormals();
     }
 
+    public Vector3d getPos(Quad.QuadVertex vertex)
+    {
+        return quadPos[vertex.ordinal()];
+    }
+
+    public void setPos(QuadVertex vertex, Vector3d newPos)
+    {
+        quadPos[vertex.ordinal()] = newPos;
+        calculateNormals();
+    }
+
     public void setTexture(ResourceLocation texture)
     {
         customTexture = texture;
     }
 
-    private void calculateNormals()
+    protected void calculateNormals()
     {
         normal[0] = calculateNormal(quadPos[0], quadPos[3], quadPos[1]);
         normal[1] = calculateNormal(quadPos[1], quadPos[0], quadPos[2]);
