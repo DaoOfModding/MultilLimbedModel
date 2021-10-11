@@ -69,6 +69,12 @@ public class ExtendableModelRenderer extends ModelRenderer
         for (ExtendableModelRenderer children : child)
             copy.addChild(children.clone());
 
+        for (Quad quad : quads)
+            copy.addQuad(quad);
+
+        for (QuadLinkage link : quadLinkage)
+            copy.addQuadLinkage(link);
+
         return copy;
     }
 
@@ -172,6 +178,9 @@ public class ExtendableModelRenderer extends ModelRenderer
     {
         for (ExtendableModelRenderer fosterChild : child)
             toMove.addChild(fosterChild);
+
+        for (Quad fosterQuad : quads)
+            toMove.addQuad(fosterQuad);
 
         child.clear();
     }

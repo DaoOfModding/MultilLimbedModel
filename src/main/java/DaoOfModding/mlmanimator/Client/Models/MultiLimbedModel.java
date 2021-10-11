@@ -171,13 +171,15 @@ public class MultiLimbedModel
     {
         lock();
 
-        limbs.put(GenericLimbNames.body, bodyModel);
-        allLimbs.put(GenericLimbNames.body, bodyModel);
+        ExtendableModelRenderer newBody = bodyModel.clone();
+
+        limbs.put(GenericLimbNames.body, newBody);
+        allLimbs.put(GenericLimbNames.body, newBody);
 
         if (body != null)
-            body.fosterChildren(bodyModel);
+            body.fosterChildren(newBody);
 
-        body = bodyModel;
+        body = newBody;
 
         unlock();
     }
