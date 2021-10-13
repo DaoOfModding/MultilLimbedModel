@@ -4,6 +4,7 @@ import DaoOfModding.mlmanimator.Client.Models.Quads.Quad;
 import DaoOfModding.mlmanimator.Client.Models.Quads.QuadLinkage;
 import DaoOfModding.mlmanimator.Client.MultiLimbedRenderer;
 import DaoOfModding.mlmanimator.Client.AnimationFramework.resizeModule;
+import DaoOfModding.mlmanimator.mlmanimator;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.renderer.model.Model;
@@ -41,14 +42,25 @@ public class ExtendableModelRenderer extends ModelRenderer
     private ResourceLocation customTexture = null;
 
     private Vector3d rotationOffset = new Vector3d(0, 0 ,0);
+    private Vector3d rotationPoint = new Vector3d(0, 0, 0);
 
     private boolean renderFirstPerson = true;
 
-    private Vector3d thisPosition;
     private Vector3d thisSize;
     private float thisDelta;
 
-    private boolean isPlayer = false;
+    private Vector3d relativePosition = new Vector3d(0, 0, 0);
+
+
+    public void setRotationPoint(Vector3d newRotation)
+    {
+        rotationPoint = new Vector3d(1, 1, 1).subtract(newRotation);
+    }
+
+    public Vector3d getRotationPoint()
+    {
+        return rotationPoint;
+    }
 
     public ExtendableModelRenderer clone()
     {
@@ -62,7 +74,7 @@ public class ExtendableModelRenderer extends ModelRenderer
         copy.rotationOffset = rotationOffset;
         copy.renderFirstPerson = renderFirstPerson;
 
-        copy.generateCube(thisPosition, (float)thisSize.x, (float)thisSize.y, (float)thisSize.z, thisDelta);
+        copy.generateCube(thisSize.scale(-1).multiply(rotationPoint), (float)thisSize.x, (float)thisSize.y, (float)thisSize.z, thisDelta);
 
         copy.copyFrom(this);
 
@@ -115,6 +127,10 @@ public class ExtendableModelRenderer extends ModelRenderer
         textureHeight = textureHeightIn;
         textureOffsetX = textureOffsetXIn;
         textureOffsetY = textureOffsetYIn;
+
+        this.x = 0;
+        this.y = 0;
+        this.z = 0;
     }
 
     public void setNotLookingPitch(float pitch)
@@ -229,15 +245,16 @@ public class ExtendableModelRenderer extends ModelRenderer
     // Each Model will rotate around the midpoint of the previous model, a 1 or -1 in the rotationPoint will move that point to the edge of the specified side
     public void extend(resizeModule resizer)
     {
-        Vector3d rawPosition = resizer.getRawPosition();
-        thisPosition = resizer.getPosition();
         thisSize = resizer.getSize();
         thisDelta = resizer.getDelta();
-        Vector3d rotation = resizer.getNextRotation();
+
+        Vector3d rotationPoint = getRotationPoint();
+        rotationPoint = thisSize.scale(-1).multiply(rotationPoint);
+
         Vector2f texModifier = resizer.getTextureModifier();
 
         // Add a box of the appropriate size to this model
-        generateCube(thisPosition, (float)thisSize.x, (float)thisSize.y, (float)thisSize.z, thisDelta);
+        generateCube(rotationPoint, (float)thisSize.x, (float)thisSize.y, (float)thisSize.z, thisDelta);
 
         // Return this model if at max depth
         if (!resizer.continueResizing())
@@ -246,7 +263,10 @@ public class ExtendableModelRenderer extends ModelRenderer
 
         // Create the next model and add it as a child of this one
         ExtendableModelRenderer newModel = new ExtendableModelRenderer(textureWidth, textureHeight, textureOffsetX + (int)texModifier.x, textureOffsetY + (int)texModifier.y);
-        newModel.setPos((float)rotation.x, (float)rotation.y, (float)rotation.z);
+        newModel.setRotationPoint(resizer.getRotationPoint());
+
+        newModel.setPos((float)resizer.getPosition().x, (float)resizer.getPosition().y, (float)resizer.getPosition().z);
+
         newModel.mirror = this.mirror;
         newModel.setParent(this);
 
@@ -328,6 +348,30 @@ public class ExtendableModelRenderer extends ModelRenderer
         zRot -= rotationOffset.z;
     }
 
+    @Override
+    public void setPos(float xPos, float yPos, float zPos)
+    {
+        relativePosition = new Vector3d(xPos, yPos, zPos);
+    }
+
+    // Update this models position based on it's parents position and it's relative position
+    public void updatePosition()
+    {
+        if (getParent() == null)
+        {
+            x = (float)relativePosition.x;
+            y = (float)relativePosition.y;
+            z = (float)relativePosition.z;
+        }
+        else
+        {
+            Vector3d pos = getParent().translateRelativePosition(relativePosition);
+            x = (float)pos.x;
+            y = (float)pos.y;
+            z = (float)pos.z;
+        }
+    }
+
     // Render all children for this model, but not the model itself
     public void fakerender(MatrixStack matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha)
     {
@@ -354,13 +398,16 @@ public class ExtendableModelRenderer extends ModelRenderer
 
     public void calculateMinHeight(MatrixStack matrixStackIn)
     {
+        // Update the position of this model first
+        updatePosition();
+
         matrixStackIn.pushPose();
-
-        float min = Float.MAX_VALUE * -1;
-
         rotateMatrix(matrixStackIn);
 
         Matrix4f rotator = matrixStackIn.last().pose();
+
+
+        float min = Float.MAX_VALUE * -1;
 
         for (Vector3f point : points)
         {
@@ -383,17 +430,24 @@ public class ExtendableModelRenderer extends ModelRenderer
         matrixStackIn.popPose();
     }
 
-    // Update the position of any linked quads vertices
-    public void updateQuadLinkages(Matrix4f rotator)
+    public Vector3d translateRelativePosition(Vector3d relativePos)
     {
         Vector3d minPos = new Vector3d(points[0].x(), points[0].y(), points[0].z());
         Vector3d maxPos = new Vector3d(points[7].x(), points[7].y(), points[7].z());
 
+        Vector3d translatedPos = minPos.multiply(new Vector3d(1, 1, 1).subtract(relativePos)).add(maxPos.multiply(relativePos));
+
+        return translatedPos;
+    }
+
+    // Update the position of any linked quads vertices
+    public void updateQuadLinkages(Matrix4f rotator)
+    {
         for (QuadLinkage link : quadLinkage)
         {
             Vector3d relativePos = link.getRelativePos();
 
-            Vector3d position = minPos.multiply(new Vector3d(1, 1, 1).subtract(relativePos)).add(maxPos.multiply(relativePos));
+            Vector3d position = translateRelativePosition(relativePos);
 
             Vector4f positon4f = new Vector4f((float)position.x, (float)position.y, (float)position.z, 1);
             positon4f.transform(rotator);

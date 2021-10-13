@@ -13,7 +13,6 @@ public class defaultResizeModule implements resizeModule
     Vector3d direction;
     Vector3d rotationPoint;
 
-    Vector3d rotation;
     Vector3d position;
     Vector2f textureModifier;
 
@@ -38,12 +37,6 @@ public class defaultResizeModule implements resizeModule
         this.spacing = spacing;
     }
 
-    // Return the raw position coordinates for the current model
-    public Vector3d getRawPosition()
-    {
-        return usedSize.multiply(direction).add(position);
-    }
-
     public Vector3d getPosition()
     {
         return position;
@@ -51,8 +44,6 @@ public class defaultResizeModule implements resizeModule
 
     public Vector3d getSize()
     {
-        Vector3d remainingSpacing = direction.multiply(spacing).scale(depth-1);
-
         Vector3d directedSize = size.multiply(direction);
 
         // Calculate the size of this model, and the size remaining to make models for
@@ -65,25 +56,16 @@ public class defaultResizeModule implements resizeModule
             usedSize = usedSize.add(thisSize.multiply(direction)).add(spacing);
 
 
-        // Calculate the new models rotation point vector to be connected to the 'bottom' of this model
-        Vector3d midPoint = position.add(thisSize.scale(0.5));
-        rotation = midPoint.add(thisSize.scale(0.5).multiply(rotationPoint));
-
-
-        // Calculate the position of the next model
-        Vector3d modifier = thisSize.multiply(direction);
-        position = position.add(modifier).subtract(rotation).add(spacing);
-
-
         // TODO: Ensure this texture offset is correct
+        Vector3d modifier = thisSize.multiply(direction);
         textureModifier = new Vector2f((float)(modifier.x + modifier.z), (float)modifier.y);
 
         return thisSize;
     }
 
-    public Vector3d getNextRotation()
+    public Vector3d getRotationPoint()
     {
-        return rotation;
+        return rotationPoint;
     }
 
     public Vector2f getTextureModifier()

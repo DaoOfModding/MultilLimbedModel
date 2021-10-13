@@ -1,7 +1,5 @@
 package DaoOfModding.mlmanimator.Client.Models;
 
-import DaoOfModding.mlmanimator.Client.Models.Quads.Quad;
-import DaoOfModding.mlmanimator.Client.Models.Quads.QuadLinkage;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.renderer.RenderType;
@@ -58,27 +56,32 @@ public class MultiLimbedModel
         body.extend(GenericResizers.getBodyResizer());
 
         ExtendableModelRenderer head = new ExtendableModelRenderer(baseModel, 0, 0);
-        head.setPos(0, 0, 0);
+        head.setRotationPoint(new Vector3d(0.5, 0, 0.5));
+        head.setPos(0.5F, 0, 0.5F);
         head.extend(GenericResizers.getHeadResizer());
         head.setLooking(true);
         head.setFirstPersonRender(false);
 
         ExtendableModelRenderer rightArm = new ExtendableModelRenderer(baseModel, 40, 16);
-        rightArm.setPos(-5.0F, 2.0F, 0.0F);
-        rightArm.extend(GenericResizers.getRightArmResizer());
+        rightArm.setRotationPoint(new Vector3d(0, 0.5, 0.5));
+        rightArm.setPos(0, 0.16F, 0.5F);
+        rightArm.extend(GenericResizers.getLimbResizer());
 
         ExtendableModelRenderer leftArm = new ExtendableModelRenderer(baseModel, 32, 48);
-        leftArm.setPos(5.0F, 2.0F, 0.0F);
-        leftArm.extend(GenericResizers.getLeftArmResizer());
+        leftArm.setRotationPoint(new Vector3d(1, 0.5, 0.5));
+        leftArm.setPos(1, 0.16F, 0.5F);
+        leftArm.extend(GenericResizers.getLimbResizer());
         leftArm.mirror = true;
 
         ExtendableModelRenderer rightLeg = new ExtendableModelRenderer(baseModel, 0, 16);
-        rightLeg.setPos(-1.9F, 12.0F, 0.0F);
-        rightLeg.extend(GenericResizers.getRightLegResizer());
+        rightLeg.setPos(0F, 1.0F, 0.5F);
+        rightLeg.setRotationPoint(new Vector3d(1, 1, 0.5));
+        rightLeg.extend(GenericResizers.getLimbResizer());
 
         ExtendableModelRenderer leftLeg = new ExtendableModelRenderer(baseModel, 0, 16);
-        leftLeg.setPos(1.9F, 12.0F, 0.0F);
-        leftLeg.extend(GenericResizers.getLeftLegResizer());
+        leftLeg.setPos(1F, 1.0F, 0.5F);
+        leftLeg.setRotationPoint(new Vector3d(0, 1, 0.5));
+        leftLeg.extend(GenericResizers.getLimbResizer());
         leftLeg.mirror = true;
 
         addBody(body);
