@@ -50,6 +50,7 @@ public class ExtendableModelRenderer extends ModelRenderer
     private float thisDelta;
 
     private Vector3d relativePosition = new Vector3d(0, 0, 0);
+    private Vector3d fixedPosition = new Vector3d(0, 0, 0);
 
 
     public void setRotationPoint(Vector3d newRotation)
@@ -354,6 +355,12 @@ public class ExtendableModelRenderer extends ModelRenderer
         relativePosition = new Vector3d(xPos, yPos, zPos);
     }
 
+    // Values to be added to the models position irregardless of it's parent
+    public void setFixedPosAdjustment(float xPos, float yPos, float zPos)
+    {
+        fixedPosition = new Vector3d(xPos, yPos, zPos);
+    }
+
     // Update this models position based on it's parents position and it's relative position
     public void updatePosition()
     {
@@ -370,6 +377,10 @@ public class ExtendableModelRenderer extends ModelRenderer
             y = (float)pos.y;
             z = (float)pos.z;
         }
+
+        x += fixedPosition.x;
+        y += fixedPosition.y;
+        z += fixedPosition.z;
     }
 
     // Render all children for this model, but not the model itself
