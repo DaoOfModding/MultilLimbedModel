@@ -75,6 +75,9 @@ public class ExtendableModelRenderer extends ModelRenderer
         copy.rotationOffset = rotationOffset;
         copy.renderFirstPerson = renderFirstPerson;
 
+        copy.relativePosition = relativePosition;
+        copy.fixedPosition = fixedPosition;
+
         copy.generateCube(thisSize.scale(-1).multiply(rotationPoint), (float)thisSize.x, (float)thisSize.y, (float)thisSize.z, thisDelta);
 
         copy.copyFrom(this);
@@ -267,6 +270,7 @@ public class ExtendableModelRenderer extends ModelRenderer
         newModel.setRotationPoint(resizer.getRotationPoint());
 
         newModel.setPos((float)resizer.getPosition().x, (float)resizer.getPosition().y, (float)resizer.getPosition().z);
+        newModel.setFixedPosAdjustment((float)resizer.getSpacing().x, (float)resizer.getSpacing().y, (float)resizer.getSpacing().z);
 
         newModel.mirror = this.mirror;
         newModel.setParent(this);

@@ -12,4 +12,5 @@ public interface resizeModule
     public float getDelta();
     public resizeModule nextLevel();
     public boolean continueResizing();
+    public Vector3d getSpacing();
 }

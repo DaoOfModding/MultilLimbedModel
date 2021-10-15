@@ -23,6 +23,12 @@ public class defaultResizeModule implements resizeModule
         this(maxDepth, direction, position, fullSize, rotationPoint, new Vector3d(0, 0, 0));
     }
 
+    // Default resize module for models of depth 1
+    public defaultResizeModule(Vector3d fullSize)
+    {
+        this(1, new Vector3d(0, 1, 0), new Vector3d(0, 0, 0), fullSize, new Vector3d(0, 0, 0), new Vector3d(0, 0, 0));
+    }
+
     public defaultResizeModule(int maxDepth, Vector3d direction, Vector3d position, Vector3d fullSize, Vector3d rotationPoint, Vector3d spacing)
     {
         depth = maxDepth;
@@ -86,6 +92,11 @@ public class defaultResizeModule implements resizeModule
             return false;
 
         return true;
+    }
+
+    public Vector3d getSpacing()
+    {
+        return spacing;
     }
 
     public float getDelta()

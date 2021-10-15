@@ -62,28 +62,30 @@ public class MultiLimbedModel
         head.setLooking(true);
         head.setFirstPersonRender(false);
 
-        ExtendableModelRenderer rightArm = new ExtendableModelRenderer(baseModel, 40, 16);
-        rightArm.setRotationPoint(new Vector3d(0, 0.75, 0.5));
-        rightArm.setPos(0, 0F, 0.5F);
-        rightArm.setFixedPosAdjustment(0, 1.5F, 0);
-        rightArm.extend(GenericResizers.getLimbResizer());
+        ExtendableModelRenderer rightArm = new ExtendableModelRenderer(40, 16);
+        rightArm.setRotationPoint(new Vector3d(0.5D, 0.66D, 0.5D));
+        rightArm.setPos(0.0F, 0.0F, 0.5F);
+        rightArm.setFixedPosAdjustment(-2.0F, 2F, 0.0F);
+        rightArm.extend(GenericResizers.getRightArmResizer());
 
-        ExtendableModelRenderer leftArm = new ExtendableModelRenderer(baseModel, 32, 48);
-        leftArm.setRotationPoint(new Vector3d(1, 0.75, 0.5));
-        leftArm.setPos(1, 0F, 0.5F);
-        leftArm.setFixedPosAdjustment(0, 1.5F, 0);
-        leftArm.extend(GenericResizers.getLimbResizer());
+        ExtendableModelRenderer leftArm = new ExtendableModelRenderer(32, 48);
+        leftArm.setRotationPoint(new Vector3d(0.5D, 0.66D, 0.5D));
+        leftArm.setPos(1.0F, 0.0F, 0.5F);
+        leftArm.setFixedPosAdjustment(2.0F, 2F, 0.0F);
+        leftArm.extend(GenericResizers.getLeftArmResizer());
         leftArm.mirror = true;
 
         ExtendableModelRenderer rightLeg = new ExtendableModelRenderer(baseModel, 0, 16);
         rightLeg.setPos(0F, 1.0F, 0.5F);
-        rightLeg.setRotationPoint(new Vector3d(1, 1, 0.5));
-        rightLeg.extend(GenericResizers.getLimbResizer());
+        rightLeg.setRotationPoint(new Vector3d(1, 0.66, 0.5));
+        rightLeg.setFixedPosAdjustment(0F, 2F, 0.0F);
+        rightLeg.extend(GenericResizers.getLegResizer());
 
         ExtendableModelRenderer leftLeg = new ExtendableModelRenderer(baseModel, 0, 16);
         leftLeg.setPos(1F, 1.0F, 0.5F);
-        leftLeg.setRotationPoint(new Vector3d(0, 1, 0.5));
-        leftLeg.extend(GenericResizers.getLimbResizer());
+        leftLeg.setRotationPoint(new Vector3d(0, 0.66, 0.5));
+        leftLeg.setFixedPosAdjustment(0F, 2F, 0.0F);
+        leftLeg.extend(GenericResizers.getLegResizer());
         leftLeg.mirror = true;
 
         addBody(body);
