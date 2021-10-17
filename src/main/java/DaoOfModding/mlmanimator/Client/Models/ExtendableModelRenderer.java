@@ -7,13 +7,18 @@ import DaoOfModding.mlmanimator.Client.AnimationFramework.resizeModule;
 import DaoOfModding.mlmanimator.mlmanimator;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.client.renderer.model.Model;
 import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.*;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import org.lwjgl.system.MathUtil;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 public class ExtendableModelRenderer extends ModelRenderer
@@ -46,22 +51,13 @@ public class ExtendableModelRenderer extends ModelRenderer
 
     private boolean renderFirstPerson = true;
 
-    private Vector3d thisSize;
+    private Vector3d thisSize = new Vector3d(1, 1, 1);
+    private Vector3d defaultSize;
     private float thisDelta;
 
     private Vector3d relativePosition = new Vector3d(0, 0, 0);
     private Vector3d fixedPosition = new Vector3d(0, 0, 0);
 
-
-    public void setRotationPoint(Vector3d newRotation)
-    {
-        rotationPoint = new Vector3d(1, 1, 1).subtract(newRotation);
-    }
-
-    public Vector3d getRotationPoint()
-    {
-        return rotationPoint;
-    }
 
     public ExtendableModelRenderer clone()
     {
@@ -78,7 +74,9 @@ public class ExtendableModelRenderer extends ModelRenderer
         copy.relativePosition = relativePosition;
         copy.fixedPosition = fixedPosition;
 
-        copy.generateCube(thisSize.scale(-1).multiply(rotationPoint), (float)thisSize.x, (float)thisSize.y, (float)thisSize.z, thisDelta);
+        copy.defaultSize = defaultSize;
+
+        copy.generateCube(rotationPoint, (float)thisSize.x, (float)thisSize.y, (float)thisSize.z, thisDelta);
 
         copy.copyFrom(this);
 
@@ -92,6 +90,11 @@ public class ExtendableModelRenderer extends ModelRenderer
             copy.addQuadLinkage(link);
 
         return copy;
+    }
+
+    public Vector3d getSize()
+    {
+        return thisSize;
     }
 
     public ExtendableModelRenderer(Model model)
@@ -163,6 +166,16 @@ public class ExtendableModelRenderer extends ModelRenderer
     {
         if (quadLinkage.contains(link))
             quadLinkage.remove(link);
+    }
+
+    public void setRotationPoint(Vector3d newRotation)
+    {
+        rotationPoint = new Vector3d(1, 1, 1).subtract(newRotation);
+    }
+
+    public Vector3d getRotationPoint()
+    {
+        return rotationPoint;
     }
 
     public float getNotLookingPitch()
@@ -249,11 +262,11 @@ public class ExtendableModelRenderer extends ModelRenderer
     // Each Model will rotate around the midpoint of the previous model, a 1 or -1 in the rotationPoint will move that point to the edge of the specified side
     public void extend(resizeModule resizer)
     {
-        thisSize = resizer.getSize();
+        defaultSize = resizer.getSize();
         thisDelta = resizer.getDelta();
 
         Vector3d rotationPoint = getRotationPoint();
-        rotationPoint = thisSize.scale(-1).multiply(rotationPoint);
+        //rotationPoint = defaultSize.scale(-1).multiply(rotationPoint);
 
         Vector2f texModifier = resizer.getTextureModifier();
 
@@ -281,6 +294,15 @@ public class ExtendableModelRenderer extends ModelRenderer
         newModel.extend(resizer.nextLevel());
     }
 
+    public void resize(Vector3d newSize)
+    {
+        // Only resize the model if the new size is different than the current size
+        if (thisSize.x != newSize.x || thisSize.y != newSize.y || thisSize.z != newSize.z)
+        {
+            thisSize = newSize;
+        }
+    }
+
     @Override
     public void addChild(ModelRenderer c)
     {
@@ -304,6 +326,12 @@ public class ExtendableModelRenderer extends ModelRenderer
     // Generate the cube for this model
     public void generateCube(Vector3d pos, float width, float height, float depth, float delta)
     {
+        pos = defaultSize.multiply(thisSize).scale(-1).multiply(pos);
+
+        width = (float)defaultSize.x * width;
+        height = (float)defaultSize.y * height;
+        depth = (float)defaultSize.z * depth;
+
         float x1 = (float)pos.x;
         float y1 = (float)pos.y;
         float z1 = (float)pos.z;
@@ -327,6 +355,7 @@ public class ExtendableModelRenderer extends ModelRenderer
     @Override
     public void render(MatrixStack matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha)
     {
+
         // Grab the vertex builder based on the texture to use for this model
         if (customTexture == null)
             bufferIn = MultiLimbedRenderer.getVertexBuilder();
@@ -342,7 +371,7 @@ public class ExtendableModelRenderer extends ModelRenderer
             fakerender(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
         else
         {
-            super.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+            renderCube(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
 
             for (Quad quad : quads)
                 quad.render(matrixStackIn, packedLightIn, packedOverlayIn);
@@ -351,6 +380,58 @@ public class ExtendableModelRenderer extends ModelRenderer
         xRot -= rotationOffset.x;
         yRot -= rotationOffset.y;
         zRot -= rotationOffset.z;
+    }
+
+    public void renderCube(MatrixStack matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha)
+    {
+        if (this.visible)
+        {
+            matrixStackIn.pushPose();
+            translateAndRotate(matrixStackIn);
+
+            compile(matrixStackIn.last(), bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+
+            for(ExtendableModelRenderer child : getChildren())
+                child.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+
+            matrixStackIn.popPose();
+        }
+    }
+
+    // Thanks minecraft for making it SO GODDAMN COMPLICATED for me to freakin' RESIZE A CUBE
+    private void compile(MatrixStack.Entry matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha)
+    {
+        Matrix4f matrix4f = matrixStackIn.pose();
+        Matrix3f normalMatrix = matrixStackIn.normal();
+
+        for(ModelRenderer.ModelBox cubeBox : ModelRendererReflection.getModelCubes(this))
+        {
+            for (Object texturedquad : ModelRendererReflection.getPolygons(cubeBox))
+            {
+                Vector3f normals = ModelRendererReflection.getPolygonNormals(texturedquad).copy();
+                normals.transform(normalMatrix);
+                float f = normals.x();
+                float f1 = normals.y();
+                float f2 = normals.z();
+
+
+                Object[] vertices = ModelRendererReflection.getVertices(texturedquad);
+                for(int i = 0; i < 4; ++i)
+                {
+                    Vector3f vertex = ModelRendererReflection.getPositionTextureVertexPos(vertices[i]);
+
+                    // ALL THAT EFFORT, ALL THAT REFLECTION, ALL THAT COPYING OF CODE, JUST TO BE ABLE TO DO THIS
+                    float f3 = vertex.x() / 16.0F * (float)thisSize.x;
+                    float f4 = vertex.y() / 16.0F * (float)thisSize.y;
+                    float f5 = vertex.z() / 16.0F * (float)thisSize.z;
+
+                    Vector4f vector4f = new Vector4f(f3, f4, f5, 1.0F);
+                    vector4f.transform(matrix4f);
+
+                    bufferIn.vertex(vector4f.x(), vector4f.y(), vector4f.z(), red, green, blue, alpha, ModelRendererReflection.getU(vertices[i]), ModelRendererReflection.getV(vertices[i]), packedOverlayIn, packedLightIn, f, f1,f2);
+                }
+            }
+        }
     }
 
     @Override
@@ -449,6 +530,9 @@ public class ExtendableModelRenderer extends ModelRenderer
     {
         Vector3d minPos = new Vector3d(points[0].x(), points[0].y(), points[0].z());
         Vector3d maxPos = new Vector3d(points[7].x(), points[7].y(), points[7].z());
+
+        minPos = minPos.multiply(thisSize);
+        maxPos = maxPos.multiply(thisSize);
 
         Vector3d translatedPos = minPos.multiply(new Vector3d(1, 1, 1).subtract(relativePos)).add(maxPos.multiply(relativePos));
 

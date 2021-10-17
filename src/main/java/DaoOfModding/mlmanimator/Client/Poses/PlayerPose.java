@@ -10,6 +10,7 @@ import java.util.Set;
 public class PlayerPose
 {
     private HashMap<String, Integer> priorities = new HashMap<String, Integer>();
+    private HashMap<String, Integer> sizePriorities = new HashMap<String, Integer>();
 
     // X = Depth, positive goes backwards, negative goes forward
     // Y = Rotation
@@ -19,6 +20,7 @@ public class PlayerPose
 
 
     private HashMap<String, Vector3d> offset = new HashMap<String, Vector3d>();
+    private HashMap<String, Vector3d> sizes = new HashMap<String, Vector3d>();
     private HashMap<String, Integer> aLock = new HashMap<String, Integer>();
 
     private boolean disableHeadLook = false;
@@ -35,7 +37,9 @@ public class PlayerPose
         speed.put(limb, newSpeeds);
         priorities.put(limb, priority);
 
-        offset.put(limb, off);
+        if (off != null)
+            offset.put(limb, off);
+
         aLock.put(limb, animationLock);
     }
 
@@ -55,6 +59,38 @@ public class PlayerPose
             return offset.get(limb);
 
         return new Vector3d(0, 0, 0);
+    }
+
+    public void addSize(String limb, Vector3d size, int priority)
+    {
+        // TODO: Add a speed to this
+
+        if (sizePriorities.containsKey(limb) && sizePriorities.get(limb) >= priority)
+            return;
+
+        sizePriorities.put(limb, priority);
+        sizes.put(limb, size);
+    }
+
+    public Vector3d getSize(String limb)
+    {
+        if (sizes.containsKey(limb))
+            return sizes.get(limb);
+
+        return null;
+    }
+
+    public int getSizePriority(String limb)
+    {
+        if (sizePriorities.containsKey(limb))
+            return sizePriorities.get(limb);
+
+        return -1;
+    }
+
+    public HashMap<String, Vector3d> getSizes()
+    {
+        return sizes;
     }
 
     public int getAnimationLock(String limb)
@@ -170,6 +206,9 @@ public class PlayerPose
             if (!copy.hasAngle(limb) || copy.getPriority(limb) < getPriority(limb))
                 copy.setAngles(limb, getAngles(limb), getSpeeds(limb), getPriority(limb), getOffset(limb), getAnimationLock(limb));
 
+        for (String limb : sizes.keySet())
+            copy.addSize(limb, sizes.get(limb), sizePriorities.get(limb));
+
         copy.disableHeadLook(disableHeadLook, disableHeadLookPriority);
 
         return copy;
@@ -181,6 +220,9 @@ public class PlayerPose
 
         for (String limb : angles.keySet())
             copyPose.setAngles(limb, (ArrayList<Vector3d>)angles.get(limb).clone(), (ArrayList<Float>)speed.get(limb).clone(), priorities.get(limb), offset.get(limb), aLock.get(limb));
+
+        for (String limb : sizes.keySet())
+            copyPose.addSize(limb, sizes.get(limb), sizePriorities.get(limb));
 
         copyPose.disableHeadLook(disableHeadLook, disableHeadLookPriority);
 

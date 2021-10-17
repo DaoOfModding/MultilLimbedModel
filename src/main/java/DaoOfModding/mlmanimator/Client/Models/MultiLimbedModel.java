@@ -53,6 +53,7 @@ public class MultiLimbedModel
 
         ExtendableModelRenderer body = new ExtendableModelRenderer(baseModel, 16, 16);
         body.setPos(0, 0, 0);
+        body.setRotationPoint(new Vector3d(0.5, 0.5, 0.5));
         body.extend(GenericResizers.getBodyResizer());
 
         ExtendableModelRenderer head = new ExtendableModelRenderer(baseModel, 0, 0);

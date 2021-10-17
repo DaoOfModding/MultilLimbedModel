@@ -1,5 +1,6 @@
 package DaoOfModding.mlmanimator.Client;
 
+import DaoOfModding.mlmanimator.Client.Models.ModelRendererReflection;
 import DaoOfModding.mlmanimator.Client.Models.MultiLimbedModel;
 import DaoOfModding.mlmanimator.Client.Poses.PlayerPoseHandler;
 import DaoOfModding.mlmanimator.Client.Poses.PoseHandler;
@@ -21,7 +22,6 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceContext;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
@@ -57,6 +57,9 @@ public class MultiLimbedRenderer
         thirdPersonField = ObfuscationReflectionHelper.findField(ActiveRenderInfo.class, "field_216799_k");
         // setPosition
         cameraMoveFunction = ObfuscationReflectionHelper.findMethod(ActiveRenderInfo.class, "func_216775_b", double.class, double.class, double.class);
+
+        try { ModelRendererReflection.setupReflection(); }
+        catch (Exception e) { mlmanimator.LOGGER.error("Error reflecting ModelRenderer: " + e); }
     }
 
     public static void rotateCamera(EntityViewRenderEvent.CameraSetup event)

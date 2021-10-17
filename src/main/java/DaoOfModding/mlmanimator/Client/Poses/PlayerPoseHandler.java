@@ -14,6 +14,7 @@ import net.minecraft.util.math.vector.*;
 import org.lwjgl.system.CallbackI;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -70,6 +71,9 @@ public class PlayerPoseHandler
             // Then add the limb pose from the new pose to the current pose
             if (!currentPose.hasAngle(limb) || currentPose.getPriority(limb) < pose.getPriority(limb))
                 currentPose.setAngles(limb, pose.getAngles(limb), pose.getSpeeds(limb), pose.getPriority(limb), pose.getOffset(limb), pose.getAnimationLock(limb));
+
+        for (String limb : pose.getSizes().keySet())
+            currentPose.addSize(limb, pose.getSize(limb), pose.getSizePriority(limb));
 
         currentPose.disableHeadLook(pose.isHeadLookDisabled(), pose.getDisableHeadLookPriority());
 
@@ -195,9 +199,22 @@ public class PlayerPoseHandler
         // Generate the animating pose based on the the target angles in the render pose
         animateLimbs(partialTicks);
 
+        resizeLimbs(animatingPose.getSizes());
+
         // Rotate each limb to the angle stored in the animating pose plus any offset angles
         for(String limb : animatingPose.getLimbs())
             model.rotateLimb(limb, animatingPose.getAngle(limb).add(animatingPose.getOffset(limb)));
+    }
+
+    private void resizeLimbs(HashMap<String, Vector3d> sizes)
+    {
+        for (Map.Entry<String, Vector3d> set : sizes.entrySet())
+        {
+            ExtendableModelRenderer limb = model.getLimb(set.getKey());
+
+            if (limb != null)
+                limb.resize(set.getValue());
+        }
     }
 
     // Move each limb towards the currentPose by the animation speed
@@ -231,8 +248,14 @@ public class PlayerPoseHandler
                 angles = animateLimb(getLimbPos(limb), new Vector3d(0, 0, 0), AnimationSpeedCalculator.defaultSpeedPerTick, partialTicks);
 
             newRender.addAngle(limb, angles, 1);
-            newRender.addOffset(limb, animatingPose.getOffset(limb));
+            newRender.addOffset(limb, renderPose.getOffset(limb));
+
+            newRender.addSize(limb, new Vector3d(1, 1, 1), 0);
         }
+
+        // Add any size changes in the animating pose to renderPose
+        for (String limb: renderPose.getSizes().keySet())
+            newRender.addSize(limb, renderPose.getSize(limb), 1);
 
         // Add the ticks that have passed into the animationTime map
         for (String limb : limbs)
