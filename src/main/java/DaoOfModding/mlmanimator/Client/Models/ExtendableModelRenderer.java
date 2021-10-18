@@ -140,6 +140,11 @@ public class ExtendableModelRenderer extends ModelRenderer
         this.z = 0;
     }
 
+    public Vector3d getDefaultSize()
+    {
+        return defaultSize;
+    }
+
     public void setNotLookingPitch(float pitch)
     {
         oldNotLookingPitch = notLookingPitch;
@@ -507,7 +512,7 @@ public class ExtendableModelRenderer extends ModelRenderer
 
         for (Vector3f point : points)
         {
-            Vector4f vector4f = new Vector4f(point.x(), point.y(), point.z(), 1.0F);
+            Vector4f vector4f = new Vector4f(point.x() * (float)thisSize.x, point.y() * (float)thisSize.y, point.z() * (float)thisSize.z, 1.0F);
             vector4f.transform(rotator);
 
             if (vector4f.y() > min)
@@ -555,23 +560,18 @@ public class ExtendableModelRenderer extends ModelRenderer
         }
     }
 
-    // Returns a the height of the topmost point of this model
-    public float getTop(MatrixStack matrixStackIn)
+    // Returns the height of the middle of this model
+    public float getMidPoint(MatrixStack matrixStackIn)
     {
         Matrix4f rotator = matrixStackIn.last().pose();
 
-        float max = Float.MAX_VALUE;
+        Vector3d modelMidPoint = new Vector3d(x, y, z);
+        modelMidPoint = modelMidPoint.subtract(getDefaultSize().multiply(thisSize.scale(0.5)));
 
-        for (Vector3f point : points)
-        {
-            Vector4f vector4f = new Vector4f(point.x(), point.y(), point.z(), 1.0F);
-            vector4f.transform(rotator);
+        Vector4f vector4f = new Vector4f((float)modelMidPoint.x(), (float)modelMidPoint.y(), (float)modelMidPoint.z(), 1.0F);
+        vector4f.transform(rotator);
 
-            if (vector4f.y() < max)
-                max = vector4f.y();
-        }
-
-        return max;
+        return vector4f.y();
     }
 
     public void rotateMatrix(MatrixStack matrixStackIn)

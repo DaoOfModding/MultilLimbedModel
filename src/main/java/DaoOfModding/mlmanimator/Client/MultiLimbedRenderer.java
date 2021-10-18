@@ -1,5 +1,6 @@
 package DaoOfModding.mlmanimator.Client;
 
+import DaoOfModding.mlmanimator.Client.Models.ExtendableModelRenderer;
 import DaoOfModding.mlmanimator.Client.Models.ModelRendererReflection;
 import DaoOfModding.mlmanimator.Client.Models.MultiLimbedModel;
 import DaoOfModding.mlmanimator.Client.Poses.PlayerPoseHandler;
@@ -73,6 +74,8 @@ public class MultiLimbedRenderer
         if (handler == null)
             return;
 
+        // TODO: Adjust camera height based on viewPoint
+
         // Adjust the camera pitch based on the direction of the models viewPoint
         double pitch = handler.getPlayerModel().getViewPoint().getNotLookingPitch();
         double oldPitch = handler.getPlayerModel().getViewPoint().getOldNotLookingPitch();
@@ -114,8 +117,9 @@ public class MultiLimbedRenderer
         Entity viewerEntity = rendererInfo.getEntity();
 
         // Calculate the camera position and player direction
-        Vector3d pos = new Vector3d(MathHelper.lerp((double)partialTicks, viewerEntity.xOld, viewerEntity.getX()), MathHelper.lerp((double)partialTicks, viewerEntity.yOld, viewerEntity.getY()), MathHelper.lerp((double)partialTicks, viewerEntity.zOld, viewerEntity.getZ()));
+        Vector3d pos = new Vector3d(MathHelper.lerp((double) partialTicks, viewerEntity.xOld, viewerEntity.getX()), MathHelper.lerp((double) partialTicks, viewerEntity.yOld, viewerEntity.getY()), MathHelper.lerp((double) partialTicks, viewerEntity.zOld, viewerEntity.getZ()));;
         pos = pos.add(0, viewerEntity.getEyeHeight(), 0);
+
         Vector3d direction = Vector3d.directionFromRotation(0, viewerEntity.getViewYRot((float)partialTicks));
 
         // Calculate the amount the camera needs to be pushed back to not hit a wall, set decayingDistance to equal that amount if it is smaller than it

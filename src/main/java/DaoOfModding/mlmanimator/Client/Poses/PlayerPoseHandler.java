@@ -38,6 +38,8 @@ public class PlayerPoseHandler
     private HashMap<String, Float> animationTime = new HashMap<String, Float>();
     private HashMap<Integer, Integer> aLockedFrame = new HashMap<Integer, Integer>();
 
+    private HashMap<String, Float> animationResizeTime = new HashMap<String, Float>();
+
     public float fov = 1;
 
     public PlayerPoseHandler(UUID id, PlayerModel playerModel)
@@ -73,7 +75,7 @@ public class PlayerPoseHandler
                 currentPose.setAngles(limb, pose.getAngles(limb), pose.getSpeeds(limb), pose.getPriority(limb), pose.getOffset(limb), pose.getAnimationLock(limb));
 
         for (String limb : pose.getSizes().keySet())
-            currentPose.addSize(limb, pose.getSize(limb), pose.getSizePriority(limb));
+            currentPose.addSize(limb, pose.getSize(limb), pose.getSizePriority(limb), pose.getSizeSpeed(limb));
 
         currentPose.disableHeadLook(pose.isHeadLookDisabled(), pose.getDisableHeadLookPriority());
 
@@ -250,12 +252,12 @@ public class PlayerPoseHandler
             newRender.addAngle(limb, angles, 1);
             newRender.addOffset(limb, renderPose.getOffset(limb));
 
-            newRender.addSize(limb, new Vector3d(1, 1, 1), 0);
+            newRender.addSize(limb, animateResize(getLimbSize(limb), new Vector3d(1, 1, 1), AnimationSpeedCalculator.defaultSpeedPerTick), 0, AnimationSpeedCalculator.defaultSpeedPerTick);
         }
 
         // Add any size changes in the animating pose to renderPose
         for (String limb: renderPose.getSizes().keySet())
-            newRender.addSize(limb, renderPose.getSize(limb), 1);
+            newRender.addSize(limb, animateResize(getLimbSize(limb), renderPose.getSize(limb), renderPose.getSizeSpeed(limb)), 1, renderPose.getSizeSpeed(limb));
 
         // Add the ticks that have passed into the animationTime map
         for (String limb : limbs)
@@ -264,6 +266,20 @@ public class PlayerPoseHandler
         animatingPose = newRender;
 
         unlock();
+    }
+
+    public Vector3d animateResize(Vector3d currentSize, Vector3d targetSize, float speed)
+    {
+        Vector3d direction = currentSize.subtract(targetSize);
+
+        if (direction.length() == 0)
+            return currentSize;
+        else if (direction.length() < speed)
+            return targetSize;
+
+        direction = direction.normalize().scale(-speed);
+
+        return currentSize.add(direction);
     }
 
     // Get the limb angles for the specified limb. If the animating pose does not contain any data for the limb, get it from the model
@@ -283,6 +299,16 @@ public class PlayerPoseHandler
             limbModel = model.getFirstPersonLimb(limb);
 
         return new Vector3d(limbModel.xRot, limbModel.yRot, limbModel.zRot);
+    }
+
+    private Vector3d getLimbSize(String limb)
+    {
+        ExtendableModelRenderer limbModel = model.getLimb(limb);
+
+        if (limbModel == null)
+            limbModel = model.getFirstPersonLimb(limb);
+
+        return limbModel.getSize();
     }
 
     private void calculateAnimationLocks(String limb, Vector3d current, float partialTicks)

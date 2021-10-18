@@ -11,6 +11,7 @@ public class PlayerPose
 {
     private HashMap<String, Integer> priorities = new HashMap<String, Integer>();
     private HashMap<String, Integer> sizePriorities = new HashMap<String, Integer>();
+    private HashMap<String, Float> sizeSpeed = new HashMap<String, Float>();
 
     // X = Depth, positive goes backwards, negative goes forward
     // Y = Rotation
@@ -61,7 +62,7 @@ public class PlayerPose
         return new Vector3d(0, 0, 0);
     }
 
-    public void addSize(String limb, Vector3d size, int priority)
+    public void addSize(String limb, Vector3d size, int priority, float speed)
     {
         // TODO: Add a speed to this
 
@@ -69,6 +70,7 @@ public class PlayerPose
             return;
 
         sizePriorities.put(limb, priority);
+        sizeSpeed.put(limb, speed);
         sizes.put(limb, size);
     }
 
@@ -84,6 +86,14 @@ public class PlayerPose
     {
         if (sizePriorities.containsKey(limb))
             return sizePriorities.get(limb);
+
+        return -1;
+    }
+
+    public float getSizeSpeed(String limb)
+    {
+        if (sizeSpeed.containsKey(limb))
+            return sizeSpeed.get(limb);
 
         return -1;
     }
@@ -207,7 +217,7 @@ public class PlayerPose
                 copy.setAngles(limb, getAngles(limb), getSpeeds(limb), getPriority(limb), getOffset(limb), getAnimationLock(limb));
 
         for (String limb : sizes.keySet())
-            copy.addSize(limb, sizes.get(limb), sizePriorities.get(limb));
+            copy.addSize(limb, sizes.get(limb), sizePriorities.get(limb), sizeSpeed.get(limb));
 
         copy.disableHeadLook(disableHeadLook, disableHeadLookPriority);
 
@@ -222,7 +232,7 @@ public class PlayerPose
             copyPose.setAngles(limb, (ArrayList<Vector3d>)angles.get(limb).clone(), (ArrayList<Float>)speed.get(limb).clone(), priorities.get(limb), offset.get(limb), aLock.get(limb));
 
         for (String limb : sizes.keySet())
-            copyPose.addSize(limb, sizes.get(limb), sizePriorities.get(limb));
+            copyPose.addSize(limb, sizes.get(limb), sizePriorities.get(limb), sizeSpeed.get(limb));
 
         copyPose.disableHeadLook(disableHeadLook, disableHeadLookPriority);
 

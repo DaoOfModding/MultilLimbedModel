@@ -1,5 +1,6 @@
 package DaoOfModding.mlmanimator.Client.Models;
 
+import DaoOfModding.mlmanimator.mlmanimator;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.renderer.RenderType;
@@ -77,14 +78,14 @@ public class MultiLimbedModel
         leftArm.mirror = true;
 
         ExtendableModelRenderer rightLeg = new ExtendableModelRenderer(baseModel, 0, 16);
-        rightLeg.setPos(0F, 1.0F, 0.5F);
-        rightLeg.setRotationPoint(new Vector3d(1, 0.66, 0.5));
+        rightLeg.setPos(0.25F, 1.0F, 0.5F);
+        rightLeg.setRotationPoint(new Vector3d(0.5, 0.66, 0.5));
         rightLeg.setFixedPosAdjustment(0F, 2F, 0.0F);
         rightLeg.extend(GenericResizers.getLegResizer());
 
         ExtendableModelRenderer leftLeg = new ExtendableModelRenderer(baseModel, 0, 16);
-        leftLeg.setPos(1F, 1.0F, 0.5F);
-        leftLeg.setRotationPoint(new Vector3d(0, 0.66, 0.5));
+        leftLeg.setPos(0.75F, 1.0F, 0.5F);
+        leftLeg.setRotationPoint(new Vector3d(0.5, 0.66, 0.5));
         leftLeg.setFixedPosAdjustment(0F, 2F, 0.0F);
         leftLeg.extend(GenericResizers.getLegResizer());
         leftLeg.mirror = true;
@@ -310,7 +311,7 @@ public class MultiLimbedModel
         LinkedList<ExtendableModelRenderer> parts = new LinkedList<ExtendableModelRenderer>();
         parts.push(viewPoint);
 
-        // Cycle through the viewModel and add each element to the linked list
+        // Cycle through the viewModel and add each parent element to the linked list
         while(viewModel.getParent() != null)
         {
             viewModel = viewModel.getParent();
@@ -329,7 +330,7 @@ public class MultiLimbedModel
         viewModel = parts.pop();
 
         // Return the rotated height (moved down by the default eye height so it's not at the top of the head)
-        return (float)((viewModel.getTop(stack) + defaultEyeHeight) * sizeScale / 16) - getHeightAdjustment();
+        return (viewModel.getMidPoint(stack) * sizeScale / 16) - getHeightAdjustment();
     }
 
     // Calculate the height adjustment for each limb
