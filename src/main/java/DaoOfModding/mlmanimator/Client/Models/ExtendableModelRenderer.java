@@ -360,7 +360,6 @@ public class ExtendableModelRenderer extends ModelRenderer
     @Override
     public void render(MatrixStack matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha)
     {
-
         // Grab the vertex builder based on the texture to use for this model
         if (customTexture == null)
             bufferIn = MultiLimbedRenderer.getVertexBuilder();
@@ -572,6 +571,23 @@ public class ExtendableModelRenderer extends ModelRenderer
         vector4f.transform(rotator);
 
         return vector4f.y();
+    }
+
+    // Move matrix to the position and rotation of this model
+    public void moveToThisModel(MatrixStack matrixStackIn, Vector3d position)
+    {
+        rotateAroundParents(matrixStackIn);
+
+        // Move to the specified position on this model
+        matrixStackIn.translate((defaultSize.x / 16) * position.x, (defaultSize.y / 16) * position.y, (defaultSize.z / 16) * position.z);
+    }
+
+    public void rotateAroundParents(MatrixStack matrixStackIn)
+    {
+        if (this.parent != null)
+            this.parent.rotateAroundParents(matrixStackIn);
+
+        translateAndRotate(matrixStackIn);
     }
 
     public void rotateMatrix(MatrixStack matrixStackIn)

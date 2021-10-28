@@ -12,13 +12,18 @@ public class GenericPoses
     public static final int jumpLegPriority = 15;
     public static final int jumpArmPriority = 10;
 
+    public static final int armHoldPriority = 50;
+
     public static PlayerPose Idle = new PlayerPose();
+    public static PlayerPose HoldingMain = new PlayerPose();
+    public static PlayerPose HoldingOff = new PlayerPose();
     public static PlayerPose Walking = new PlayerPose();
     public static PlayerPose Jumping = new PlayerPose();
 
     public static void init()
     {
         setupIdle();
+        setupHolding();
         setupWalking();
         setupJumping();
     }
@@ -50,6 +55,14 @@ public class GenericPoses
     public static void addToJumping(PlayerPose toAdd)
     {
         Jumping = Jumping.combine(toAdd);
+    }
+
+    public static void setupHolding()
+    {
+        HoldingMain.addAngle(GenericLimbNames.lowerRightArm, new Vector3d(Math.toRadians(-35), 0, 0), armHoldPriority);
+        HoldingMain.addAngle(GenericLimbNames.rightArm, new Vector3d(Math.toRadians(-30), 0, 0), 1);
+        HoldingOff.addAngle(GenericLimbNames.lowerLeftArm, new Vector3d(Math.toRadians(-35), 0, 0), armHoldPriority);
+        HoldingOff.addAngle(GenericLimbNames.leftArm, new Vector3d(Math.toRadians(-30), 0, 0), 1);
     }
 
     public static void setupWalking()

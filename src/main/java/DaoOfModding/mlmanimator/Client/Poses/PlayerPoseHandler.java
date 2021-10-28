@@ -466,6 +466,13 @@ public class PlayerPoseHandler
     {
         addPose(GenericPoses.Idle);
 
+        // Add holding animations if the player is holding an item
+        if (!player.getMainHandItem().isEmpty())
+            addPose(GenericPoses.HoldingMain);
+
+        if (!player.getOffhandItem().isEmpty())
+            addPose(GenericPoses.HoldingOff);
+
         // Tell the PoseHandler that the player is not jumping if they are on the ground or in water
         if (player.isOnGround() || player.isInWater())
             setJumping(false);

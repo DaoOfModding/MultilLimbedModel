@@ -357,10 +357,6 @@ public class MultiLimbedRenderer
         matrixStackIn.scale(-1.0F, -1.0F, 1.0F);
         matrixStackIn.translate(0.0D, 0 - height, 0.0D);
 
-        // This does weird things, why?
-        //Vector3f heightAdjustment = handler.rotateVectorDown(new Vector3f(0, -height, 0));
-        //matrixStackIn.translate(heightAdjustment.x(), heightAdjustment.y(), heightAdjustment.z());
-
         currentModel = entityModel;
         currentEntity = entityIn;
         currentBuffer = bufferIn;
@@ -371,6 +367,9 @@ public class MultiLimbedRenderer
         {
             int i = LivingRenderer.getOverlayCoords(entityIn, 0);
             entityModel.render(matrixStackIn, null, packedLightIn, i, 1.0F, 1.0F, 1.0F, 1.0F);
+
+            entityModel.renderHandItem(false, 0, entityIn, entityIn.getMainHandItem(), matrixStackIn, Minecraft.getInstance().renderBuffers().bufferSource(), packedLightIn);
+            entityModel.renderHandItem(true, 1, entityIn, entityIn.getOffhandItem(), matrixStackIn, Minecraft.getInstance().renderBuffers().bufferSource(), packedLightIn);
         }
 
         lastSkin = null;

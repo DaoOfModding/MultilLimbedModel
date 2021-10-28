@@ -1,14 +1,20 @@
 package DaoOfModding.mlmanimator.Client.Models;
 
-import DaoOfModding.mlmanimator.mlmanimator;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
+import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.math.vector.Vector3f;
 
 import java.util.*;
 
@@ -34,6 +40,9 @@ public class MultiLimbedModel
     HashMap<String, ExtendableModelRenderer> allLimbs = new HashMap<String, ExtendableModelRenderer>();
 
     private boolean lock = false;
+
+   ArrayList<ExtendableModelRenderer> hands = new ArrayList<>();
+
 
     public MultiLimbedModel(PlayerModel model)
     {
@@ -102,11 +111,18 @@ public class MultiLimbedModel
         addLimbReference(GenericLimbNames.lowerRightLeg, rightLeg.getChildren().get(0));
 
         setViewPoint(head);
+        setHand(0, rightArm.getChildren().get(0));
+        setHand(1, leftArm.getChildren().get(0));
     }
 
     public PlayerModel getBaseModel()
     {
         return baseModel;
+    }
+
+    public void setHand(int slot, ExtendableModelRenderer hand)
+    {
+        hands.add(slot, hand);
     }
 
     public void setViewPoint(ExtendableModelRenderer model)
@@ -302,6 +318,38 @@ public class MultiLimbedModel
         matrixStackIn.popPose();
 
         unlock();
+    }
+
+    public void renderHandItem(boolean left, int slot, LivingEntity entityIn, ItemStack item, MatrixStack matrixStackIn, IRenderTypeBuffer renderTypeBuffer, int packedLightIn)
+    {
+        // Don't do anything if nothing is held
+        if (item.isEmpty())
+            return;
+
+        // Don't do anything if this hand doesn't exist
+        ExtendableModelRenderer hand = hands.get(slot);
+        if (hand == null)
+            return;
+
+        matrixStackIn.pushPose();
+
+        // Transform the camera based depending on which hand is holding the item
+        ItemCameraTransforms.TransformType cameraTransform = ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND;
+        if (left)
+            cameraTransform = ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND;
+
+        // Rotate the item to the hand
+        hand.moveToThisModel(matrixStackIn, new Vector3d((left ? -0.5 : 0.5), 1, -1));
+
+        // Turn the item around to fit in the hand
+        matrixStackIn.mulPose(Vector3f.XP.rotationDegrees(-90.0F));
+        matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(180.0F));
+
+        // Render the item
+        Minecraft.getInstance().getItemInHandRenderer().renderItem(entityIn, item, cameraTransform, left, matrixStackIn, renderTypeBuffer, packedLightIn);
+
+
+        matrixStackIn.popPose();
     }
 
     public float calculateEyeHeight()

@@ -12,12 +12,12 @@ public class GenericResizers
 
     public static resizeModule getLeftArmResizer()
     {
-        return new defaultResizeModule(2, new Vector3d(0, 1, 0), new Vector3d(1, 1, 0), new Vector3d(4, 12, 4), new Vector3d(0, 1, 1));
+        return new defaultResizeModule(2, new Vector3d(0, 1, 0), new Vector3d(1, 1, 1), new Vector3d(4, 12, 4), new Vector3d(0, 1, 0));
     }
 
     public static resizeModule getRightArmResizer()
     {
-        return new defaultResizeModule(2, new Vector3d(0, 1, 0), new Vector3d(0, 1, 0), new Vector3d(4, 12, 4), new Vector3d(1, 1, 1));
+        return new defaultResizeModule(2, new Vector3d(0, 1, 0), new Vector3d(0, 1, 1), new Vector3d(4, 12, 4), new Vector3d(1, 1, 0));
     }
 
     public static resizeModule getLegResizer()
