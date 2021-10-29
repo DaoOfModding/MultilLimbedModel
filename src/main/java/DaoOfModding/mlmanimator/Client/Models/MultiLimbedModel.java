@@ -77,13 +77,13 @@ public class MultiLimbedModel
         rightArm.setRotationPoint(new Vector3d(0.5D, 0.66D, 0.5D));
         rightArm.setPos(0.0F, 0.0F, 0.5F);
         rightArm.setFixedPosAdjustment(-2.0F, 2F, 0.0F);
-        rightArm.extend(GenericResizers.getRightArmResizer());
+        rightArm.extend(GenericResizers.getArmResizer());
 
         ExtendableModelRenderer leftArm = new ExtendableModelRenderer(32, 48);
         leftArm.setRotationPoint(new Vector3d(0.5D, 0.66D, 0.5D));
         leftArm.setPos(1.0F, 0.0F, 0.5F);
         leftArm.setFixedPosAdjustment(2.0F, 2F, 0.0F);
-        leftArm.extend(GenericResizers.getLeftArmResizer());
+        leftArm.extend(GenericResizers.getArmResizer());
         leftArm.mirror = true;
 
         ExtendableModelRenderer rightLeg = new ExtendableModelRenderer(baseModel, 0, 16);
@@ -283,6 +283,12 @@ public class MultiLimbedModel
         return lookVector;
     }
 
+    // Get a vector indicating the direction a hand holding an item should be rotated
+    public Vector3d getHoldingVector()
+    {
+        return new Vector3d(getLookVector().x() / 1.5, getLookVector().y(), getLookVector().z());
+    }
+
     public RenderType renderType(ResourceLocation resourcelocation)
     {
         return baseModel.renderType(resourcelocation);
@@ -339,7 +345,7 @@ public class MultiLimbedModel
             cameraTransform = ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND;
 
         // Rotate the item to the hand
-        hand.moveToThisModel(matrixStackIn, new Vector3d((left ? -0.5 : 0.5), 1, -1));
+        hand.moveToThisModel(matrixStackIn, new Vector3d(0, 1, -1));
 
         // Turn the item around to fit in the hand
         matrixStackIn.mulPose(Vector3f.XP.rotationDegrees(-90.0F));

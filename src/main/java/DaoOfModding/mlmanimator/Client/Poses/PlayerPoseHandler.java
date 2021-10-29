@@ -2,6 +2,7 @@ package DaoOfModding.mlmanimator.Client.Poses;
 
 import DaoOfModding.mlmanimator.Client.AnimationFramework.AnimationSpeedCalculator;
 import DaoOfModding.mlmanimator.Client.Models.ExtendableModelRenderer;
+import DaoOfModding.mlmanimator.Client.Models.GenericLimbNames;
 import DaoOfModding.mlmanimator.Client.Models.MultiLimbedModel;
 import DaoOfModding.mlmanimator.Client.MultiLimbedRenderer;
 import DaoOfModding.mlmanimator.mlmanimator;
@@ -466,12 +467,27 @@ public class PlayerPoseHandler
     {
         addPose(GenericPoses.Idle);
 
+
         // Add holding animations if the player is holding an item
         if (!player.getMainHandItem().isEmpty())
-            addPose(GenericPoses.HoldingMain);
+        {
+            PlayerPose holding = GenericPoses.HoldingMain.clone();
+            Vector3d holdingVector = model.getHoldingVector();
+            holdingVector = holdingVector.add(Math.toRadians(-30), Math.toRadians(-5), 0 );
+            holding.addAngle(GenericLimbNames.rightArm, holdingVector, 1);
+
+            addPose(holding);
+        }
 
         if (!player.getOffhandItem().isEmpty())
-            addPose(GenericPoses.HoldingOff);
+        {
+            PlayerPose holding = GenericPoses.HoldingOff.clone();
+            Vector3d holdingVector = model.getHoldingVector();
+            holdingVector = holdingVector.add(Math.toRadians(-30), Math.toRadians(5), 0 );
+            holding.addAngle(GenericLimbNames.leftArm, holdingVector, 1);
+
+            addPose(holding);
+        }
 
         // Tell the PoseHandler that the player is not jumping if they are on the ground or in water
         if (player.isOnGround() || player.isInWater())

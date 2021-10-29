@@ -60,9 +60,9 @@ public class GenericPoses
     public static void setupHolding()
     {
         HoldingMain.addAngle(GenericLimbNames.lowerRightArm, new Vector3d(Math.toRadians(-35), 0, 0), armHoldPriority);
-        HoldingMain.addAngle(GenericLimbNames.rightArm, new Vector3d(Math.toRadians(-30), 0, 0), 1);
+        //HoldingMain.addAngle(GenericLimbNames.rightArm, new Vector3d(Math.toRadians(-30), 0, 0), 1);
         HoldingOff.addAngle(GenericLimbNames.lowerLeftArm, new Vector3d(Math.toRadians(-35), 0, 0), armHoldPriority);
-        HoldingOff.addAngle(GenericLimbNames.leftArm, new Vector3d(Math.toRadians(-30), 0, 0), 1);
+        //HoldingOff.addAngle(GenericLimbNames.leftArm, new Vector3d(Math.toRadians(-30), 0, 0), 1);
     }
 
     public static void setupWalking()
