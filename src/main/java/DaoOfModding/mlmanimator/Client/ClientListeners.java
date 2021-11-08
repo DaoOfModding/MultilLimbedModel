@@ -1,5 +1,6 @@
 package DaoOfModding.mlmanimator.Client;
 
+import DaoOfModding.mlmanimator.Client.Poses.GenericPoses;
 import DaoOfModding.mlmanimator.Client.Poses.PlayerPoseHandler;
 import DaoOfModding.mlmanimator.Client.Poses.PoseHandler;
 import net.minecraft.client.Minecraft;
@@ -9,6 +10,7 @@ import net.minecraft.util.Hand;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.*;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
@@ -33,6 +35,12 @@ public class ClientListeners
 
             handler.doDefaultPoses((ClientPlayerEntity)event.player);
         }
+    }
+
+    @SubscribeEvent
+    public static void playerInteract(PlayerInteractEvent.LeftClickEmpty event)
+    {
+        PoseHandler.getPlayerPoseHandler(event.getPlayer().getUUID()).addPose(GenericPoses.slashing);
     }
 
     @SubscribeEvent

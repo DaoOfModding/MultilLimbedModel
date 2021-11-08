@@ -62,6 +62,11 @@ public class Quad
         return (leftPoint.subtract(point)).cross(rightPoint.subtract(point)).normalize();
     }
 
+    public void setColor(Vector4f newColor)
+    {
+        color = newColor;
+    }
+
     public void render(MatrixStack matrixStackIn, int packedLightIn, int packedOverlayIn)
     {
         IVertexBuilder vertexBuilder = MultiLimbedRenderer.getVertexBuilder(customTexture);

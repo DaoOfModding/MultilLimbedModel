@@ -504,10 +504,17 @@ public class PlayerPoseHandler
         if (player.isInWater())
         {
             // If player is moving in the water apply swimming pose
-            if (player.isVisuallySwimming())
+            if (player.getDeltaMovement().length() > 0)
             {
-                // TODO: Swimming pose
+                double yLook = 1 - player.getDeltaMovement().normalize().y;
+
+                PlayerPose swimPose = GenericPoses.SwimmingMoving.clone();
+                swimPose.addAngle(GenericLimbNames.body, new Vector3d(Math.toRadians(90 * yLook), 0, 0), GenericPoses.swimBodyPriority);
+
+                addPose(swimPose);
             }
+            else
+                addPose(GenericPoses.Swimming);
         }
         else if (PoseHandler.isJumping(player.getUUID()))
         {

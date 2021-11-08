@@ -14,11 +14,19 @@ public class GenericPoses
 
     public static final int armHoldPriority = 50;
 
+    public static final int armAttackPriority = 99;
+
+    public static final int swimBodyPriority = 99;
+    public static final int swimLegPriority = 20;
+
     public static PlayerPose Idle = new PlayerPose();
     public static PlayerPose HoldingMain = new PlayerPose();
     public static PlayerPose HoldingOff = new PlayerPose();
     public static PlayerPose Walking = new PlayerPose();
     public static PlayerPose Jumping = new PlayerPose();
+    public static PlayerPose slashing = new PlayerPose();
+    public static PlayerPose Swimming = new PlayerPose();
+    public static PlayerPose SwimmingMoving = new PlayerPose();
 
     public static void init()
     {
@@ -26,9 +34,22 @@ public class GenericPoses
         setupHolding();
         setupWalking();
         setupJumping();
+        setupSwimming();
+
+        setupAction();
     }
 
     // TODO: Add swimming, sleeping, sitting, etc poses
+
+    public static void setupSwimming()
+    {
+        Swimming.addAngle(GenericLimbNames.body, new Vector3d(Math.toRadians(90), 0, 0), swimBodyPriority);
+
+        SwimmingMoving.addAngle(GenericLimbNames.leftLeg, new Vector3d(Math.toRadians(-30), 0, 0), swimLegPriority, 15f, 1);
+        SwimmingMoving.addAngle(GenericLimbNames.leftLeg, new Vector3d(Math.toRadians(30), 0, 0), swimLegPriority, 15f, 1);
+        SwimmingMoving.addAngle(GenericLimbNames.rightLeg, new Vector3d(Math.toRadians(30), 0, 0), swimLegPriority, 15f, 1);
+        SwimmingMoving.addAngle(GenericLimbNames.rightLeg, new Vector3d(Math.toRadians(-30), 0, 0), swimLegPriority, 15f, 1);
+    }
 
     public static void setupIdle()
     {
@@ -63,6 +84,12 @@ public class GenericPoses
         //HoldingMain.addAngle(GenericLimbNames.rightArm, new Vector3d(Math.toRadians(-30), 0, 0), 1);
         HoldingOff.addAngle(GenericLimbNames.lowerLeftArm, new Vector3d(Math.toRadians(-35), 0, 0), armHoldPriority);
         //HoldingOff.addAngle(GenericLimbNames.leftArm, new Vector3d(Math.toRadians(-30), 0, 0), 1);
+    }
+
+    public static void setupAction()
+    {
+        // TODO: Make this... not shit
+        slashing.addAngle(GenericLimbNames.lowerRightArm, new Vector3d(Math.toRadians(-130), 0, 0), armAttackPriority, 1f, -1);
     }
 
     public static void setupWalking()
