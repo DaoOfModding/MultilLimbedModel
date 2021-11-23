@@ -248,12 +248,12 @@ public class PlayerPoseHandler
             if (renderPose.hasAngle(limb))
                 angles = animateLimb(limb, getLimbPos(limb), partialTicks);
             else
-                angles = animateLimb(getLimbPos(limb), new Vector3d(0, 0, 0), AnimationSpeedCalculator.defaultSpeedPerTick, partialTicks);
+                angles = animateLimb(getLimbPos(limb), new Vector3d(0, 0, 0), AnimationSpeedCalculator.defaultSpeedInTicks, partialTicks);
 
             newRender.addAngle(limb, angles, 1);
             newRender.addOffset(limb, renderPose.getOffset(limb));
 
-            newRender.addSize(limb, animateResize(getLimbSize(limb), new Vector3d(1, 1, 1), AnimationSpeedCalculator.defaultSpeedPerTick), 0, AnimationSpeedCalculator.defaultSpeedPerTick);
+            newRender.addSize(limb, animateResize(getLimbSize(limb), new Vector3d(1, 1, 1), AnimationSpeedCalculator.defaultSpeedPerTick), 0, 1);
         }
 
         // Add any size changes in the animating pose to renderPose
