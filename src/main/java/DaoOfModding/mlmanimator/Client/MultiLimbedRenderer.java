@@ -74,8 +74,6 @@ public class MultiLimbedRenderer
         if (handler == null)
             return;
 
-        // TODO: Adjust camera height based on viewPoint
-
         // Adjust the camera pitch based on the direction of the models viewPoint
         double pitch = handler.getPlayerModel().getViewPoint().getNotLookingPitch();
         double oldPitch = handler.getPlayerModel().getViewPoint().getOldNotLookingPitch();
@@ -176,7 +174,7 @@ public class MultiLimbedRenderer
             // Calculate the camera position
             Vector3d testPos = modifiedPos.add(direction.scale(startingDistance));
 
-            // Test the distance between the players and camera position, checking if it's blocked by anything visualy
+            // Test the distance between the players and camera position, checking if it's blocked by anything visually
             RayTraceResult raytraceresult = renderViewEntity.level.clip(new RayTraceContext(modifiedPos, testPos, RayTraceContext.BlockMode.VISUAL, RayTraceContext.FluidMode.NONE, renderViewEntity));
 
             // If it is blocked, check the distance and set that to the new camera distance

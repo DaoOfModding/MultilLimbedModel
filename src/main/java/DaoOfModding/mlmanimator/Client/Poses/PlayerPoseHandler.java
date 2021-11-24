@@ -330,6 +330,10 @@ public class PlayerPoseHandler
 
         int currentFrame = frame.get(limb);
 
+        // Reset the currentFrame to 0 if it is greater than the number of frames that exist
+        if (renderPose.getAngles(limb).size() >= currentFrame)
+            currentFrame = 0;
+
         // Grab the renderPos angle for the specified limb
         Vector3d moveTo = renderPose.getAngle(limb, currentFrame);
 

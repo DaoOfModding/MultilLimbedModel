@@ -95,4 +95,18 @@ public class ClientListeners
 
         MultiLimbedRenderer.rotateCamera(event);
     }
+
+    @SubscribeEvent
+    public static void cameraFOV(FOVUpdateEvent event)
+    {
+        // Cap the min and max FOV change to stop ridiculous FOV changes at high/low speeds
+
+        float newFov = event.getNewfov();
+        if (newFov < 0.95f)
+            newFov = 0.95f;
+        if (newFov > 1.15f)
+            newFov = 1.15f;
+
+        event.setNewfov(newFov);
+    }
 }
