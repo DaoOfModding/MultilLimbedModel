@@ -8,6 +8,7 @@ import DaoOfModding.mlmanimator.mlmanimator;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.renderer.model.Model;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.entity.Entity;
@@ -624,5 +625,11 @@ public class ExtendableModelRenderer extends ModelRenderer
         xRot -= rotationOffset.x;
         yRot -= rotationOffset.y;
         zRot -= rotationOffset.z;
+    }
+
+    public void tick(ClientPlayerEntity player)
+    {
+        for (ExtendableModelRenderer thisChild : getChildren())
+            thisChild.tick(player);
     }
 }

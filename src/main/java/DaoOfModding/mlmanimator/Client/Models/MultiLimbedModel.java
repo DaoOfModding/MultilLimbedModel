@@ -218,25 +218,10 @@ public class MultiLimbedModel
     {
         lock();
 
-        for (ParticleEmitter emitter : emitters.values())
-            emitter.tick(player);
+        body.tick(player);
 
         unlock();
     }
-
-    // Adds specified particleEmitter onto the body
-    public void addParticleEmitter(String limb, ParticleEmitter limbModel)
-    {
-        addParticleEmitter(limb, limbModel, GenericLimbNames.body);
-    }
-
-    public void addParticleEmitter(String limb, ParticleEmitter limbModel, String addTo)
-    {
-        emitters.put(limb, limbModel);
-
-        addLimb(limb, limbModel, addTo);
-    }
-
 
     // Adds specified limb onto the body
     public void addLimb(String limb, ExtendableModelRenderer limbModel)

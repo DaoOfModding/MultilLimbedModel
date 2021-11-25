@@ -46,6 +46,7 @@ public class ParticleEmitter extends ExtendableModelRenderer
     @Override
     protected void compile(MatrixStack.Entry matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) { }
 
+    @Override
     public void tick(ClientPlayerEntity player)
     {
         // Do nothing if this emitter is disabled
