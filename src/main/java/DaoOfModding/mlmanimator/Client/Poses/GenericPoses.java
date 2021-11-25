@@ -1,6 +1,7 @@
 package DaoOfModding.mlmanimator.Client.Poses;
 
 import DaoOfModding.mlmanimator.Client.AnimationFramework.AnimationBuilder;
+import DaoOfModding.mlmanimator.Client.AnimationFramework.AnimationSpeedCalculator;
 import DaoOfModding.mlmanimator.Client.Models.GenericLimbNames;
 import net.minecraft.util.math.vector.Vector3d;
 
@@ -94,6 +95,18 @@ public class GenericPoses
 
     public static void setupWalking()
     {
+        /*Walking.addAngle(GenericLimbNames.leftLeg, new Vector3d(Math.toRadians(-45), Math.toRadians(0), Math.toRadians(0)), walkLegPriority);
+        Walking.addAngle(GenericLimbNames.leftLeg, new Vector3d(Math.toRadians(-45), Math.toRadians(0), Math.toRadians(0)), walkLegPriority);
+        Walking.addAngle(GenericLimbNames.leftLeg, new Vector3d(Math.toRadians(0), Math.toRadians(0), Math.toRadians(0)), walkLegPriority);
+        Walking.addAngle(GenericLimbNames.leftLeg, new Vector3d(Math.toRadians(30), Math.toRadians(0), Math.toRadians(0)), walkLegPriority);
+        Walking.addAngle(GenericLimbNames.leftLeg, new Vector3d(Math.toRadians(30), Math.toRadians(0), Math.toRadians(0)), walkLegPriority);
+
+        Walking.addAngle(GenericLimbNames.lowerLeftLeg, new Vector3d(Math.toRadians(0), Math.toRadians(0), Math.toRadians(0)), walkLegPriority);
+        Walking.addAngle(GenericLimbNames.lowerLeftLeg, new Vector3d(Math.toRadians(45), Math.toRadians(0), Math.toRadians(0)), walkLegPriority);
+        Walking.addAngle(GenericLimbNames.lowerLeftLeg, new Vector3d(Math.toRadians(0), Math.toRadians(0), Math.toRadians(0)), walkLegPriority);
+        Walking.addAngle(GenericLimbNames.lowerLeftLeg, new Vector3d(Math.toRadians(0), Math.toRadians(0), Math.toRadians(0)), walkLegPriority);
+        Walking.addAngle(GenericLimbNames.lowerLeftLeg, new Vector3d(Math.toRadians(15), Math.toRadians(0), Math.toRadians(0)), walkLegPriority);*/
+
         Vector3d[] walkAngle = new Vector3d[5];
 
         walkAngle[0] = new Vector3d(Math.toRadians(-45), Math.toRadians(0), Math.toRadians(0));
@@ -102,17 +115,17 @@ public class GenericPoses
         walkAngle[3] = new Vector3d(Math.toRadians(30), Math.toRadians(0), Math.toRadians(0));
         walkAngle[4] = new Vector3d(Math.toRadians(30), Math.toRadians(0), Math.toRadians(0));
 
-        Walking = AnimationBuilder.generateRepeatingMirroredLimbs(GenericLimbNames.leftLeg, GenericLimbNames.rightLeg, walkAngle, walkLegPriority, 3, 1);
+        Walking = AnimationBuilder.generateRepeatingMirroredLimbs(GenericLimbNames.leftLeg, GenericLimbNames.rightLeg, walkAngle, walkLegPriority, AnimationSpeedCalculator.defaultSpeedInTicks / 2, 1);
 
 
         Vector3d[] lowerWalkAngle = new Vector3d[5];
-        lowerWalkAngle[0] = new Vector3d(Math.toRadians(0), Math.toRadians(0), Math.toRadians(0));
-        lowerWalkAngle[1] = new Vector3d(Math.toRadians(45), Math.toRadians(0), Math.toRadians(0));
+        lowerWalkAngle[0] = new Vector3d(Math.toRadians(45), Math.toRadians(0), Math.toRadians(0));
+        lowerWalkAngle[1] = new Vector3d(Math.toRadians(0), Math.toRadians(0), Math.toRadians(0));
         lowerWalkAngle[2] = new Vector3d(Math.toRadians(0), Math.toRadians(0), Math.toRadians(0));
         lowerWalkAngle[3] = new Vector3d(Math.toRadians(0), Math.toRadians(0), Math.toRadians(0));
         lowerWalkAngle[4] = new Vector3d(Math.toRadians(15), Math.toRadians(0), Math.toRadians(0));
 
-        Walking = Walking.combine(AnimationBuilder.generateRepeatingMirroredLimbs(GenericLimbNames.lowerLeftLeg, GenericLimbNames.lowerRightLeg, lowerWalkAngle, walkLegPriority, 3, 1));
+        Walking = Walking.combine(AnimationBuilder.generateRepeatingMirroredLimbs(GenericLimbNames.lowerLeftLeg, GenericLimbNames.lowerRightLeg, lowerWalkAngle, walkLegPriority, AnimationSpeedCalculator.defaultSpeedInTicks / 2, 1));
 
 
         Walking.addAngle(GenericLimbNames.leftArm, new Vector3d(Math.toRadians(45), Math.toRadians(0), 0), walkArmPriority);

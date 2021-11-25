@@ -2,6 +2,7 @@ package DaoOfModding.mlmanimator.Common;
 
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Direction;
+import net.minecraft.util.math.vector.Vector3d;
 
 public class PlayerUtils
 {
@@ -55,5 +56,16 @@ public class PlayerUtils
             return Direction.SOUTH;
 
         return Direction.DOWN;
+    }
+
+    public static Vector3d rotateAroundY(Vector3d position, double angle)
+    {
+        double angleCos = Math.cos(angle);
+        double angleSin = Math.sin(angle);
+
+        double x = angleCos * position.x + angleSin * position.z;
+        double z = -angleSin * position.x + angleCos * position.z;
+
+        return new Vector3d(x, position.y, z);
     }
 }

@@ -23,41 +23,41 @@ import java.util.ArrayList;
 
 public class ExtendableModelRenderer extends ModelRenderer
 {
-    private int textureWidth = 64;
-    private int textureHeight = 32;
-    private int textureOffsetX;
-    private int textureOffsetY;
+    protected int textureWidth = 64;
+    protected int textureHeight = 32;
+    protected int textureOffsetX;
+    protected int textureOffsetY;
 
-    private ExtendableModelRenderer parent = null;
-    private ArrayList<ExtendableModelRenderer> child = new ArrayList<ExtendableModelRenderer>();
+    protected ExtendableModelRenderer parent = null;
+    protected ArrayList<ExtendableModelRenderer> child = new ArrayList<ExtendableModelRenderer>();
     // List of quads to draw
-    private ArrayList<Quad> quads = new ArrayList<Quad>();
+    protected ArrayList<Quad> quads = new ArrayList<Quad>();
 
     // List of quad vertexes attached to this model
-    private ArrayList<QuadLinkage> quadLinkage = new ArrayList<QuadLinkage>();
+    protected ArrayList<QuadLinkage> quadLinkage = new ArrayList<QuadLinkage>();
 
-    private Vector3f[] points = new Vector3f[8];
+    protected Vector3f[] points = new Vector3f[8];
 
-    private float minHeight = 0;
+    protected float minHeight = 0;
 
-    private boolean look = false;
-    private float notLookingPitch = 0;
-    private float oldNotLookingPitch = 0;
+    protected boolean look = false;
+    protected float notLookingPitch = 0;
+    protected float oldNotLookingPitch = 0;
 
-    private ResourceLocation customTexture = null;
+    protected ResourceLocation customTexture = null;
 
-    private Vector3d rotationOffset = new Vector3d(0, 0 ,0);
-    private Vector3d rotationPoint = new Vector3d(0, 0, 0);
+    protected Vector3d rotationOffset = new Vector3d(0, 0 ,0);
+    protected Vector3d rotationPoint = new Vector3d(0, 0, 0);
 
-    private boolean renderFirstPerson = true;
+    protected boolean renderFirstPerson = true;
 
-    private Vector3d thisSize = new Vector3d(1, 1, 1);
-    private Vector3d defaultResize = new Vector3d(1, 1, 1);
-    private Vector3d defaultSize;
-    private float thisDelta;
+    protected Vector3d thisSize = new Vector3d(1, 1, 1);
+    protected Vector3d defaultResize = new Vector3d(1, 1, 1);
+    protected Vector3d defaultSize;
+    protected float thisDelta;
 
-    private Vector3d relativePosition = new Vector3d(0, 0, 0);
-    private Vector3d fixedPosition = new Vector3d(0, 0, 0);
+    protected Vector3d relativePosition = new Vector3d(0, 0, 0);
+    protected Vector3d fixedPosition = new Vector3d(0, 0, 0);
 
 
     public ExtendableModelRenderer clone()
@@ -408,7 +408,7 @@ public class ExtendableModelRenderer extends ModelRenderer
     }
 
     // Thanks minecraft for making it SO GODDAMN COMPLICATED for me to freakin' RESIZE A CUBE
-    private void compile(MatrixStack.Entry matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha)
+    protected void compile(MatrixStack.Entry matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha)
     {
         Matrix4f matrix4f = matrixStackIn.pose();
         Matrix3f normalMatrix = matrixStackIn.normal();

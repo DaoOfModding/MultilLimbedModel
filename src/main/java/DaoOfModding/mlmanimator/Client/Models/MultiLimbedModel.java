@@ -3,6 +3,7 @@ package DaoOfModding.mlmanimator.Client.Models;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
@@ -12,6 +13,8 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.particles.BasicParticleType;
+import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.math.vector.Vector3f;
@@ -38,6 +41,8 @@ public class MultiLimbedModel
     HashMap<String, ExtendableModelRenderer> firstPersonLimbs = new HashMap<String, ExtendableModelRenderer>();
 
     HashMap<String, ExtendableModelRenderer> allLimbs = new HashMap<String, ExtendableModelRenderer>();
+
+    HashMap<String, ParticleEmitter> emitters = new HashMap<String, ParticleEmitter>();
 
     private boolean lock = false;
 
@@ -208,6 +213,30 @@ public class MultiLimbedModel
 
         unlock();
     }
+
+    public void tick(ClientPlayerEntity player)
+    {
+        lock();
+
+        for (ParticleEmitter emitter : emitters.values())
+            emitter.tick(player);
+
+        unlock();
+    }
+
+    // Adds specified particleEmitter onto the body
+    public void addParticleEmitter(String limb, ParticleEmitter limbModel)
+    {
+        addParticleEmitter(limb, limbModel, GenericLimbNames.body);
+    }
+
+    public void addParticleEmitter(String limb, ParticleEmitter limbModel, String addTo)
+    {
+        emitters.put(limb, limbModel);
+
+        addLimb(limb, limbModel, addTo);
+    }
+
 
     // Adds specified limb onto the body
     public void addLimb(String limb, ExtendableModelRenderer limbModel)
