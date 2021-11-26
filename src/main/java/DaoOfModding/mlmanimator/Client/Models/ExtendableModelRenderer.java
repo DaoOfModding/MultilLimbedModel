@@ -340,7 +340,7 @@ public class ExtendableModelRenderer extends ModelRenderer
         pos = defaultSize.scale(-1).multiply(pos);
 
         float width = (float)(defaultSize.x);
-        float height = (float)(defaultSize.y );
+        float height = (float)(defaultSize.y);
         float depth = (float)(defaultSize.z);
 
         float x1 = (float)pos.x;

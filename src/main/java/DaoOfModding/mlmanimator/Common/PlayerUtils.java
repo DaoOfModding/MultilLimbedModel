@@ -60,8 +60,8 @@ public class PlayerUtils
 
     public static Vector3d rotateAroundY(Vector3d position, double angle)
     {
-        double angleCos = Math.cos(angle);
-        double angleSin = Math.sin(angle);
+        double angleCos = Math.cos(Math.toRadians(angle));
+        double angleSin = Math.sin(Math.toRadians(angle));
 
         double x = angleCos * position.x + angleSin * position.z;
         double z = -angleSin * position.x + angleCos * position.z;

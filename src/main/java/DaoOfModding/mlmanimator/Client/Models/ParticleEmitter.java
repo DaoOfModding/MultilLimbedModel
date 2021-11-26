@@ -1,17 +1,16 @@
 package DaoOfModding.mlmanimator.Client.Models;
 
+import DaoOfModding.mlmanimator.Client.Models.Quads.Quad;
+import DaoOfModding.mlmanimator.Client.Models.Quads.QuadLinkage;
 import DaoOfModding.mlmanimator.Client.Poses.PoseHandler;
 import DaoOfModding.mlmanimator.Common.PlayerUtils;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.particles.BasicParticleType;
 import net.minecraft.particles.IParticleData;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
 import net.minecraft.util.math.vector.Vector4f;
 
 public class ParticleEmitter extends ExtendableModelRenderer
@@ -20,12 +19,11 @@ public class ParticleEmitter extends ExtendableModelRenderer
     protected int interval = 0;
 
     protected Vector3d Velocity = new Vector3d(0, 0, 0);
-
     protected Vector3d spawnPos = new Vector3d(0, 0, 0);
 
     protected int tick = 0;
 
-    public ParticleEmitter(BasicParticleType particleType)
+    public ParticleEmitter(IParticleData particleType)
     {
         super(0, 0);
 
@@ -65,9 +63,14 @@ public class ParticleEmitter extends ExtendableModelRenderer
     protected void spawnParticle(ClientPlayerEntity player)
     {
         // Rotate spawnPos based on player rotation
-        Vector3d pos = PlayerUtils.rotateAroundY(spawnPos.scale(1/16), player.yBodyRot);
+        Vector3d pos = PlayerUtils.rotateAroundY(spawnPos.scale(1.0/16.0), 360-player.yBodyRot);
         pos = pos.add(player.position());
-        pos = new Vector3d(pos.x, pos.y + PoseHandler.getPlayerPoseHandler(player.getUUID()).getPlayerModel().getHeightAdjustment(), + pos.z);
+
+        System.out.println(spawnPos);
+
+        // Pos.Y is a crazy random variable :/
+
+        pos = new Vector3d(pos.x, pos.y + PoseHandler.getPlayerPoseHandler(player.getUUID()).getPlayerModel().getHeightAdjustment(), pos.z);
 
         Vector3d vel = PlayerUtils.rotateAroundY(Velocity, player.yBodyRot);
 
@@ -85,16 +88,53 @@ public class ParticleEmitter extends ExtendableModelRenderer
 
         Matrix4f rotator = matrixStackIn.last().pose();
 
-
-        float min = Float.MAX_VALUE * -1;
-
-        Vector4f vector4f = new Vector4f(x, y, z, 1);
+        Vector4f vector4f = new Vector4f(0, 0, 0, 1);
         vector4f.transform(rotator);
 
-        spawnPos = new Vector3d(vector4f.x(), vector4f.y(), vector4f.z());
+        // Why is x not negative? I have no idea
+        spawnPos = new Vector3d(vector4f.x(), -vector4f.y(), -vector4f.z());
+
+        // Calculate the min height of children
+        for (ExtendableModelRenderer testChild : child)
+            testChild.calculateMinHeight(matrixStackIn);
 
         matrixStackIn.popPose();
     }
 
+    @Override
+    public ExtendableModelRenderer clone()
+    {
+        ParticleEmitter copy = new ParticleEmitter(particle);
+        copy.setParent(parent);
 
+        copy.Velocity = Velocity;
+        copy.spawnPos = spawnPos;
+        copy.interval = interval;
+        copy.tick = tick;
+
+        copy.minHeight = minHeight;
+        copy.look = look;
+        copy.rotationOffset = rotationOffset;
+        copy.rotationPoint = rotationPoint;
+        copy.renderFirstPerson = renderFirstPerson;
+
+        copy.relativePosition = relativePosition;
+        copy.fixedPosition = fixedPosition;
+
+        copy.defaultSize = defaultSize;
+        copy.thisSize = thisSize;
+        copy.defaultResize = defaultResize;
+        copy.thisDelta = thisDelta;
+
+        for (ExtendableModelRenderer children : child)
+            copy.addChild(children.clone());
+
+        for (Quad quad : quads)
+            copy.addQuad(quad);
+
+        for (QuadLinkage link : quadLinkage)
+            copy.addQuadLinkage(link);
+
+        return copy;
+    }
 }
