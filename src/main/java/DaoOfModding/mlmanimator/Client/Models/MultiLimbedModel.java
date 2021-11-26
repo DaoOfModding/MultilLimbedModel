@@ -105,21 +105,6 @@ public class MultiLimbedModel
         leftLeg.mirror = true;
 
 
-
-        ParticleEmitter testEmitter = new ParticleEmitter(ParticleTypes.FLAME);
-        testEmitter.setInterval(1);
-        testEmitter.setVelocity(new Vector3d(0, 0, 0));
-        testEmitter.setPos(0, 0, 0);
-
-        ParticleEmitter testEmitter2 = new ParticleEmitter(ParticleTypes.FLAME);
-        testEmitter2.setInterval(1);
-        testEmitter2.setVelocity(new Vector3d(0, 0, 0));
-        testEmitter2.setPos(1, 1, 1);
-
-        head.addChild(testEmitter);
-        head.addChild(testEmitter2);
-
-
         addBody(body);
         addLimb(GenericLimbNames.head, head);
         addLimb(GenericLimbNames.leftArm, leftArm);

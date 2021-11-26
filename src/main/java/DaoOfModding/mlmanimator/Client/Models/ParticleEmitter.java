@@ -66,13 +66,9 @@ public class ParticleEmitter extends ExtendableModelRenderer
         Vector3d pos = PlayerUtils.rotateAroundY(spawnPos.scale(1.0/16.0), 360-player.yBodyRot);
         pos = pos.add(player.position());
 
-        System.out.println(spawnPos);
-
-        // Pos.Y is a crazy random variable :/
-
         pos = new Vector3d(pos.x, pos.y + PoseHandler.getPlayerPoseHandler(player.getUUID()).getPlayerModel().getHeightAdjustment(), pos.z);
 
-        Vector3d vel = PlayerUtils.rotateAroundY(Velocity, player.yBodyRot);
+        Vector3d vel = PlayerUtils.rotateAroundY(Velocity, 360-player.yBodyRot);
 
         Minecraft.getInstance().particleEngine.createParticle(particle, pos.x, pos.y, pos.z, vel.x, vel.y, vel.z);
     }
