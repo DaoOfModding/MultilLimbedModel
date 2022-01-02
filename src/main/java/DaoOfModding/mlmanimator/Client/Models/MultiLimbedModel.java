@@ -78,6 +78,7 @@ public class MultiLimbedModel
         head.setLooking(true);
         head.setFirstPersonRender(false);
 
+        // TODO: Arm texture mapping is wrong, look at this
         ExtendableModelRenderer rightArm = new ExtendableModelRenderer(40, 16);
         rightArm.setRotationPoint(new Vector3d(0.5D, 0.66D, 0.5D));
         rightArm.setPos(0.0F, 0.0F, 0.5F);
@@ -215,7 +216,7 @@ public class MultiLimbedModel
         unlock();
     }
 
-    public void tick(ClientPlayerEntity player)
+    public void tick(PlayerEntity player)
     {
         lock();
 

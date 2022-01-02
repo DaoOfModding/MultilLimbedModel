@@ -12,6 +12,7 @@ import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.renderer.model.Model;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.*;
@@ -627,7 +628,7 @@ public class ExtendableModelRenderer extends ModelRenderer
         zRot -= rotationOffset.z;
     }
 
-    public void tick(ClientPlayerEntity player)
+    public void tick(PlayerEntity player)
     {
         for (ExtendableModelRenderer thisChild : getChildren())
             thisChild.tick(player);

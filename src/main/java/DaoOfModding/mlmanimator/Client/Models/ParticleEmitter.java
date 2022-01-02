@@ -7,7 +7,7 @@ import DaoOfModding.mlmanimator.Common.PlayerUtils;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.particles.IParticleData;
 import net.minecraft.util.math.vector.Matrix4f;
 import net.minecraft.util.math.vector.Vector3d;
@@ -45,7 +45,7 @@ public class ParticleEmitter extends ExtendableModelRenderer
     protected void compile(MatrixStack.Entry matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) { }
 
     @Override
-    public void tick(ClientPlayerEntity player)
+    public void tick(PlayerEntity player)
     {
         // Do nothing if this emitter is disabled
         if (!visible)
@@ -60,7 +60,7 @@ public class ParticleEmitter extends ExtendableModelRenderer
             tick++;
     }
 
-    protected void spawnParticle(ClientPlayerEntity player)
+    protected void spawnParticle(PlayerEntity player)
     {
         // Rotate spawnPos based on player rotation
         Vector3d pos = PlayerUtils.rotateAroundY(spawnPos.scale(1.0/16.0), 360-player.yBodyRot);

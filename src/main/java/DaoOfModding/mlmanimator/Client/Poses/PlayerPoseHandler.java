@@ -10,6 +10,7 @@ import com.mojang.blaze3d.matrix.MatrixStack;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.vector.*;
 import org.lwjgl.system.CallbackI;
@@ -35,6 +36,8 @@ public class PlayerPoseHandler
     // Ticks before allowing jump to be set to False
     private int jumpCooldown = 0;
 
+    public boolean disableJumpingAnimationThisTick = false;
+
     private HashMap<String, Integer> frame = new HashMap<String, Integer>();
     private HashMap<String, Float> animationTime = new HashMap<String, Float>();
     private HashMap<Integer, Integer> aLockedFrame = new HashMap<Integer, Integer>();
@@ -42,6 +45,10 @@ public class PlayerPoseHandler
     private HashMap<String, Float> animationResizeTime = new HashMap<String, Float>();
 
     public float fov = 1;
+
+
+    private Vector3d oldPos = new Vector3d(0, 0, 0);
+    private Vector3d delta = new Vector3d(0, 0, 0);
 
     public PlayerPoseHandler(UUID id, PlayerModel playerModel)
     {
@@ -52,6 +59,11 @@ public class PlayerPoseHandler
     public MultiLimbedModel getPlayerModel()
     {
         return model;
+    }
+
+    public Vector3d getDeltaMovement()
+    {
+        return delta;
     }
 
     public void setPlayerModel(MultiLimbedModel newModel)
@@ -248,7 +260,7 @@ public class PlayerPoseHandler
             if (renderPose.hasAngle(limb))
                 angles = animateLimb(limb, getLimbPos(limb), partialTicks);
             else
-                angles = animateLimb(getLimbPos(limb), new Vector3d(0, 0, 0), AnimationSpeedCalculator.defaultSpeedInTicks, partialTicks);
+                angles = animateLimb(getLimbPos(limb), new Vector3d(0, 0, 0), AnimationSpeedCalculator.defaultSpeedPerTick, partialTicks);
 
             newRender.addAngle(limb, angles, 1);
             newRender.addOffset(limb, renderPose.getOffset(limb));
@@ -331,7 +343,7 @@ public class PlayerPoseHandler
         int currentFrame = frame.get(limb);
 
         // Reset the currentFrame to 0 if it is greater than the number of frames that exist
-        if (renderPose.getAngles(limb).size() >= currentFrame)
+        if (renderPose.getAngles(limb).size() <= currentFrame)
             currentFrame = 0;
 
         // Grab the renderPos angle for the specified limb
@@ -381,10 +393,20 @@ public class PlayerPoseHandler
     {
         // If frame doesn't exist for this limb yet, set it to 0
         if (!frame.containsKey(limb))
+        {
             frame.put(limb, 0);
+
+            // Reset the time stored in this frame
+            animationTime.put(limb, 0f);
+        }
         // If the current frame is greater than the amount of frames the renderPose has, reset to frame 0
         else if (frame.get(limb) >= renderPose.getFrames(limb))
+        {
             frame.put(limb, 0);
+
+            // Reset the time stored in this frame
+            animationTime.put(limb, 0f);
+        }
 
         int currentFrame = frame.get(limb);
 
@@ -423,10 +445,6 @@ public class PlayerPoseHandler
         if (!animationTime.containsKey(limb))
             animationTime.put(limb, 0f);
 
-        /*// If the animation speed is -1, move immediately to this position and start animating the next phase
-        if (renderPose.getAnimationSpeed(limb, currentFrame) == -1)
-            return animateLimb(limb, moveTo, partialTicks);*/
-
         // Calculate the amount of ticks remaining for this animation
         float TicksRemaining = renderPose.getAnimationSpeed(limb, currentFrame) - animationTime.get(limb);
 
@@ -449,8 +467,6 @@ public class PlayerPoseHandler
     // Return a vector moving the specified vector towards the 'moveTo' vector
     private Vector3d animateLimb(Vector3d current, Vector3d moveTo, double aSpeed, float partialTicks)
     {
-        aSpeed = aSpeed * partialTicks;
-
         // Create a vector of the amount the limb has to move
         Vector3d toMove = new Vector3d(current.x - moveTo.x, current.y - moveTo.y, current.z - moveTo.z);
         double moveAmount = toMove.length();
@@ -459,18 +475,28 @@ public class PlayerPoseHandler
         if (moveAmount == 0)
             return current;
 
+        aSpeed = aSpeed * partialTicks;
+
         // If the limbs have to move more that the animation speed, reduce the amount to the animation speed
         if (moveAmount > aSpeed)
             toMove = toMove.normalize().scale(aSpeed);
 
         // Return a vector of the current position moved towards moveTo by the animation speed
-        return new Vector3d(current.x - toMove.x, current.y - toMove.y, current.z - toMove.z);
+        return current.subtract(toMove);
     }
 
-    public void doDefaultPoses(ClientPlayerEntity player)
+    // movementDelta does not work for remote clients, so have to calculate it here instead
+    private void calculateDelta(PlayerEntity player)
     {
-        addPose(GenericPoses.Idle);
+        delta = player.position().subtract(oldPos);
+        oldPos = player.position();
+    }
 
+    public void doDefaultPoses(PlayerEntity player)
+    {
+        calculateDelta(player);
+
+        addPose(GenericPoses.Idle);
 
         // Add holding animations if the player is holding an item
         if (!player.getMainHandItem().isEmpty())
@@ -508,10 +534,11 @@ public class PlayerPoseHandler
         if (player.isInWater())
         {
             // If player is moving in the water apply swimming pose
-            if (player.getDeltaMovement().length() > 0)
+            if (getDeltaMovement().length() > 0)
             {
-                double yLook = 1 - player.getDeltaMovement().normalize().y;
+                double yLook = 1 - getDeltaMovement().normalize().y;
 
+                // TODO: Body IMMEDIATELY changes angles when going in-out of the water, fix this.
                 PlayerPose swimPose = GenericPoses.SwimmingMoving.clone();
                 swimPose.addAngle(GenericLimbNames.body, new Vector3d(Math.toRadians(90 * yLook), 0, 0), GenericPoses.swimBodyPriority);
 
@@ -522,10 +549,13 @@ public class PlayerPoseHandler
         }
         else if (PoseHandler.isJumping(player.getUUID()))
         {
-            addPose(GenericPoses.Jumping);
+            if (disableJumpingAnimationThisTick)
+                disableJumpingAnimationThisTick = false;
+            else
+                addPose(GenericPoses.Jumping);
         }
         // If player is moving add the walking pose to the PoseHandler
-        else if (player.getDeltaMovement().x != 0 || player.getDeltaMovement().z != 0)
+        else if (getDeltaMovement().x != 0 || getDeltaMovement().z != 0)
             addPose(GenericPoses.Walking);
 
         // Update the PoseHandler

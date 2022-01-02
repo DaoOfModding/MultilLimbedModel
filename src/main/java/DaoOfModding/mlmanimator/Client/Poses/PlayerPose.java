@@ -1,6 +1,8 @@
 package DaoOfModding.mlmanimator.Client.Poses;
 
 import DaoOfModding.mlmanimator.Client.AnimationFramework.AnimationSpeedCalculator;
+import DaoOfModding.mlmanimator.Client.Models.MultiLimbedModel;
+import DaoOfModding.mlmanimator.mlmanimator;
 import net.minecraft.util.math.vector.Vector3d;
 
 import java.util.ArrayList;

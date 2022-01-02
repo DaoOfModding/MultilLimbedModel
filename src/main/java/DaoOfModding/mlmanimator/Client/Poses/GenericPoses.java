@@ -79,6 +79,11 @@ public class GenericPoses
         Jumping = Jumping.combine(toAdd);
     }
 
+    public static void addToSwimming(PlayerPose toAdd)
+    {
+        SwimmingMoving = SwimmingMoving.combine(toAdd);
+    }
+
     public static void setupHolding()
     {
         HoldingMain.addAngle(GenericLimbNames.lowerRightArm, new Vector3d(Math.toRadians(-35), 0, 0), armHoldPriority);
@@ -95,18 +100,6 @@ public class GenericPoses
 
     public static void setupWalking()
     {
-        /*Walking.addAngle(GenericLimbNames.leftLeg, new Vector3d(Math.toRadians(-45), Math.toRadians(0), Math.toRadians(0)), walkLegPriority);
-        Walking.addAngle(GenericLimbNames.leftLeg, new Vector3d(Math.toRadians(-45), Math.toRadians(0), Math.toRadians(0)), walkLegPriority);
-        Walking.addAngle(GenericLimbNames.leftLeg, new Vector3d(Math.toRadians(0), Math.toRadians(0), Math.toRadians(0)), walkLegPriority);
-        Walking.addAngle(GenericLimbNames.leftLeg, new Vector3d(Math.toRadians(30), Math.toRadians(0), Math.toRadians(0)), walkLegPriority);
-        Walking.addAngle(GenericLimbNames.leftLeg, new Vector3d(Math.toRadians(30), Math.toRadians(0), Math.toRadians(0)), walkLegPriority);
-
-        Walking.addAngle(GenericLimbNames.lowerLeftLeg, new Vector3d(Math.toRadians(0), Math.toRadians(0), Math.toRadians(0)), walkLegPriority);
-        Walking.addAngle(GenericLimbNames.lowerLeftLeg, new Vector3d(Math.toRadians(45), Math.toRadians(0), Math.toRadians(0)), walkLegPriority);
-        Walking.addAngle(GenericLimbNames.lowerLeftLeg, new Vector3d(Math.toRadians(0), Math.toRadians(0), Math.toRadians(0)), walkLegPriority);
-        Walking.addAngle(GenericLimbNames.lowerLeftLeg, new Vector3d(Math.toRadians(0), Math.toRadians(0), Math.toRadians(0)), walkLegPriority);
-        Walking.addAngle(GenericLimbNames.lowerLeftLeg, new Vector3d(Math.toRadians(15), Math.toRadians(0), Math.toRadians(0)), walkLegPriority);*/
-
         Vector3d[] walkAngle = new Vector3d[5];
 
         walkAngle[0] = new Vector3d(Math.toRadians(-45), Math.toRadians(0), Math.toRadians(0));

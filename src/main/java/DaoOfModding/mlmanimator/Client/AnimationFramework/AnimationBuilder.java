@@ -14,24 +14,16 @@ public class AnimationBuilder
     }
 
     // Generate a pose for limbs based on the angles supplied
-    // Plays the provided animation forwards then backwards
-    // Starts the second limb going backwards
+    // Plays the second limb going backwards
     public static PlayerPose generateRepeatingMirroredLimbs(String limb1, String limb2, Vector3d[] angles, int priority, float speedInTicks, int animationLock)
     {
         PlayerPose LegPose = new PlayerPose();
 
-        // Generate each frame going forwards
+        // Generate each frame
         for (int i = 0; i < angles.length; i++)
         {
             LegPose.addAngle(limb1, angles[i], priority, speedInTicks, animationLock);
             LegPose.addAngle(limb2, angles[angles.length - (i + 1)], priority, speedInTicks, animationLock);
-        }
-
-        // Generate each frame going backwards
-        for (int i = 1; i < angles.length; i++)
-        {
-            LegPose.addAngle(limb1, angles[angles.length - (i + 1)], priority, speedInTicks, animationLock);
-            LegPose.addAngle(limb2, angles[i], priority, speedInTicks, animationLock);
         }
 
         return LegPose;

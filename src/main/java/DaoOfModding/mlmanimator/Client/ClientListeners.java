@@ -33,8 +33,8 @@ public class ClientListeners
             if (handler == null)
                 return;
 
-            handler.doDefaultPoses((ClientPlayerEntity)event.player);
-            handler.getPlayerModel().tick((ClientPlayerEntity)event.player);
+            handler.doDefaultPoses(event.player);
+            handler.getPlayerModel().tick(event.player);
         }
     }
 
