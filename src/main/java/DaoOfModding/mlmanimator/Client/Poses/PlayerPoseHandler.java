@@ -538,7 +538,6 @@ public class PlayerPoseHandler
             {
                 double yLook = 1 - getDeltaMovement().normalize().y;
 
-                // TODO: Body IMMEDIATELY changes angles when going in-out of the water, fix this.
                 PlayerPose swimPose = GenericPoses.SwimmingMoving.clone();
                 swimPose.addAngle(GenericLimbNames.body, new Vector3d(Math.toRadians(90 * yLook), 0, 0), GenericPoses.swimBodyPriority);
 

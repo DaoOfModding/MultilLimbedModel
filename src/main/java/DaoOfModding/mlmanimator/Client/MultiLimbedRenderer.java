@@ -290,6 +290,8 @@ public class MultiLimbedRenderer
 
         PlayerPoseHandler handler = PoseHandler.getPlayerPoseHandler(entityIn.getUUID());
 
+        adjustEyeHeight(entityIn, handler);
+
         render2(handler, entityIn, partialTicks, matrixStackIn, bufferIn, packedLightIn);
 
         // Toggle fake third person back on if necessary

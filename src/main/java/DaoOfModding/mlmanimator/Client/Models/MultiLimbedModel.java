@@ -78,17 +78,16 @@ public class MultiLimbedModel
         head.setLooking(true);
         head.setFirstPersonRender(false);
 
-        // TODO: Arm texture mapping is wrong, look at this
         ExtendableModelRenderer rightArm = new ExtendableModelRenderer(40, 16);
         rightArm.setRotationPoint(new Vector3d(0.5D, 0.66D, 0.5D));
         rightArm.setPos(0.0F, 0.0F, 0.5F);
-        rightArm.setFixedPosAdjustment(-2.0F, 2F, 0.0F);
+        rightArm.setFixedPosAdjustment(-1.5F, 2F, 0.0F);
         rightArm.extend(GenericResizers.getArmResizer());
 
         ExtendableModelRenderer leftArm = new ExtendableModelRenderer(32, 48);
         leftArm.setRotationPoint(new Vector3d(0.5D, 0.66D, 0.5D));
         leftArm.setPos(1.0F, 0.0F, 0.5F);
-        leftArm.setFixedPosAdjustment(2.0F, 2F, 0.0F);
+        leftArm.setFixedPosAdjustment(1.5F, 2F, 0.0F);
         leftArm.extend(GenericResizers.getArmResizer());
         leftArm.mirror = true;
 
@@ -388,18 +387,20 @@ public class MultiLimbedModel
             parts.push(viewModel);
         }
 
-        // Rotate the MatrixStack around each parent part (but do not apply viewPoint rotations)
+        // Rotate the MatrixStack around each parent part
         MatrixStack stack = new MatrixStack();
 
-        while(parts.size() > 1)
+        while(parts.size() > 0)
         {
             viewModel = parts.pop();
             viewModel.rotateMatrix(stack);
         }
 
-        viewModel = parts.pop();
+        // Todo: If viewPoint rotations are applied, (i.e. rotations around viewPoint) then camera moves down far to much when looking down
+        // But if not, then the camera's location is far too low when the head is at a far different angle than the body
+        //viewModel = parts.pop();
 
-        // Return the rotated height (moved down by the default eye height so it's not at the top of the head)
+        // Return the the height of the middle of this model
         return (viewModel.getMidPoint(stack) * sizeScale / 16) - getHeightAdjustment();
     }
 

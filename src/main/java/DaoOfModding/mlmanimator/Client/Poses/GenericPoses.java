@@ -54,6 +54,7 @@ public class GenericPoses
 
     public static void setupIdle()
     {
+        Idle.addAngle(GenericLimbNames.body, new Vector3d(0, 0, 0), 0);
         Idle.addAngle(GenericLimbNames.leftArm, new Vector3d(0, 0, 0), 0);
         Idle.addAngle(GenericLimbNames.rightArm, new Vector3d(0, 0, 0), 0);
         Idle.addAngle(GenericLimbNames.lowerLeftArm, new Vector3d(0, 0, 0), 0);

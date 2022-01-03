@@ -578,7 +578,7 @@ public class ExtendableModelRenderer extends ModelRenderer
         Matrix4f rotator = matrixStackIn.last().pose();
 
         Vector3d modelMidPoint = new Vector3d(x, y, z);
-        modelMidPoint = modelMidPoint.subtract(getDefaultSize().multiply(getResize().scale(0.5)));
+        modelMidPoint = modelMidPoint.subtract(getDefaultSize().multiply(getResize().scale(0.75)));
 
         Vector4f vector4f = new Vector4f((float)modelMidPoint.x(), (float)modelMidPoint.y(), (float)modelMidPoint.z(), 1.0F);
         vector4f.transform(rotator);

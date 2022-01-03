@@ -66,8 +66,6 @@ public class PlayerPose
 
     public void addSize(String limb, Vector3d size, int priority, float speed)
     {
-        // TODO: Add a speed to this
-
         if (sizePriorities.containsKey(limb) && sizePriorities.get(limb) >= priority)
             return;
 
