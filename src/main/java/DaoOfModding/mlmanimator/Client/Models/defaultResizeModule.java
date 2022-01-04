@@ -4,8 +4,7 @@ import DaoOfModding.mlmanimator.Client.AnimationFramework.resizeModule;
 import net.minecraft.util.math.vector.Vector2f;
 import net.minecraft.util.math.vector.Vector3d;
 
-public class defaultResizeModule implements resizeModule
-{
+public class defaultResizeModule implements resizeModule {
     int depth;
 
     Vector3d usedSize;
@@ -18,21 +17,31 @@ public class defaultResizeModule implements resizeModule
 
     Vector3d spacing;
 
-    public defaultResizeModule(int maxDepth, Vector3d direction, Vector3d position, Vector3d fullSize, Vector3d rotationPoint)
-    {
+    float delta = 0;
+
+    public defaultResizeModule(int maxDepth, Vector3d direction, Vector3d position, Vector3d fullSize, Vector3d rotationPoint) {
         this(maxDepth, direction, position, fullSize, rotationPoint, new Vector3d(0, 0, 0));
     }
 
+    public defaultResizeModule(int maxDepth, Vector3d direction, Vector3d position, Vector3d fullSize, Vector3d rotationPoint, float delta) {
+        this(maxDepth, direction, position, fullSize, rotationPoint, new Vector3d(0, 0, 0), delta);
+    }
+
     // Default resize module for models of depth 1
-    public defaultResizeModule(Vector3d fullSize)
-    {
+    public defaultResizeModule(Vector3d fullSize) {
         this(1, new Vector3d(0, 1, 0), new Vector3d(0, 0, 0), fullSize, new Vector3d(0, 0, 0), new Vector3d(0, 0, 0));
     }
 
     public defaultResizeModule(int maxDepth, Vector3d direction, Vector3d position, Vector3d fullSize, Vector3d rotationPoint, Vector3d spacing)
     {
+        this (maxDepth, direction, position, fullSize, rotationPoint, spacing, 0);
+    }
+
+    public defaultResizeModule(int maxDepth, Vector3d direction, Vector3d position, Vector3d fullSize, Vector3d rotationPoint, Vector3d spacing, float newDelta)
+    {
         depth = maxDepth;
         size = fullSize;
+        delta = newDelta;
 
         usedSize = new Vector3d(0, 0, 0);
 
@@ -101,6 +110,6 @@ public class defaultResizeModule implements resizeModule
 
     public float getDelta()
     {
-        return 0;
+        return delta;
     }
 }

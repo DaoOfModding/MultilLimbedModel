@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.ActiveRenderInfo;
 import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.LivingRenderer;
+import net.minecraft.client.renderer.entity.model.PlayerModel;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.Pose;
@@ -41,6 +42,7 @@ public class MultiLimbedRenderer
 
     private static Field eyeHeightField;
     private static Field thirdPersonField;
+    private static Field slimField;
     private static Method cameraMoveFunction;
 
     private static final double defaultCameraDistance = 0.5f;
@@ -58,6 +60,8 @@ public class MultiLimbedRenderer
         thirdPersonField = ObfuscationReflectionHelper.findField(ActiveRenderInfo.class, "field_216799_k");
         // setPosition
         cameraMoveFunction = ObfuscationReflectionHelper.findMethod(ActiveRenderInfo.class, "func_216775_b", double.class, double.class, double.class);
+        // slim
+        slimField = ObfuscationReflectionHelper.findField(PlayerModel.class, "field_178735_y");
 
         try { ModelRendererReflection.setupReflection(); }
         catch (Exception e) { mlmanimator.LOGGER.error("Error reflecting ModelRenderer: " + e); }
@@ -80,6 +84,23 @@ public class MultiLimbedRenderer
 
         event.setPitch(event.getPitch() + (float)MathHelper.lerp(event.getRenderPartialTicks(), oldPitch, pitch));
 
+    }
+
+    public static boolean isSlim(PlayerModel model)
+    {
+        boolean slim;
+
+        try
+        {
+            slim = slimField.getBoolean(model);
+        }
+        catch(Exception e)
+        {
+            mlmanimator.LOGGER.error("Error acquiring model slimness");
+            return false;
+        }
+
+        return slim;
     }
 
     // Toggle on the third person boolean in ActiveRenderInfo to allow the player model to be drawn even when in first person

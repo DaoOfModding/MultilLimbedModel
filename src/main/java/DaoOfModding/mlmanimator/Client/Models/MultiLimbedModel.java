@@ -1,5 +1,6 @@
 package DaoOfModding.mlmanimator.Client.Models;
 
+import DaoOfModding.mlmanimator.Client.MultiLimbedRenderer;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import net.minecraft.client.Minecraft;
@@ -66,6 +67,8 @@ public class MultiLimbedModel
     {
         //TODO: Setup armor models
 
+        boolean slim = MultiLimbedRenderer.isSlim(baseModel);
+
         ExtendableModelRenderer body = new ExtendableModelRenderer(baseModel, 16, 16);
         body.setPos(0, 0, 0);
         body.setRotationPoint(new Vector3d(0.5, 0.5, 0.5));
@@ -81,14 +84,31 @@ public class MultiLimbedModel
         ExtendableModelRenderer rightArm = new ExtendableModelRenderer(40, 16);
         rightArm.setRotationPoint(new Vector3d(0.5D, 0.66D, 0.5D));
         rightArm.setPos(0.0F, 0.0F, 0.5F);
-        rightArm.setFixedPosAdjustment(-1.5F, 2F, 0.0F);
-        rightArm.extend(GenericResizers.getArmResizer());
+        if (slim)
+        {
+            rightArm.setFixedPosAdjustment(-1.5F, 2F, 0.0F);
+            rightArm.extend(GenericResizers.getSlimArmResizer());
+        }
+        else
+        {
+            rightArm.setFixedPosAdjustment(-2F, 2F, 0.0F);
+            rightArm.extend(GenericResizers.getArmResizer());
+        }
 
         ExtendableModelRenderer leftArm = new ExtendableModelRenderer(32, 48);
         leftArm.setRotationPoint(new Vector3d(0.5D, 0.66D, 0.5D));
         leftArm.setPos(1.0F, 0.0F, 0.5F);
-        leftArm.setFixedPosAdjustment(1.5F, 2F, 0.0F);
-        leftArm.extend(GenericResizers.getArmResizer());
+        if (slim)
+        {
+            leftArm.setFixedPosAdjustment(1.5F, 2F, 0.0F);
+            leftArm.extend(GenericResizers.getSlimArmResizer());
+        }
+        else
+        {
+            leftArm.setFixedPosAdjustment(2F, 2F, 0.0F);
+            leftArm.extend(GenericResizers.getArmResizer());
+        }
+
         leftArm.mirror = true;
 
         ExtendableModelRenderer rightLeg = new ExtendableModelRenderer(baseModel, 0, 16);
@@ -396,12 +416,8 @@ public class MultiLimbedModel
             viewModel.rotateMatrix(stack);
         }
 
-        // Todo: If viewPoint rotations are applied, (i.e. rotations around viewPoint) then camera moves down far to much when looking down
-        // But if not, then the camera's location is far too low when the head is at a far different angle than the body
-        //viewModel = parts.pop();
-
-        // Return the the height of the middle of this model
-        return (viewModel.getMidPoint(stack) * sizeScale / 16) - getHeightAdjustment();
+        // Return the the height at the top of this model
+        return (viewModel.getTopPoint(stack) * sizeScale / 16) - getHeightAdjustment();
     }
 
     // Calculate the height adjustment for each limb
