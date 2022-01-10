@@ -50,9 +50,13 @@ public class PlayerPoseHandler
     private Vector3d oldPos = new Vector3d(0, 0, 0);
     private Vector3d delta = new Vector3d(0, 0, 0);
 
+    private boolean slim = false;
+
     public PlayerPoseHandler(UUID id, PlayerModel playerModel)
     {
         playerID = id;
+        slim = MultiLimbedRenderer.isSlim(playerModel);
+
         model = new MultiLimbedModel(playerModel);
     }
 
@@ -69,6 +73,11 @@ public class PlayerPoseHandler
     public void setPlayerModel(MultiLimbedModel newModel)
     {
         model = newModel;
+    }
+
+    public boolean isSlim()
+    {
+        return slim;
     }
 
     public UUID getID()
@@ -488,7 +497,11 @@ public class PlayerPoseHandler
     // movementDelta does not work for remote clients, so have to calculate it here instead
     private void calculateDelta(PlayerEntity player)
     {
-        delta = player.position().subtract(oldPos);
+        if (player instanceof ClientPlayerEntity)
+            delta = player.getDeltaMovement();
+        else
+            delta = player.position().subtract(oldPos);
+        
         oldPos = player.position();
     }
 
@@ -554,7 +567,7 @@ public class PlayerPoseHandler
                 addPose(GenericPoses.Jumping);
         }
         // If player is moving add the walking pose to the PoseHandler
-        else if (getDeltaMovement().x != 0 || getDeltaMovement().z != 0)
+        else if (player.isOnGround() && (getDeltaMovement().x != 0 || getDeltaMovement().z != 0))
             addPose(GenericPoses.Walking);
 
         // Update the PoseHandler

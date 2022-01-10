@@ -33,6 +33,8 @@ public class MultiLimbedModel
 
     private Vector3d lookVector = new Vector3d(0, 0, 0);
 
+    private boolean slim = false;
+
     PlayerModel baseModel;
 
     ExtendableModelRenderer body;
@@ -47,7 +49,7 @@ public class MultiLimbedModel
 
     private boolean lock = false;
 
-   ArrayList<ExtendableModelRenderer> hands = new ArrayList<>();
+    ArrayList<ExtendableModelRenderer> hands = new ArrayList<>();
 
 
     public MultiLimbedModel(PlayerModel model)
@@ -59,6 +61,8 @@ public class MultiLimbedModel
     {
         baseModel = model;
 
+        slim = MultiLimbedRenderer.isSlim(model);
+
         if (withLimbs)
             setupDefaultLimbs();
     }
@@ -66,9 +70,7 @@ public class MultiLimbedModel
     private void setupDefaultLimbs()
     {
         //TODO: Setup armor models
-
-        boolean slim = MultiLimbedRenderer.isSlim(baseModel);
-
+        //TODO: Setup Jacket/Sleeve/Pants layer
         ExtendableModelRenderer body = new ExtendableModelRenderer(baseModel, 16, 16);
         body.setPos(0, 0, 0);
         body.setRotationPoint(new Vector3d(0.5, 0.5, 0.5));
@@ -197,14 +199,12 @@ public class MultiLimbedModel
         if (!hasLimb(limb))
             return;
 
-        ModelRenderer limbModel = getLimb(limb);
+        ExtendableModelRenderer limbModel = getLimb(limb);
 
         if (limbModel == null)
             limbModel = getFirstPersonLimb(limb);
 
-        limbModel.xRot = (float) angles.x;
-        limbModel.yRot = (float) angles.y;
-        limbModel.zRot = (float) angles.z;
+        limbModel.rotate((float)angles.x, (float) angles.y, (float) angles.z);
     }
 
     // Returns true if this model contains the specified limb

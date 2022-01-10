@@ -267,6 +267,13 @@ public class ExtendableModelRenderer extends ModelRenderer
         this.parent = parent;
     }
 
+    public void rotate(float xRotation, float yRotation, float zRotation)
+    {
+        xRot = xRotation;
+        yRot = yRotation;
+        zRot = zRotation;
+    }
+
     public ArrayList<ExtendableModelRenderer> getChildren()
     {
         return child;

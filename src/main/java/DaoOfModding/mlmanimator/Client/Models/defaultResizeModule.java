@@ -5,19 +5,20 @@ import net.minecraft.util.math.vector.Vector2f;
 import net.minecraft.util.math.vector.Vector3d;
 
 public class defaultResizeModule implements resizeModule {
-    int depth;
+    protected int depth;
 
-    Vector3d usedSize;
-    Vector3d size;
-    Vector3d direction;
-    Vector3d rotationPoint;
+    protected Vector3d usedSize;
+    protected Vector3d size;
+    protected Vector3d direction;
+    protected Vector3d absDirection;
+    protected Vector3d rotationPoint;
 
-    Vector3d position;
-    Vector2f textureModifier;
+    protected Vector3d position;
+    protected Vector2f textureModifier;
 
-    Vector3d spacing;
+    protected Vector3d spacing;
 
-    float delta = 0;
+    protected float delta = 0;
 
     public defaultResizeModule(int maxDepth, Vector3d direction, Vector3d position, Vector3d fullSize, Vector3d rotationPoint) {
         this(maxDepth, direction, position, fullSize, rotationPoint, new Vector3d(0, 0, 0));
@@ -47,6 +48,7 @@ public class defaultResizeModule implements resizeModule {
 
         // Ensure the direction vector is normalized
         this.direction = direction.normalize();
+        this.absDirection = new Vector3d(Math.abs(direction.x), Math.abs(direction.y), Math.abs(direction.z));
         this.rotationPoint = rotationPoint;
         this.position = position;
         this.spacing = spacing;
@@ -59,7 +61,7 @@ public class defaultResizeModule implements resizeModule {
 
     public Vector3d getSize()
     {
-        Vector3d directedSize = size.multiply(direction);
+        Vector3d directedSize = size.multiply(absDirection);
 
         // Calculate the size of this model, and the size remaining to make models for
         Vector3d thisSize = size.subtract(directedSize.scale((double)(depth-1)/(double)depth).add(spacing));
@@ -91,6 +93,9 @@ public class defaultResizeModule implements resizeModule {
     public resizeModule nextLevel()
     {
         depth -= 1;
+
+        // SLIGHTLY increase delta so that overlapping textures don't bug out
+        delta += 0.01f;
 
         return this;
     }
