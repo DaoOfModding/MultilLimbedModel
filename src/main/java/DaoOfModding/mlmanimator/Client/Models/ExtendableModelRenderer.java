@@ -61,6 +61,8 @@ public class ExtendableModelRenderer extends ModelRenderer
     protected Vector3d relativePosition = new Vector3d(0, 0, 0);
     protected Vector3d fixedPosition = new Vector3d(0, 0, 0);
 
+    protected int rotationDepth = 0;
+
 
     public ExtendableModelRenderer clone()
     {
@@ -267,11 +269,32 @@ public class ExtendableModelRenderer extends ModelRenderer
         this.parent = parent;
     }
 
+    public void setRotationDepth(int newDepth)
+    {
+        rotationDepth = newDepth;
+    }
+
     public void rotate(float xRotation, float yRotation, float zRotation)
     {
-        xRot = xRotation;
-        yRot = yRotation;
-        zRot = zRotation;
+        xRotation = xRotation / ((float)rotationDepth+1);
+        yRotation = yRotation / ((float)rotationDepth+1);
+        zRotation = zRotation / ((float)rotationDepth+1);
+
+        this.xRot = xRotation;
+        this.yRot = yRotation;
+        this.zRot = zRotation;
+
+        int traverse = rotationDepth;
+
+        ExtendableModelRenderer traversing = this;
+
+        while (traverse > 0)
+        {
+            traversing = traversing.getParent();
+            traversing.rotate(xRotation, yRotation, zRotation);
+
+            traverse--;
+        }
     }
 
     public ArrayList<ExtendableModelRenderer> getChildren()
