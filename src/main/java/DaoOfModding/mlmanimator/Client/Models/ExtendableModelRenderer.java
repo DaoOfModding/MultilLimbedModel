@@ -84,7 +84,7 @@ public class ExtendableModelRenderer extends ModelRenderer
         copy.defaultResize = defaultResize;
         copy.thisDelta = thisDelta;
 
-        copy.generateCube(rotationPoint, thisDelta);
+        copy.generateCube(rotationPoint);
 
         for (ExtendableModelRenderer children : child)
             copy.addChild(children.clone());
@@ -312,7 +312,7 @@ public class ExtendableModelRenderer extends ModelRenderer
         Vector2f texModifier = resizer.getTextureModifier();
 
         // Add a box of the appropriate size to this model
-        generateCube(getRotationPoint(), thisDelta);
+        generateCube(getRotationPoint());
 
         // Return this model if at max depth
         if (!resizer.continueResizing())
@@ -366,8 +366,10 @@ public class ExtendableModelRenderer extends ModelRenderer
     }
 
     // Generate the cube for this model
-    public void generateCube(Vector3d pos, float delta)
+    public void generateCube(Vector3d pos)
     {
+        MultiLimbedRenderer.clearCubes(this);
+
         pos = defaultSize.scale(-1).multiply(pos);
 
         float width = (float)(defaultSize.x);
@@ -391,7 +393,7 @@ public class ExtendableModelRenderer extends ModelRenderer
         points[6] = new Vector3f(x2, y2, z1);
         points[7] = new Vector3f(x2, y2, z2);
 
-        addBox((float)pos.x, (float)pos.y, (float)pos.z, width, height, depth, delta);
+        addBox((float)pos.x, (float)pos.y, (float)pos.z, width, height, depth, thisDelta);
     }
 
     @Override

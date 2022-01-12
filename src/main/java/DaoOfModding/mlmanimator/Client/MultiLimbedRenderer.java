@@ -8,6 +8,7 @@ import DaoOfModding.mlmanimator.Client.Poses.PoseHandler;
 import DaoOfModding.mlmanimator.mlmanimator;
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
 import net.minecraft.client.renderer.ActiveRenderInfo;
@@ -15,6 +16,7 @@ import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.LivingRenderer;
 import net.minecraft.client.renderer.entity.model.PlayerModel;
+import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.Pose;
@@ -43,6 +45,7 @@ public class MultiLimbedRenderer
     private static Field eyeHeightField;
     private static Field thirdPersonField;
     private static Field slimField;
+    private static Field cubeField;
     private static Method cameraMoveFunction;
 
     private static final double defaultCameraDistance = 0.5f;
@@ -62,6 +65,8 @@ public class MultiLimbedRenderer
         cameraMoveFunction = ObfuscationReflectionHelper.findMethod(ActiveRenderInfo.class, "func_216775_b", double.class, double.class, double.class);
         // slim
         slimField = ObfuscationReflectionHelper.findField(PlayerModel.class, "field_178735_y");
+        // cubes
+        cubeField = ObfuscationReflectionHelper.findField(ModelRenderer.class, "field_78804_l");
 
         try { ModelRendererReflection.setupReflection(); }
         catch (Exception e) { mlmanimator.LOGGER.error("Error reflecting ModelRenderer: " + e); }
@@ -245,6 +250,18 @@ public class MultiLimbedRenderer
         PoseHandler.doPose(entityIn.getUUID(), partialTicks);
 
         handler.getPlayerModel().calculateHeightAdjustment();
+    }
+
+    public static void clearCubes(ModelRenderer model)
+    {
+        try
+        {
+            cubeField.set(model, new ObjectArrayList<>());
+        }
+        catch(Exception e)
+        {
+            mlmanimator.LOGGER.error("Error adjusting model cubes");
+        }
     }
 
     public static void adjustEyeHeight(AbstractClientPlayerEntity player, PlayerPoseHandler handler)
