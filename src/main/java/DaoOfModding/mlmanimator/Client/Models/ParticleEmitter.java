@@ -4,28 +4,28 @@ import DaoOfModding.mlmanimator.Client.Models.Quads.Quad;
 import DaoOfModding.mlmanimator.Client.Models.Quads.QuadLinkage;
 import DaoOfModding.mlmanimator.Client.Poses.PoseHandler;
 import DaoOfModding.mlmanimator.Common.PlayerUtils;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Vector4f;
 import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.particles.IParticleData;
-import net.minecraft.util.math.vector.Matrix4f;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector4f;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.particles.ParticleOptions;
+import com.mojang.math.Matrix4f;
+import net.minecraft.world.phys.Vec3;
 
 public class ParticleEmitter extends ExtendableModelRenderer
 {
-    protected IParticleData particle;
+    protected ParticleOptions particle;
     protected int interval = 0;
 
-    protected Vector3d Velocity = new Vector3d(0, 0, 0);
-    protected Vector3d spawnPos = new Vector3d(0, 0, 0);
+    protected Vec3 Velocity = new Vec3(0, 0, 0);
+    protected Vec3 spawnPos = new Vec3(0, 0, 0);
 
     protected int tick = 0;
 
-    public ParticleEmitter(IParticleData particleType)
+    public ParticleEmitter(ParticleOptions particleType, String name)
     {
-        super(0, 0);
+        super(0, 0, name);
 
         particle = particleType;
     }
@@ -35,20 +35,21 @@ public class ParticleEmitter extends ExtendableModelRenderer
         interval = tickInterval;
     }
 
-    public void setVelocity(Vector3d newVelocity)
+    public void setVelocity(Vec3 newVelocity)
     {
         Velocity = newVelocity;
     }
 
+    /*
     // Don't draw any model for a particle emitter
     @Override
-    protected void compile(MatrixStack.Entry matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) { }
+    protected void compile(PoseStack.Pose PoseStackIn, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) { }*/
 
     @Override
-    public void tick(PlayerEntity player)
+    public void tick(Player player)
     {
         // Do nothing if this emitter is disabled
-        if (!visible)
+        if (!mPart.visible)
             return;
 
         if (tick >= interval)
@@ -60,47 +61,47 @@ public class ParticleEmitter extends ExtendableModelRenderer
             tick++;
     }
 
-    protected void spawnParticle(PlayerEntity player)
+    protected void spawnParticle(Player player)
     {
         // Rotate spawnPos based on player rotation
-        Vector3d pos = PlayerUtils.rotateAroundY(spawnPos.scale(1.0/16.0), 360-player.yBodyRot);
+        Vec3 pos = PlayerUtils.rotateAroundY(spawnPos.scale(1.0/16.0), 360-player.yBodyRot);
         pos = pos.add(player.position());
 
-        pos = new Vector3d(pos.x, pos.y + PoseHandler.getPlayerPoseHandler(player.getUUID()).getPlayerModel().getHeightAdjustment(), pos.z);
+        pos = new Vec3(pos.x, pos.y + PoseHandler.getPlayerPoseHandler(player.getUUID()).getPlayerModel().getHeightAdjustment(), pos.z);
 
-        Vector3d vel = PlayerUtils.rotateAroundY(Velocity, 360-player.yBodyRot);
+        Vec3 vel = PlayerUtils.rotateAroundY(Velocity, 360-player.yBodyRot);
 
         Minecraft.getInstance().particleEngine.createParticle(particle, pos.x, pos.y, pos.z, vel.x, vel.y, vel.z);
     }
 
     @Override
-    public void calculateMinHeight(MatrixStack matrixStackIn)
+    public void calculateMinHeight(PoseStack PoseStackIn)
     {
         // Update the position of this model first
         updatePosition();
 
-        matrixStackIn.pushPose();
-        rotateMatrix(matrixStackIn);
+        PoseStackIn.pushPose();
+        rotateMatrix(PoseStackIn);
 
-        Matrix4f rotator = matrixStackIn.last().pose();
+        Matrix4f rotator = PoseStackIn.last().pose();
 
         Vector4f vector4f = new Vector4f(0, 0, 0, 1);
         vector4f.transform(rotator);
 
         // Why is x not negative? I have no idea
-        spawnPos = new Vector3d(vector4f.x(), -vector4f.y(), -vector4f.z());
+        spawnPos = new Vec3(vector4f.x(), -vector4f.y(), -vector4f.z());
 
         // Calculate the min height of children
         for (ExtendableModelRenderer testChild : child)
-            testChild.calculateMinHeight(matrixStackIn);
+            testChild.calculateMinHeight(PoseStackIn);
 
-        matrixStackIn.popPose();
+        PoseStackIn.popPose();
     }
 
     @Override
     public ExtendableModelRenderer clone()
     {
-        ParticleEmitter copy = new ParticleEmitter(particle);
+        ParticleEmitter copy = new ParticleEmitter(particle, name);
         copy.setParent(parent);
 
         copy.Velocity = Velocity;

@@ -1,24 +1,19 @@
 package DaoOfModding.mlmanimator.Client.Models;
 
 import DaoOfModding.mlmanimator.Client.MultiLimbedRenderer;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.model.PlayerModel;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.particles.BasicParticleType;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
 
@@ -31,7 +26,7 @@ public class MultiLimbedModel
 
     private float lowestModelHeight = 0;
 
-    private Vector3d lookVector = new Vector3d(0, 0, 0);
+    private Vec3 lookVector = new Vec3(0, 0, 0);
 
     private boolean slim = false;
 
@@ -71,20 +66,20 @@ public class MultiLimbedModel
     {
         //TODO: Setup armor models
         //TODO: Setup Jacket/Sleeve/Pants layer
-        ExtendableModelRenderer body = new ExtendableModelRenderer(baseModel, 16, 16);
+        ExtendableModelRenderer body = new ExtendableModelRenderer(16, 16, GenericLimbNames.body);
         body.setPos(0, 0, 0);
-        body.setRotationPoint(new Vector3d(0.5, 0.5, 0.5));
+        body.setRotationPoint(new Vec3(0.5, 0.5, 0.5));
         body.extend(GenericResizers.getBodyResizer());
 
-        ExtendableModelRenderer head = new ExtendableModelRenderer(baseModel, 0, 0);
-        head.setRotationPoint(new Vector3d(0.5, 0, 0.5));
+        ExtendableModelRenderer head = new ExtendableModelRenderer(0, 0, GenericLimbNames.head);
+        head.setRotationPoint(new Vec3(0.5, 0, 0.5));
         head.setPos(0.5F, 0, 0.5F);
         head.extend(GenericResizers.getHeadResizer());
         head.setLooking(true);
         head.setFirstPersonRender(false);
 
-        ExtendableModelRenderer rightArm = new ExtendableModelRenderer(40, 16);
-        rightArm.setRotationPoint(new Vector3d(0.5D, 0.66D, 0.5D));
+        ExtendableModelRenderer rightArm = new ExtendableModelRenderer(40, 16, GenericLimbNames.rightArm);
+        rightArm.setRotationPoint(new Vec3(0.5D, 0.66D, 0.5D));
         rightArm.setPos(0.0F, 0.0F, 0.5F);
         if (slim)
         {
@@ -97,8 +92,8 @@ public class MultiLimbedModel
             rightArm.extend(GenericResizers.getArmResizer());
         }
 
-        ExtendableModelRenderer leftArm = new ExtendableModelRenderer(32, 48);
-        leftArm.setRotationPoint(new Vector3d(0.5D, 0.66D, 0.5D));
+        ExtendableModelRenderer leftArm = new ExtendableModelRenderer(32, 48, GenericLimbNames.leftArm);
+        leftArm.setRotationPoint(new Vec3(0.5D, 0.66D, 0.5D));
         leftArm.setPos(1.0F, 0.0F, 0.5F);
         if (slim)
         {
@@ -111,20 +106,17 @@ public class MultiLimbedModel
             leftArm.extend(GenericResizers.getArmResizer());
         }
 
-        leftArm.mirror = true;
-
-        ExtendableModelRenderer rightLeg = new ExtendableModelRenderer(baseModel, 0, 16);
+        ExtendableModelRenderer rightLeg = new ExtendableModelRenderer(0, 16, GenericLimbNames.rightLeg);
         rightLeg.setPos(0.25F, 1.0F, 0.5F);
-        rightLeg.setRotationPoint(new Vector3d(0.5, 0.66, 0.5));
+        rightLeg.setRotationPoint(new Vec3(0.5, 0.66, 0.5));
         rightLeg.setFixedPosAdjustment(0F, 2F, 0.0F);
         rightLeg.extend(GenericResizers.getLegResizer());
 
-        ExtendableModelRenderer leftLeg = new ExtendableModelRenderer(baseModel, 0, 16);
+        ExtendableModelRenderer leftLeg = new ExtendableModelRenderer(0, 16, GenericLimbNames.leftLeg);
         leftLeg.setPos(0.75F, 1.0F, 0.5F);
-        leftLeg.setRotationPoint(new Vector3d(0.5, 0.66, 0.5));
+        leftLeg.setRotationPoint(new Vec3(0.5, 0.66, 0.5));
         leftLeg.setFixedPosAdjustment(0F, 2F, 0.0F);
         leftLeg.extend(GenericResizers.getLegResizer());
-        leftLeg.mirror = true;
 
 
         addBody(body);
@@ -194,7 +186,7 @@ public class MultiLimbedModel
     }
 
     // Apply the supplied rotations to the specified limb
-    public void rotateLimb(String limb, Vector3d angles)
+    public void rotateLimb(String limb, Vec3 angles)
     {
         if (!hasLimb(limb))
             return;
@@ -235,7 +227,7 @@ public class MultiLimbedModel
         unlock();
     }
 
-    public void tick(PlayerEntity player)
+    public void tick(Player player)
     {
         lock();
 
@@ -301,27 +293,27 @@ public class MultiLimbedModel
         allLimbs.put(limb, limbModel);
     }
 
-    public void prepareMobModel(PlayerEntity entityIn, float limbSwing, float limbSwingAmount, float partialTick)
+    public void prepareMobModel(Player entityIn, float limbSwing, float limbSwingAmount, float partialTick)
     {
         // baseModel.prepareMobModel(entityIn, limbSwing, limbSwingAmount, partialTick);
     }
 
     public void setupAnim(float netHeadYaw, float headPitch)
     {
-        lookVector = new Vector3d(headPitch * ((float)Math.PI / 180F), netHeadYaw * ((float)Math.PI / 180F), 0);
+        lookVector = new Vec3(headPitch * ((float)Math.PI / 180F), netHeadYaw * ((float)Math.PI / 180F), 0);
 
         // baseModel.setupAnim(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
     }
 
-    public Vector3d getLookVector()
+    public Vec3 getLookVector()
     {
         return lookVector;
     }
 
     // Get a vector indicating the direction a hand holding an item should be rotated
-    public Vector3d getHoldingVector()
+    public Vec3 getHoldingVector()
     {
-        return new Vector3d(getLookVector().x() / 1.5, getLookVector().y(), getLookVector().z());
+        return new Vec3(getLookVector().x() / 1.5, getLookVector().y(), getLookVector().z());
     }
 
     public RenderType renderType(ResourceLocation resourcelocation)
@@ -329,39 +321,39 @@ public class MultiLimbedModel
         return baseModel.renderType(resourcelocation);
     }
 
-    public void renderFirstPerson(MatrixStack matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha)
+    public void renderFirstPerson(PoseStack PoseStackIn, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha)
     {
         lock();
 
-        matrixStackIn.pushPose();
+        PoseStackIn.pushPose();
 
         for (ExtendableModelRenderer model : firstPersonLimbs.values())
-            model.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+            model.render(PoseStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
 
-        matrixStackIn.popPose();
+        PoseStackIn.popPose();
 
         unlock();
     }
 
-    public void render(MatrixStack matrixStackIn, IVertexBuilder bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha)
+    public void render(PoseStack PoseStackIn, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha)
     {
         lock();
 
-        matrixStackIn.pushPose();
+        PoseStackIn.pushPose();
 
         // Scale the model to match the scale size, and move it up or down so it's standing at the right height
-        matrixStackIn.translate(0.0D, (1-sizeScale) * defaultHeight, 0.0D);
-        matrixStackIn.scale(sizeScale, sizeScale, sizeScale);
+        PoseStackIn.translate(0.0D, (1-sizeScale) * defaultHeight, 0.0D);
+        PoseStackIn.scale(sizeScale, sizeScale, sizeScale);
 
         // Render the body, as all limbs are children or sub-children of the body, this should render everything
-        body.render(matrixStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+        body.render(PoseStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
 
-        matrixStackIn.popPose();
+        PoseStackIn.popPose();
 
         unlock();
     }
 
-    public void renderHandItem(boolean left, int slot, LivingEntity entityIn, ItemStack item, MatrixStack matrixStackIn, IRenderTypeBuffer renderTypeBuffer, int packedLightIn)
+    public void renderHandItem(boolean left, int slot, LivingEntity entityIn, ItemStack item, PoseStack PoseStackIn, MultiBufferSource renderTypeBuffer, int packedLightIn)
     {
         // Don't do anything if nothing is held
         if (item.isEmpty())
@@ -372,25 +364,27 @@ public class MultiLimbedModel
         if (hand == null)
             return;
 
-        matrixStackIn.pushPose();
+        PoseStackIn.pushPose();
+
+        //TODO: FIX THIS
 
         // Transform the camera based depending on which hand is holding the item
-        ItemCameraTransforms.TransformType cameraTransform = ItemCameraTransforms.TransformType.THIRD_PERSON_RIGHT_HAND;
+        ItemTransforms.TransformType cameraTransform = ItemTransforms.TransformType.THIRD_PERSON_RIGHT_HAND;
         if (left)
-            cameraTransform = ItemCameraTransforms.TransformType.THIRD_PERSON_LEFT_HAND;
+            cameraTransform = ItemTransforms.TransformType.THIRD_PERSON_LEFT_HAND;
 
         // Rotate the item to the hand
-        hand.moveToThisModel(matrixStackIn, new Vector3d(0, 1, -1));
+        hand.moveToThisModel(PoseStackIn, new Vec3(0, 1, -1));
 
         // Turn the item around to fit in the hand
-        matrixStackIn.mulPose(Vector3f.XP.rotationDegrees(-90.0F));
-        matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(180.0F));
+        PoseStackIn.mulPose(Vector3f.XP.rotationDegrees(-90.0F));
+        PoseStackIn.mulPose(Vector3f.YP.rotationDegrees(180.0F));
 
         // Render the item
-        Minecraft.getInstance().getItemInHandRenderer().renderItem(entityIn, item, cameraTransform, left, matrixStackIn, renderTypeBuffer, packedLightIn);
+        Minecraft.getInstance().gameRenderer.itemInHandRenderer.renderItem(entityIn, item, cameraTransform, left, PoseStackIn, renderTypeBuffer, packedLightIn);
 
 
-        matrixStackIn.popPose();
+        PoseStackIn.popPose();
     }
 
     public float calculateEyeHeight()
@@ -407,8 +401,8 @@ public class MultiLimbedModel
             parts.push(viewModel);
         }
 
-        // Rotate the MatrixStack around each parent part
-        MatrixStack stack = new MatrixStack();
+        // Rotate the PoseStack around each parent part
+        PoseStack stack = new PoseStack();
 
         while(parts.size() > 0)
         {
@@ -423,7 +417,7 @@ public class MultiLimbedModel
     // Calculate the height adjustment for each limb
     public void calculateHeightAdjustment()
     {
-        body.calculateMinHeight(new MatrixStack());
+        body.calculateMinHeight(new PoseStack());
 
         lowestModelHeight = getHeightAdjustment(body, Float.MAX_VALUE * -1) * sizeScale / 16;
     }

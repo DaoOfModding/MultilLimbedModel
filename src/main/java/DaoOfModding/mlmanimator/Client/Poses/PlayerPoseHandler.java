@@ -5,15 +5,10 @@ import DaoOfModding.mlmanimator.Client.Models.ExtendableModelRenderer;
 import DaoOfModding.mlmanimator.Client.Models.GenericLimbNames;
 import DaoOfModding.mlmanimator.Client.Models.MultiLimbedModel;
 import DaoOfModding.mlmanimator.Client.MultiLimbedRenderer;
-import DaoOfModding.mlmanimator.mlmanimator;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.renderer.entity.model.PlayerModel;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.vector.*;
-import org.lwjgl.system.CallbackI;
+import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -47,8 +42,8 @@ public class PlayerPoseHandler
     public float fov = 1;
 
 
-    private Vector3d oldPos = new Vector3d(0, 0, 0);
-    private Vector3d delta = new Vector3d(0, 0, 0);
+    private Vec3 oldPos = new Vec3(0, 0, 0);
+    private Vec3 delta = new Vec3(0, 0, 0);
 
     private boolean slim = false;
 
@@ -65,7 +60,7 @@ public class PlayerPoseHandler
         return model;
     }
 
-    public Vector3d getDeltaMovement()
+    public Vec3 getDeltaMovement()
     {
         return delta;
     }
@@ -127,8 +122,8 @@ public class PlayerPoseHandler
 
             if (limbModel.isLooking())
             {
-                Vector3d angles = new Vector3d(0, 0, 0);
-                Vector3d notLooking = new Vector3d(0, 0, 0);
+                Vec3 angles = new Vec3(0, 0, 0);
+                Vec3 notLooking = new Vec3(0, 0, 0);
 
 
                 ExtendableModelRenderer baseModel = limbModel;
@@ -137,8 +132,8 @@ public class PlayerPoseHandler
                 while (limbModel.getParent() != null)
                 {
                     limbModel = limbModel.getParent();
-                    angles = angles.subtract(limbModel.xRot, limbModel.yRot, limbModel.zRot);
-                    notLooking = notLooking.add(limbModel.xRot, limbModel.yRot, limbModel.zRot);
+                    angles = angles.subtract(limbModel.getModelPart().xRot, limbModel.getModelPart().yRot, limbModel.getModelPart().zRot);
+                    notLooking = notLooking.add(limbModel.getModelPart().xRot, limbModel.getModelPart().yRot, limbModel.getModelPart().zRot);
                 }
 
                 // Add the base head's angles to this model if this limb should currently be looking with the camera
@@ -230,9 +225,9 @@ public class PlayerPoseHandler
             model.rotateLimb(limb, animatingPose.getAngle(limb).add(animatingPose.getOffset(limb)));
     }
 
-    private void resizeLimbs(HashMap<String, Vector3d> sizes)
+    private void resizeLimbs(HashMap<String, Vec3> sizes)
     {
-        for (Map.Entry<String, Vector3d> set : sizes.entrySet())
+        for (Map.Entry<String, Vec3> set : sizes.entrySet())
         {
             ExtendableModelRenderer limb = model.getLimb(set.getKey());
 
@@ -264,17 +259,17 @@ public class PlayerPoseHandler
         // If renderPose has a pose for a limb, move to that position, otherwise move to the base model pose
         for (String limb : limbs)
         {
-            Vector3d angles;
+            Vec3 angles;
 
             if (renderPose.hasAngle(limb))
                 angles = animateLimb(limb, getLimbPos(limb), partialTicks);
             else
-                angles = animateLimb(getLimbPos(limb), new Vector3d(0, 0, 0), AnimationSpeedCalculator.defaultSpeedPerTick, partialTicks);
+                angles = animateLimb(getLimbPos(limb), new Vec3(0, 0, 0), AnimationSpeedCalculator.defaultSpeedPerTick, partialTicks);
 
             newRender.addAngle(limb, angles, 1);
             newRender.addOffset(limb, renderPose.getOffset(limb));
 
-            newRender.addSize(limb, animateResize(getLimbSize(limb), new Vector3d(1, 1, 1), AnimationSpeedCalculator.defaultSpeedPerTick), 0, 1);
+            newRender.addSize(limb, animateResize(getLimbSize(limb), new Vec3(1, 1, 1), AnimationSpeedCalculator.defaultSpeedPerTick), 0, 1);
         }
 
         // Add any size changes in the animating pose to renderPose
@@ -290,9 +285,9 @@ public class PlayerPoseHandler
         unlock();
     }
 
-    public Vector3d animateResize(Vector3d currentSize, Vector3d targetSize, float speed)
+    public Vec3 animateResize(Vec3 currentSize, Vec3 targetSize, float speed)
     {
-        Vector3d direction = currentSize.subtract(targetSize);
+        Vec3 direction = currentSize.subtract(targetSize);
 
         if (direction.length() == 0)
             return currentSize;
@@ -305,7 +300,7 @@ public class PlayerPoseHandler
     }
 
     // Get the limb angles for the specified limb. If the animating pose does not contain any data for the limb, get it from the model
-    public Vector3d getLimbPos(String limb)
+    public Vec3 getLimbPos(String limb)
     {
         if (animatingPose.hasAngle(limb))
             return animatingPose.getAngle(limb, 0);
@@ -313,17 +308,17 @@ public class PlayerPoseHandler
         return modelFromLimb(limb);
     }
 
-    private Vector3d modelFromLimb(String limb)
+    private Vec3 modelFromLimb(String limb)
     {
-        ModelRenderer limbModel = model.getLimb(limb);
+        ExtendableModelRenderer limbModel = model.getLimb(limb);
 
         if (limbModel == null)
             limbModel = model.getFirstPersonLimb(limb);
 
-        return new Vector3d(limbModel.xRot, limbModel.yRot, limbModel.zRot);
+        return new Vec3(limbModel.getModelPart().xRot, limbModel.getModelPart().yRot, limbModel.getModelPart().zRot);
     }
 
-    private Vector3d getLimbSize(String limb)
+    private Vec3 getLimbSize(String limb)
     {
         ExtendableModelRenderer limbModel = model.getLimb(limb);
 
@@ -333,7 +328,7 @@ public class PlayerPoseHandler
         return limbModel.getSize();
     }
 
-    private void calculateAnimationLocks(String limb, Vector3d current, float partialTicks)
+    private void calculateAnimationLocks(String limb, Vec3 current, float partialTicks)
     {
         // If frame doesn't exist for this limb yet, set it to 0
         if (!frame.containsKey(limb))
@@ -356,10 +351,10 @@ public class PlayerPoseHandler
             currentFrame = 0;
 
         // Grab the renderPos angle for the specified limb
-        Vector3d moveTo = renderPose.getAngle(limb, currentFrame);
+        Vec3 moveTo = renderPose.getAngle(limb, currentFrame);
 
         // Create a vector of the amount the limb has to move
-        Vector3d toMove = new Vector3d(current.x - moveTo.x, current.y - moveTo.y, current.z - moveTo.z);
+        Vec3 toMove = new Vec3(current.x - moveTo.x, current.y - moveTo.y, current.z - moveTo.z);
         double moveAmount = toMove.length();
 
         // Advance the current frame if the limb has nothing more to move
@@ -398,7 +393,7 @@ public class PlayerPoseHandler
     }
 
     // Return a vector moving the specified vector towards the renderPose
-    private Vector3d animateLimb(String limb, Vector3d current, float partialTicks)
+    private Vec3 animateLimb(String limb, Vec3 current, float partialTicks)
     {
         // If frame doesn't exist for this limb yet, set it to 0
         if (!frame.containsKey(limb))
@@ -420,10 +415,10 @@ public class PlayerPoseHandler
         int currentFrame = frame.get(limb);
 
         // Grab the angle to move to for the specified limb for this frame
-        Vector3d moveTo = renderPose.getAngle(limb, currentFrame);
+        Vec3 moveTo = renderPose.getAngle(limb, currentFrame);
 
         // Create a vector of the amount the limb has to move
-        Vector3d toMove = current.subtract(moveTo);
+        Vec3 toMove = current.subtract(moveTo);
         double moveAmount = toMove.length();
 
         // If the limbs don't need to move and the renderPose has only one frame do nothing more, otherwise advance the frame and try again
@@ -474,10 +469,10 @@ public class PlayerPoseHandler
     }
 
     // Return a vector moving the specified vector towards the 'moveTo' vector
-    private Vector3d animateLimb(Vector3d current, Vector3d moveTo, double aSpeed, float partialTicks)
+    private Vec3 animateLimb(Vec3 current, Vec3 moveTo, double aSpeed, float partialTicks)
     {
         // Create a vector of the amount the limb has to move
-        Vector3d toMove = new Vector3d(current.x - moveTo.x, current.y - moveTo.y, current.z - moveTo.z);
+        Vec3 toMove = new Vec3(current.x - moveTo.x, current.y - moveTo.y, current.z - moveTo.z);
         double moveAmount = toMove.length();
 
         // If the limbs don't need to move, do nothing more
@@ -495,9 +490,9 @@ public class PlayerPoseHandler
     }
 
     // movementDelta does not work for remote clients, so have to calculate it here instead
-    private void calculateDelta(PlayerEntity player)
+    private void calculateDelta(Player player)
     {
-        if (player instanceof ClientPlayerEntity)
+        if (player instanceof AbstractClientPlayer)
             delta = player.getDeltaMovement();
         else
             delta = player.position().subtract(oldPos);
@@ -505,7 +500,7 @@ public class PlayerPoseHandler
         oldPos = player.position();
     }
 
-    public void doDefaultPoses(PlayerEntity player)
+    public void doDefaultPoses(Player player)
     {
         calculateDelta(player);
 
@@ -515,7 +510,7 @@ public class PlayerPoseHandler
         if (!player.getMainHandItem().isEmpty())
         {
             PlayerPose holding = GenericPoses.HoldingMain.clone();
-            Vector3d holdingVector = model.getHoldingVector();
+            Vec3 holdingVector = model.getHoldingVector();
             holdingVector = holdingVector.add(Math.toRadians(-30), Math.toRadians(-5), 0 );
             holding.addAngle(GenericLimbNames.rightArm, holdingVector, 1);
 
@@ -525,7 +520,7 @@ public class PlayerPoseHandler
         if (!player.getOffhandItem().isEmpty())
         {
             PlayerPose holding = GenericPoses.HoldingOff.clone();
-            Vector3d holdingVector = model.getHoldingVector();
+            Vec3 holdingVector = model.getHoldingVector();
             holdingVector = holdingVector.add(Math.toRadians(-30), Math.toRadians(5), 0 );
             holding.addAngle(GenericLimbNames.leftArm, holdingVector, 1);
 
@@ -552,7 +547,7 @@ public class PlayerPoseHandler
                 double yLook = 1 - getDeltaMovement().normalize().y;
 
                 PlayerPose swimPose = GenericPoses.SwimmingMoving.clone();
-                swimPose.addAngle(GenericLimbNames.body, new Vector3d(Math.toRadians(90 * yLook), 0, 0), GenericPoses.swimBodyPriority);
+                swimPose.addAngle(GenericLimbNames.body, new Vec3(Math.toRadians(90 * yLook), 0, 0), GenericPoses.swimBodyPriority);
 
                 addPose(swimPose);
             }

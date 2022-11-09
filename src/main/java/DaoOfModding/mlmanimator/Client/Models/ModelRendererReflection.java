@@ -1,43 +1,48 @@
 package DaoOfModding.mlmanimator.Client.Models;
 
 import DaoOfModding.mlmanimator.mlmanimator;
+import com.mojang.math.Vector3f;
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import net.minecraft.client.renderer.model.ModelRenderer;
-import net.minecraft.util.math.vector.Vector3f;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
 import java.lang.reflect.Field;
 
 public class ModelRendererReflection
 {
     // Reflection into ModelRenderer private fields and classes
-    private static Field cubeField;
     private static Field polygons;
     private static Field polygonNormal;
     private static Field vertices;
     private static Field pos;
     private static Field u;
     private static Field v;
-    private static Class texturedQuad;
-    private static Class positionTextureVertex;
+    private static Class polygon;
+    private static Class vertex;
 
     public static void setupReflection() throws Exception
     {
-        cubeField = ObfuscationReflectionHelper.findField(ModelRenderer.class,"field_78804_l");
-        polygons = ObfuscationReflectionHelper.findField(ModelRenderer.ModelBox.class,"field_78254_i");
+        // polygons - g - f_104341_
+        polygons = ObfuscationReflectionHelper.findField(ModelPart.Cube.class,"f_104341_");
 
-        positionTextureVertex = Class.forName("net.minecraft.client.renderer.model.ModelRenderer$PositionTextureVertex");
-        texturedQuad = Class.forName("net.minecraft.client.renderer.model.ModelRenderer$TexturedQuad");
+        vertex = Class.forName("net.minecraft.client.model.geom.ModelPart$Vertex");
+        polygon = Class.forName("net.minecraft.client.model.geom.ModelPart$Polygon");
 
-        polygonNormal = ObfuscationReflectionHelper.findField(texturedQuad, "field_228312_b_");
-        vertices = ObfuscationReflectionHelper.findField(texturedQuad, "field_78239_a");
+        // normal - b - f_104360_
+        polygonNormal = ObfuscationReflectionHelper.findField(polygon, "f_104360_");
+        // vertices - a - f_104359_
+        vertices = ObfuscationReflectionHelper.findField(polygon, "f_104359_");
 
-        pos = ObfuscationReflectionHelper.findField(positionTextureVertex, "field_78243_a");
-        u = ObfuscationReflectionHelper.findField(positionTextureVertex, "field_78241_b");
-        v = ObfuscationReflectionHelper.findField(positionTextureVertex, "field_78242_c");
+        // pos - a - f_104371_
+        pos = ObfuscationReflectionHelper.findField(vertex, "f_104371_");
+        // u - b - f_104372_
+        u = ObfuscationReflectionHelper.findField(vertex, "f_104372_");
+        // v - c - f_104373_
+        v = ObfuscationReflectionHelper.findField(vertex, "f_104373_");
     }
 
-    private static Object getField(Field field, Object fieldClass)
+    public static Object getField(Field field, Object fieldClass)
     {
         try
         {
@@ -50,6 +55,7 @@ public class ModelRendererReflection
             return null;
         }
     }
+
 
     public static Vector3f getPositionTextureVertexPos(Object PositionTextureVertex)
     {
@@ -66,13 +72,8 @@ public class ModelRendererReflection
         return (float) getField(v, PositionTextureVertex);
     }
 
-    public static ObjectList<ModelRenderer.ModelBox> getModelCubes(ModelRenderer renderer)
-    {
-        return  (ObjectList<ModelRenderer.ModelBox>)getField(cubeField, renderer);
-    }
-
     // Returns an array of TexturedQuad Object's
-    public static Object[] getPolygons(ModelRenderer.ModelBox cubeBox)
+    public static Object[] getPolygons(ModelPart.Cube cubeBox)
     {
         return (Object[]) getField(polygons, cubeBox);
     }

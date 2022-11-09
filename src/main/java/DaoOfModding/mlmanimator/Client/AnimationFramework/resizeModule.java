@@ -1,16 +1,16 @@
 package DaoOfModding.mlmanimator.Client.AnimationFramework;
 
-import net.minecraft.util.math.vector.Vector2f;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.phys.Vec2;
+import net.minecraft.world.phys.Vec3;
 
 public interface resizeModule
 {
-    public Vector3d getSize();
-    public Vector3d getRotationPoint();
-    public Vector3d getPosition();
-    public Vector2f getTextureModifier();
+    public Vec3 getSize();
+    public Vec3 getRotationPoint();
+    public Vec3 getPosition();
+    public Vec2 getTextureModifier();
     public float getDelta();
     public resizeModule nextLevel();
     public boolean continueResizing();
-    public Vector3d getSpacing();
+    public Vec3 getSpacing();
 }

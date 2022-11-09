@@ -1,9 +1,7 @@
 package DaoOfModding.mlmanimator.Client.Poses;
 
 import DaoOfModding.mlmanimator.Client.AnimationFramework.AnimationSpeedCalculator;
-import DaoOfModding.mlmanimator.Client.Models.MultiLimbedModel;
-import DaoOfModding.mlmanimator.mlmanimator;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -18,12 +16,12 @@ public class PlayerPose
     // X = Depth, positive goes backwards, negative goes forward
     // Y = Rotation
     // Z = Left and Right, Positive goes right, negative goes left
-    private HashMap<String, ArrayList<Vector3d>> angles = new HashMap<String, ArrayList<Vector3d>>();
+    private HashMap<String, ArrayList<Vec3>> angles = new HashMap<String, ArrayList<Vec3>>();
     private HashMap<String, ArrayList<Float>> speed = new HashMap<String, ArrayList<Float>>();
 
 
-    private HashMap<String, Vector3d> offset = new HashMap<String, Vector3d>();
-    private HashMap<String, Vector3d> sizes = new HashMap<String, Vector3d>();
+    private HashMap<String, Vec3> offset = new HashMap<String, Vec3>();
+    private HashMap<String, Vec3> sizes = new HashMap<String, Vec3>();
     private HashMap<String, Integer> aLock = new HashMap<String, Integer>();
 
     private boolean disableHeadLook = false;
@@ -34,7 +32,7 @@ public class PlayerPose
     }
 
     // Set all angles on the specified limb to the specified values
-    public void setAngles(String limb, ArrayList<Vector3d> newAngles, ArrayList<Float> newSpeeds, int priority, Vector3d off, int animationLock)
+    public void setAngles(String limb, ArrayList<Vec3> newAngles, ArrayList<Float> newSpeeds, int priority, Vec3 off, int animationLock)
     {
         angles.put(limb, newAngles);
         speed.put(limb, newSpeeds);
@@ -48,7 +46,7 @@ public class PlayerPose
 
     // Add the specified offset into the offset vector for the specified limb
     // The offset will be added to the angle at render time
-    public void addOffset(String limb, Vector3d offsetVector)
+    public void addOffset(String limb, Vec3 offsetVector)
     {
         if (offset.containsKey(limb))
             offsetVector = offset.get(limb).add(offsetVector);
@@ -56,15 +54,15 @@ public class PlayerPose
         offset.put(limb, offsetVector);
     }
 
-    public Vector3d getOffset(String limb)
+    public Vec3 getOffset(String limb)
     {
         if (offset.containsKey(limb))
             return offset.get(limb);
 
-        return new Vector3d(0, 0, 0);
+        return new Vec3(0, 0, 0);
     }
 
-    public void addSize(String limb, Vector3d size, int priority, float speed)
+    public void addSize(String limb, Vec3 size, int priority, float speed)
     {
         if (sizePriorities.containsKey(limb) && sizePriorities.get(limb) >= priority)
             return;
@@ -74,7 +72,7 @@ public class PlayerPose
         sizes.put(limb, size);
     }
 
-    public Vector3d getSize(String limb)
+    public Vec3 getSize(String limb)
     {
         if (sizes.containsKey(limb))
             return sizes.get(limb);
@@ -98,7 +96,7 @@ public class PlayerPose
         return -1;
     }
 
-    public HashMap<String, Vector3d> getSizes()
+    public HashMap<String, Vec3> getSizes()
     {
         return sizes;
     }
@@ -137,7 +135,7 @@ public class PlayerPose
     }
 
     // Get all angle frames for the specified limb
-    public ArrayList<Vector3d> getAngles(String limb)
+    public ArrayList<Vec3> getAngles(String limb)
     {
         return angles.get(limb);
     }
@@ -149,18 +147,18 @@ public class PlayerPose
     }
 
     // Adds angle to specified limb with the specified priority level
-    public void addAngle(String limb, Vector3d angle, int priority)
+    public void addAngle(String limb, Vec3 angle, int priority)
     {
         addAngle(limb, angle, priority, AnimationSpeedCalculator.defaultSpeedInTicks, -1);
     }
 
     // Adds angle to specified limb with the specified priority level, speed and animation lock
-    public void addAngle(String limb, Vector3d angle, int priority, Float speedInTicks, int animationLock)
+    public void addAngle(String limb, Vec3 angle, int priority, Float speedInTicks, int animationLock)
     {
         // If the specified limb has not been initialised, initialise it
         if (!angles.containsKey(limb))
         {
-            angles.put(limb, new ArrayList<Vector3d>());
+            angles.put(limb, new ArrayList<Vec3>());
             speed.put(limb, new ArrayList<Float>());
         }
 
@@ -183,13 +181,13 @@ public class PlayerPose
     }
 
     // Get the angle of the current frame for the specified limb
-    public Vector3d getAngle(String limb, int frame)
+    public Vec3 getAngle(String limb, int frame)
     {
         return angles.get(limb).get(frame);
     }
 
     // Get the angle of the first frame for the specified limb
-    public Vector3d getAngle(String limb)
+    public Vec3 getAngle(String limb)
     {
         return getAngle(limb, 0);
     }
@@ -229,7 +227,7 @@ public class PlayerPose
         PlayerPose copyPose = new PlayerPose();
 
         for (String limb : angles.keySet())
-            copyPose.setAngles(limb, (ArrayList<Vector3d>)angles.get(limb).clone(), (ArrayList<Float>)speed.get(limb).clone(), priorities.get(limb), offset.get(limb), aLock.get(limb));
+            copyPose.setAngles(limb, (ArrayList<Vec3>)angles.get(limb).clone(), (ArrayList<Float>)speed.get(limb).clone(), priorities.get(limb), offset.get(limb), aLock.get(limb));
 
         for (String limb : sizes.keySet())
             copyPose.addSize(limb, sizes.get(limb), sizePriorities.get(limb), sizeSpeed.get(limb));

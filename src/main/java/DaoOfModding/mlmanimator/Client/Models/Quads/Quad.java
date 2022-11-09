@@ -2,28 +2,34 @@ package DaoOfModding.mlmanimator.Client.Models.Quads;
 
 import DaoOfModding.mlmanimator.Client.MultiLimbedRenderer;
 import DaoOfModding.mlmanimator.mlmanimator;
-import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.*;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Vector3f;
+import com.mojang.math.Vector4f;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.Vec2;
+import com.mojang.math.Matrix3f;
+import com.mojang.math.Matrix4f;
+
 
 public class Quad
 {
     public static enum QuadVertex { TopLeft, TopRight, BottomRight, BottomLeft };
 
-    private static final Vector2f texUV[] = {new Vector2f(0, 0), new Vector2f(1, 0), new Vector2f(1, 1), new Vector2f(0, 1)};
+    private static final Vec2 texUV[] = {new Vec2(0, 0), new Vec2(1, 0), new Vec2(1, 1), new Vec2(0, 1)};
 
-    protected Vector3d quadPos[] = new Vector3d[4];
-    protected Vector3d normal[] = new Vector3d[4];
+    protected Vec3 quadPos[] = new Vec3[4];
+    protected Vec3 normal[] = new Vec3[4];
     protected Vector4f color = new Vector4f(1, 1, 1, 1);
     protected ResourceLocation customTexture = new ResourceLocation(mlmanimator.MODID, "textures/blank.png");
 
-    public Quad(Vector3d topLeft, Vector3d topRight, Vector3d bottomRight, Vector3d bottomLeft)
+    public Quad(Vec3 topLeft, Vec3 topRight, Vec3 bottomRight, Vec3 bottomLeft)
     {
         setPos(topLeft, topRight, bottomRight, bottomLeft);
     }
 
-    public void setPos(Vector3d topLeft, Vector3d topRight, Vector3d bottomRight, Vector3d bottomLeft)
+    public void setPos(Vec3 topLeft, Vec3 topRight, Vec3 bottomRight, Vec3 bottomLeft)
     {
         quadPos[0] = topLeft;
         quadPos[1] = topRight;
@@ -33,12 +39,12 @@ public class Quad
         calculateNormals();
     }
 
-    public Vector3d getPos(Quad.QuadVertex vertex)
+    public Vec3 getPos(Quad.QuadVertex vertex)
     {
         return quadPos[vertex.ordinal()];
     }
 
-    public void setPos(QuadVertex vertex, Vector3d newPos)
+    public void setPos(QuadVertex vertex, Vec3 newPos)
     {
         quadPos[vertex.ordinal()] = newPos;
         calculateNormals();
@@ -57,7 +63,7 @@ public class Quad
         normal[3] = calculateNormal(quadPos[3], quadPos[2], quadPos[0]);
     }
 
-    private Vector3d calculateNormal(Vector3d point, Vector3d leftPoint, Vector3d rightPoint)
+    private Vec3 calculateNormal(Vec3 point, Vec3 leftPoint, Vec3 rightPoint)
     {
         return (leftPoint.subtract(point)).cross(rightPoint.subtract(point)).normalize();
     }
@@ -67,12 +73,12 @@ public class Quad
         color = newColor;
     }
 
-    public void render(MatrixStack matrixStackIn, int packedLightIn, int packedOverlayIn)
+    public void render(PoseStack PoseStackIn, int packedLightIn, int packedOverlayIn)
     {
-        IVertexBuilder vertexBuilder = MultiLimbedRenderer.getVertexBuilder(customTexture);
+        VertexConsumer vertexBuilder = MultiLimbedRenderer.getVertexBuilder(customTexture);
 
-        Matrix4f stackPose = matrixStackIn.last().pose();
-        Matrix3f stackNormal = matrixStackIn.last().normal();
+        Matrix4f stackPose = PoseStackIn.last().pose();
+        Matrix3f stackNormal = PoseStackIn.last().normal();
 
         // Loop through each vertex
         for (int i = 0; i < 4; i++)

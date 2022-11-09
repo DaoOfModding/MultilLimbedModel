@@ -1,26 +1,26 @@
 package DaoOfModding.mlmanimator.Client.Models.Quads;
 
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.phys.Vec3;
 
 public class QuadLinkage
 {
     Quad quad;
     Quad.QuadVertex position;
-    Vector3d relativePos;
+    Vec3 relativePos;
 
-    public QuadLinkage(Quad linkedQuad, Quad.QuadVertex VertexPosition, Vector3d relativePosition)
+    public QuadLinkage(Quad linkedQuad, Quad.QuadVertex VertexPosition, Vec3 relativePosition)
     {
         quad = linkedQuad;
         position = VertexPosition;
         relativePos = relativePosition;
     }
 
-    public void updatePos(Vector3d pos)
+    public void updatePos(Vec3 pos)
     {
         quad.setPos(position, pos);
     }
 
-    public Vector3d getRelativePos()
+    public Vec3 getRelativePos()
     {
         return relativePos;
     }

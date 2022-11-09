@@ -4,9 +4,8 @@ import DaoOfModding.mlmanimator.Client.Poses.GenericPoses;
 import DaoOfModding.mlmanimator.Client.Poses.PlayerPoseHandler;
 import DaoOfModding.mlmanimator.Client.Poses.PoseHandler;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.util.Hand;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.world.InteractionHand;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.*;
 import net.minecraftforge.event.TickEvent;
@@ -41,15 +40,15 @@ public class ClientListeners
     @SubscribeEvent
     public static void playerInteract(PlayerInteractEvent.LeftClickEmpty event)
     {
-        PoseHandler.getPlayerPoseHandler(event.getPlayer().getUUID()).addPose(GenericPoses.slashing);
+        PoseHandler.getPlayerPoseHandler(event.getEntity().getUUID()).addPose(GenericPoses.slashing);
     }
 
     @SubscribeEvent
     public static void renderFirstPerson(RenderHandEvent event)
     {
         // Do nothing unless this is trying to render the main hand
-        // Otherwise this will run twice a render
-        if (event.getHand() != Hand.MAIN_HAND)
+        // Otherwise this will run twice at render
+        if (event.getHand() != InteractionHand.MAIN_HAND)
         {
             event.setCanceled(true);
             return;
@@ -60,23 +59,23 @@ public class ClientListeners
             return;
 
         // If MultiLimbedRenderer renders the player, cancel the render event
-        event.setCanceled(MultiLimbedRenderer.renderFirstPerson(Minecraft.getInstance().player, event.getPartialTicks(), event.getMatrixStack(), event.getBuffers(), event.getLight()));
+        event.setCanceled(MultiLimbedRenderer.renderFirstPerson(Minecraft.getInstance().player, event.getPartialTick(), event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight()));
     }
 
     @SubscribeEvent
     public static void renderPlayer(RenderPlayerEvent.Pre event)
     {
         // Do nothing if pose handler does not exist or can't be setup
-        if (!PoseHandler.setupPoseHandler((AbstractClientPlayerEntity)event.getPlayer()))
+        if (!PoseHandler.setupPoseHandler((AbstractClientPlayer)event.getEntity()))
             return;
 
         // If MultiLimbedRenderer renders the player, cancel the render event
-        event.setCanceled(MultiLimbedRenderer.render((AbstractClientPlayerEntity)event.getPlayer(), event.getPartialRenderTick(), event.getMatrixStack(), event.getBuffers(), event.getLight()));
+        event.setCanceled(MultiLimbedRenderer.render((AbstractClientPlayer)event.getEntity(), event.getPartialTick(), event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight()));
     }
 
     @SubscribeEvent
     // Toggle off the third person boolean so that the camera will still render in first person
-    public static void renderWorldLast(RenderWorldLastEvent event)
+    public static void renderWorldLast(RenderLevelLastEvent event)
     {
         if (Minecraft.getInstance().level == null)
             return;
@@ -85,29 +84,32 @@ public class ClientListeners
     }
 
     @SubscribeEvent
-    // Toggle on the third person boolean in ActiveRenderInfo to allow the player model to be drawn even when in first person
-    public static void cameraSetup(EntityViewRenderEvent.CameraSetup event)
+    // Toggle on the third person boolean in Camera to allow the player model to be drawn even when in first person
+    public static void cameraSetup(ViewportEvent.ComputeCameraAngles event)
     {
         if (Minecraft.getInstance().level == null)
             return;
 
-        if (MultiLimbedRenderer.fakeThirdPersonOn())
-            MultiLimbedRenderer.pushBackCamera(event.getRenderPartialTicks());
+        if (MultiLimbedRenderer.fakeThirdPersonOn()) {
+            MultiLimbedRenderer.pushBackCamera(event.getPartialTick());
+        }
 
         MultiLimbedRenderer.rotateCamera(event);
     }
 
     @SubscribeEvent
-    public static void cameraFOV(FOVUpdateEvent event)
+    public static void cameraFOV(ViewportEvent.ComputeFov event)
     {
         // Cap the min and max FOV change to stop ridiculous FOV changes at high/low speeds
 
-        float newFov = event.getNewfov();
-        if (newFov < 0.95f)
-            newFov = 0.95f;
-        if (newFov > 1.15f)
-            newFov = 1.15f;
+        double newFov = event.getFOV();
 
-        event.setNewfov(newFov);
+        // TODO: This value has changed, default is at 70 now
+        /*if (newFov < 0.95)
+            newFov = 0.95;
+        if (newFov > 1.15)
+            newFov = 1.15;*/
+
+        event.setFOV(newFov);
     }
 }

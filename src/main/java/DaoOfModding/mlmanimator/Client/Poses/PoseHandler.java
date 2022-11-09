@@ -1,16 +1,14 @@
 package DaoOfModding.mlmanimator.Client.Poses;
 
-import DaoOfModding.mlmanimator.mlmanimator;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.AbstractClientPlayerEntity;
-import net.minecraft.client.renderer.entity.PlayerRenderer;
-import net.minecraft.entity.Pose;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
+import com.mojang.math.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +19,7 @@ public class PoseHandler
     private static List<PlayerPoseHandler> poses = new ArrayList<PlayerPoseHandler>();
     private static boolean loaded = false;
 
-    public static boolean setupPoseHandler(AbstractClientPlayerEntity player)
+    public static boolean setupPoseHandler(AbstractClientPlayer player)
     {
         // Do nothing if pose handler for this player already exists
         for (PlayerPoseHandler handler : poses)
@@ -31,7 +29,7 @@ public class PoseHandler
         if (!player.isSkinLoaded())
             return false;
 
-        PlayerRenderer renderer = Minecraft.getInstance().getEntityRenderDispatcher().getSkinMap().get(player.getModelName());
+        PlayerRenderer renderer = (PlayerRenderer) Minecraft.getInstance().getEntityRenderDispatcher().getSkinMap().get(player.getModelName());
 
         PlayerPoseHandler newHandler = new PlayerPoseHandler(player.getUUID(), renderer.getModel());
         poses.add(newHandler);
@@ -62,30 +60,30 @@ public class PoseHandler
         return null;
     }
 
-    public static void applyRotations(PlayerEntity entityLiving, MatrixStack matrixStackIn, float rotationYaw, float partialTicks)
+    public static void applyRotations(Player entityLiving, PoseStack PoseStackIn, float rotationYaw, float partialTicks)
     {
         Pose pose = entityLiving.getPose();
         if (pose != Pose.SLEEPING) {
-            matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(180.0F - rotationYaw));
+            PoseStackIn.mulPose(Vector3f.YP.rotationDegrees(180.0F - rotationYaw));
         }
 
         if (entityLiving.deathTime > 0)
         {
             float f = ((float)entityLiving.deathTime + partialTicks - 1.0F) / 20.0F * 1.6F;
-            f = MathHelper.sqrt(f);
+            f = Mth.sqrt(f);
             if (f > 1.0F) {
                 f = 1.0F;
             }
 
-            matrixStackIn.mulPose(Vector3f.ZP.rotationDegrees(f * 90.0F));
+            PoseStackIn.mulPose(Vector3f.ZP.rotationDegrees(f * 90.0F));
         }
         else if (pose == Pose.SLEEPING)
         {
             Direction direction = entityLiving.getBedOrientation();
             float f1 = direction != null ? getFacingAngle(direction) : rotationYaw;
-            matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(f1));
-            matrixStackIn.mulPose(Vector3f.ZP.rotationDegrees(90.0F));
-            matrixStackIn.mulPose(Vector3f.YP.rotationDegrees(270.0F));
+            PoseStackIn.mulPose(Vector3f.YP.rotationDegrees(f1));
+            PoseStackIn.mulPose(Vector3f.ZP.rotationDegrees(90.0F));
+            PoseStackIn.mulPose(Vector3f.YP.rotationDegrees(270.0F));
         }
     }
 
@@ -115,7 +113,7 @@ public class PoseHandler
             handler.addPose(pose);
     }
 
-    public static boolean shouldSit(PlayerEntity entityIn)
+    public static boolean shouldSit(Player entityIn)
     {
         return entityIn.isPassenger() && entityIn.getVehicle().shouldRiderSit();
     }

@@ -1,22 +1,22 @@
 package DaoOfModding.mlmanimator.Common;
 
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 
 public class PlayerUtils
 {
-    public static boolean lookingUp(PlayerEntity player)
+    public static boolean lookingUp(Player player)
     {
         return player.getLookAngle().y > 0.05;
     }
 
-    public static boolean lookingDown(PlayerEntity player)
+    public static boolean lookingDown(Player player)
     {
         return player.getLookAngle().y < -0.75;
     }
 
-    public static Direction movementDirection(PlayerEntity player)
+    public static Direction movementDirection(Player player)
     {
         double x = player.xOld - player.xCloak;
         double z = player.zOld - player.zCloak;
@@ -58,7 +58,7 @@ public class PlayerUtils
         return Direction.DOWN;
     }
 
-    public static Vector3d rotateAroundY(Vector3d position, double angle)
+    public static Vec3 rotateAroundY(Vec3 position, double angle)
     {
         double angleCos = Math.cos(Math.toRadians(angle));
         double angleSin = Math.sin(Math.toRadians(angle));
@@ -66,6 +66,6 @@ public class PlayerUtils
         double x = angleCos * position.x + angleSin * position.z;
         double z = -angleSin * position.x + angleCos * position.z;
 
-        return new Vector3d(x, position.y, z);
+        return new Vec3(x, position.y, z);
     }
 }

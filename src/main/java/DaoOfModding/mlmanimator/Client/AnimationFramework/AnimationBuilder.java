@@ -1,21 +1,21 @@
 package DaoOfModding.mlmanimator.Client.AnimationFramework;
 
 import DaoOfModding.mlmanimator.Client.Poses.PlayerPose;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.world.phys.Vec3;
 
 public class AnimationBuilder
 {
 
     // Generate a pose for limbs based on the angles supplied
     // Inverts the angles for limb2
-    public static PlayerPose generateRepeatingMirroredLimbs(String limb1, String limb2, Vector3d[] angles, int priority, int framesPerAngle)
+    public static PlayerPose generateRepeatingMirroredLimbs(String limb1, String limb2, Vec3[] angles, int priority, int framesPerAngle)
     {
         return generateRepeatingMirroredLimbs(limb1, limb2, angles, priority, framesPerAngle, -1);
     }
 
     // Generate a pose for limbs based on the angles supplied
     // Plays the second limb going backwards
-    public static PlayerPose generateRepeatingMirroredLimbs(String limb1, String limb2, Vector3d[] angles, int priority, float speedInTicks, int animationLock)
+    public static PlayerPose generateRepeatingMirroredLimbs(String limb1, String limb2, Vec3[] angles, int priority, float speedInTicks, int animationLock)
     {
         PlayerPose LegPose = new PlayerPose();
 
