@@ -1,5 +1,6 @@
 package DaoOfModding.mlmanimator.Common;
 
+import com.mojang.math.Vector3f;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
@@ -67,5 +68,16 @@ public class PlayerUtils
         double z = -angleSin * position.x + angleCos * position.z;
 
         return new Vec3(x, position.y, z);
+    }
+
+    public static Vector3f rotateAroundY(Vector3f position, double angle)
+    {
+        double angleCos = Math.cos(Math.toRadians(angle));
+        double angleSin = Math.sin(Math.toRadians(angle));
+
+        double x = angleCos * position.x() + angleSin * position.z();
+        double z = -angleSin * position.x() + angleCos * position.z();
+
+        return new Vector3f((float)x, position.y(), (float)z);
     }
 }

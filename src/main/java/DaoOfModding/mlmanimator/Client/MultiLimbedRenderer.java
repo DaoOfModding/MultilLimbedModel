@@ -1,6 +1,7 @@
 package DaoOfModding.mlmanimator.Client;
 
 import DaoOfModding.mlmanimator.Client.Models.ModelRendererReflection;
+import DaoOfModding.mlmanimator.Client.Models.MultiLimbedDimensions;
 import DaoOfModding.mlmanimator.Client.Models.MultiLimbedModel;
 import DaoOfModding.mlmanimator.Client.Poses.PlayerPoseHandler;
 import DaoOfModding.mlmanimator.Client.Poses.PoseHandler;
@@ -12,16 +13,19 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.Camera;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -49,6 +53,8 @@ public class MultiLimbedRenderer
     private static Field slimField;
     private static Field cubeField;
     private static Field childField;
+    private static Field dimensions;
+    private static Method moveTowardsClosestSpaceFunction;
     private static Method cameraMoveFunction;
 
     private static final double defaultCameraDistance = 0.5f;
@@ -73,15 +79,33 @@ public class MultiLimbedRenderer
         // children - f_104213_
         childField = ObfuscationReflectionHelper.findField(ModelPart.class, "f_104213_");
 
+        // moveTowardsClosestSpace  - b - m_108704_
+        moveTowardsClosestSpaceFunction = ObfuscationReflectionHelper.findMethod(LocalPlayer.class, "m_108704_", double.class, double.class);
+
+        // dimensions - aZ - f_19815_
+        dimensions = ObfuscationReflectionHelper.findField(Entity.class,"f_19815_");
+
         try {
             Field modifiers = Field.class.getDeclaredField("modifiers");
             modifiers.setInt(cubeField, cubeField.getModifiers() & ~Modifier.FINAL);
-            modifiers.setInt(childField, cubeField.getModifiers() & ~Modifier.FINAL);
+            modifiers.setInt(childField, childField.getModifiers() & ~Modifier.FINAL);
         }
         catch (Exception e) { mlmanimator.LOGGER.error("Error clearing final modifier: " + e); }
 
         try { ModelRendererReflection.setupReflection(); }
-        catch (Exception e) { mlmanimator.LOGGER.error("Error reflecting ModelPart: " + e); }
+        catch (Exception e) { mlmanimator.LOGGER.error("Error setting up reflection : " + e); }
+    }
+
+    public static void setDimensions(Player entity, EntityDimensions value)
+    {
+        try
+        {
+            dimensions.set(entity, value);
+        }
+        catch (Exception e)
+        {
+            mlmanimator.LOGGER.error("Error setting dimensions at field " + dimensions.getName() + " in " + dimensions.toString() + ": " + e);
+        }
     }
 
     public static void rotateCamera(ViewportEvent.ComputeCameraAngles event)
@@ -144,6 +168,18 @@ public class MultiLimbedRenderer
         }
 
         return true;
+    }
+
+    public static void moveTowardsClosestSpace(LocalPlayer player, double x, double z)
+    {
+        try
+        {
+            moveTowardsClosestSpaceFunction.invoke(player, x, z);
+        }
+        catch(Exception e)
+        {
+            mlmanimator.LOGGER.error("Error calling moveTowardsClosestSpace - " + e);
+        }
     }
 
     // Push the camera to be in front of the player, but not so far in front that it sees through blocks
@@ -261,7 +297,7 @@ public class MultiLimbedRenderer
 
         PoseHandler.doPose(entityIn.getUUID(), partialTicks);
 
-        handler.getPlayerModel().calculateHeightAdjustment();
+        handler.getPlayerModel().calculateHeightAdjustment(entityIn);
     }
 
     public static void clearCubes(ModelPart model)
@@ -340,6 +376,7 @@ public class MultiLimbedRenderer
 
     public static void adjustEyeHeight(AbstractClientPlayer player, PlayerPoseHandler handler)
     {
+        // TODO - is this being done correctly?
 
         float eyeHeight = handler.getPlayerModel().calculateEyeHeight() * -1;
 
@@ -463,7 +500,7 @@ public class MultiLimbedRenderer
 
         PoseHandler.doPose(entityIn.getUUID(), partialTicks);
 
-        entityModel.calculateHeightAdjustment();
+        entityModel.calculateHeightAdjustment(entityIn);
         double height = entityModel.getHeightAdjustment();
 
         PoseStackIn.scale(-1.0F, -1.0F, 1.0F);

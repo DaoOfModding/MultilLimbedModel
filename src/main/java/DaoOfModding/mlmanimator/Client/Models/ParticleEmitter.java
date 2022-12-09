@@ -75,7 +75,7 @@ public class ParticleEmitter extends ExtendableModelRenderer
     }
 
     @Override
-    public void calculateMinHeight(PoseStack PoseStackIn)
+    public MultiLimbedDimensions calculateMinHeight(PoseStack PoseStackIn, double yRot)
     {
         // Update the position of this model first
         updatePosition();
@@ -93,9 +93,11 @@ public class ParticleEmitter extends ExtendableModelRenderer
 
         // Calculate the min height of children
         for (ExtendableModelRenderer testChild : child)
-            testChild.calculateMinHeight(PoseStackIn);
+            testChild.calculateMinHeight(PoseStackIn, yRot);
 
         PoseStackIn.popPose();
+
+        return dimensions;
     }
 
     @Override
@@ -109,7 +111,7 @@ public class ParticleEmitter extends ExtendableModelRenderer
         copy.interval = interval;
         copy.tick = tick;
 
-        copy.minHeight = minHeight;
+        copy.dimensions = new MultiLimbedDimensions(dimensions);
         copy.look = look;
         copy.rotationOffset = rotationOffset;
         copy.rotationPoint = rotationPoint;

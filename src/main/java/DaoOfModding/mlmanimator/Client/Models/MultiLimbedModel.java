@@ -1,19 +1,31 @@
 package DaoOfModding.mlmanimator.Client.Models;
 
 import DaoOfModding.mlmanimator.Client.MultiLimbedRenderer;
+import DaoOfModding.mlmanimator.Common.PlayerUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
+import net.minecraft.CrashReport;
+import net.minecraft.CrashReportCategory;
+import net.minecraft.ReportedException;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
+import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.*;
 
@@ -27,6 +39,8 @@ public class MultiLimbedModel
     private float lowestModelHeight = 0;
 
     private Vec3 lookVector = new Vec3(0, 0, 0);
+
+    private MultiLimbedDimensions size = null;
 
     private boolean slim = false;
 
@@ -92,6 +106,8 @@ public class MultiLimbedModel
             rightArm.extend(GenericResizers.getArmResizer());
         }
 
+        rightArm.setHitbox(false);
+
         ExtendableModelRenderer leftArm = new ExtendableModelRenderer(32, 48, GenericLimbNames.leftArm);
         leftArm.setRotationPoint(new Vec3(0.5D, 0.66D, 0.5D));
         leftArm.setPos(1.0F, 0.0F, 0.5F);
@@ -106,6 +122,8 @@ public class MultiLimbedModel
             leftArm.extend(GenericResizers.getArmResizer());
         }
 
+        leftArm.setHitbox(false);
+
         ExtendableModelRenderer rightLeg = new ExtendableModelRenderer(0, 16, GenericLimbNames.rightLeg);
         rightLeg.setPos(0.25F, 1.0F, 0.5F);
         rightLeg.setRotationPoint(new Vec3(0.5, 0.66, 0.5));
@@ -117,7 +135,6 @@ public class MultiLimbedModel
         leftLeg.setRotationPoint(new Vec3(0.5, 0.66, 0.5));
         leftLeg.setFixedPosAdjustment(0F, 2F, 0.0F);
         leftLeg.extend(GenericResizers.getLegResizer());
-
 
         addBody(body);
         addLimb(GenericLimbNames.head, head);
@@ -293,11 +310,6 @@ public class MultiLimbedModel
         allLimbs.put(limb, limbModel);
     }
 
-    public void prepareMobModel(Player entityIn, float limbSwing, float limbSwingAmount, float partialTick)
-    {
-        // baseModel.prepareMobModel(entityIn, limbSwing, limbSwingAmount, partialTick);
-    }
-
     public void setupAnim(float netHeadYaw, float headPitch)
     {
         lookVector = new Vec3(headPitch * ((float)Math.PI / 180F), netHeadYaw * ((float)Math.PI / 180F), 0);
@@ -415,30 +427,47 @@ public class MultiLimbedModel
     }
 
     // Calculate the height adjustment for each limb
-    public void calculateHeightAdjustment()
+    public void calculateHeightAdjustment(Player player)
     {
-        body.calculateMinHeight(new PoseStack());
+        size = body.calculateMinHeight(new PoseStack(), 360 - player.yBodyRot);
+        size.scaleValues(sizeScale / 16f);
+        size = new MultiLimbedDimensions(size);
 
-        lowestModelHeight = getHeightAdjustment(body, Float.MAX_VALUE * -1) * sizeScale / 16;
+        MultiLimbedRenderer.setDimensions(player, new EntityDimensions(size.getBiggestWidth(), size.getHeight(), false));
+        player.setBoundingBox(size.makeBoundingBox(player.position()));
+    }
+
+    private Vec3 collision(Level level, AABB bounding)
+    {
+        BlockPos blockpos = new BlockPos(bounding.minX + 0.001D, bounding.minY + 0.001D, bounding.minZ + 0.001D);
+        BlockPos blockpos1 = new BlockPos(bounding.maxX - 0.001D, bounding.maxY - 0.001D, bounding.maxZ - 0.001D);
+
+        if (level.hasChunksAt(blockpos, blockpos1))
+        {
+            BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos();
+
+            for(int i = blockpos.getX(); i <= blockpos1.getX(); ++i) {
+                for(int j = blockpos.getY(); j <= blockpos1.getY(); ++j) {
+                    for(int k = blockpos.getZ(); k <= blockpos1.getZ(); ++k) {
+                        blockpos$mutableblockpos.set(i, j, k);
+                        BlockState blockstate = level.getBlockState(blockpos$mutableblockpos);
+
+                        if (blockstate.isSuffocating(level.getChunkForCollisions(SectionPos.blockToSectionCoord(i), SectionPos.blockToSectionCoord(k)), blockpos))
+                            return new Vec3(i, j, k);
+                    }
+                }
+            }
+        }
+
+        return null;
     }
 
     // Find the limb at the lowest height and return it's height
     public float getHeightAdjustment()
     {
-        return lowestModelHeight;
-    }
+        if (size != null)
+            return size.minSize.y();
 
-    // Find the minimum height of the provided limb and all of it's children compared to the provided value
-    private float getHeightAdjustment(ExtendableModelRenderer limbModel, float lowest)
-    {
-        float testHeight = limbModel.getMinHeight();
-
-        if (testHeight > lowest)
-            lowest = testHeight;
-
-        for (ExtendableModelRenderer testLimb : limbModel.getChildren())
-            lowest = getHeightAdjustment(testLimb, lowest);
-
-        return lowest;
+        return 0;
     }
 }

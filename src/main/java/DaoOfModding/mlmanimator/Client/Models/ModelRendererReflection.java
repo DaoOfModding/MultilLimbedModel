@@ -2,9 +2,8 @@ package DaoOfModding.mlmanimator.Client.Models;
 
 import DaoOfModding.mlmanimator.mlmanimator;
 import com.mojang.math.Vector3f;
-import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.client.model.geom.ModelPart;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
 import java.lang.reflect.Field;
@@ -55,7 +54,6 @@ public class ModelRendererReflection
             return null;
         }
     }
-
 
     public static Vector3f getPositionTextureVertexPos(Object PositionTextureVertex)
     {

@@ -4,6 +4,7 @@ import DaoOfModding.mlmanimator.Client.Models.Quads.Quad;
 import DaoOfModding.mlmanimator.Client.Models.Quads.QuadLinkage;
 import DaoOfModding.mlmanimator.Client.MultiLimbedRenderer;
 import DaoOfModding.mlmanimator.Client.AnimationFramework.resizeModule;
+import DaoOfModding.mlmanimator.Common.PlayerUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Matrix3f;
@@ -38,7 +39,7 @@ public class ExtendableModelRenderer
 
     protected Vector3f[] points = new Vector3f[8];
 
-    protected float minHeight = 0;
+    protected MultiLimbedDimensions dimensions = new MultiLimbedDimensions();
 
     protected boolean look = false;
     protected float notLookingPitch = 0;
@@ -65,6 +66,8 @@ public class ExtendableModelRenderer
 
     protected boolean oldVisability;
 
+    protected boolean hasHitbox = true;
+
     public boolean mirror = false;
 
 
@@ -73,7 +76,7 @@ public class ExtendableModelRenderer
         ExtendableModelRenderer copy = new ExtendableModelRenderer(textureWidth, textureHeight, textureOffsetX, textureOffsetY, name);
         copy.setParent(parent);
 
-        copy.minHeight = minHeight;
+        copy.dimensions = dimensions;
         copy.look = look;
         copy.customTexture = customTexture;
         copy.rotationOffset = rotationOffset;
@@ -133,6 +136,11 @@ public class ExtendableModelRenderer
         name = limbName;
 
         mPart = new ModelPart(new ArrayList<>(), new HashMap<String, ModelPart>());
+    }
+
+    public void setHitbox(boolean on)
+    {
+        hasHitbox = on;
     }
 
     public Vec3 getDefaultSize()
@@ -548,43 +556,61 @@ public class ExtendableModelRenderer
     // Get the minimum height of any point on this model
     public float getMinHeight()
     {
-        return minHeight;
+        return dimensions.getMinHeight();
     }
 
-    public void calculateMinHeight(PoseStack PoseStackIn)
+    public MultiLimbedDimensions calculateMinHeight(PoseStack PoseStackIn, double yRot)
     {
         // Update the position of this model first
         updatePosition();
 
         PoseStackIn.pushPose();
-        rotateMatrix(PoseStackIn);
+
+        // Don't rotate the model if it's looking in the direction of the camera - seems to exaggerate positions for some reason
+        if (!isLooking())
+            rotateMatrix(PoseStackIn);
+        else
+            PoseStackIn.translate(mPart.x, mPart.y, mPart.z);
 
         Matrix4f rotator = PoseStackIn.last().pose();
-
 
         float min = Float.MAX_VALUE * -1;
 
         Vec3 resize = getResize();
+
+        dimensions.reset();
 
         for (Vector3f point : points)
         {
             Vector4f vector4f = new Vector4f(point.x() * (float)resize.x, point.y() * (float)resize.y, point.z() * (float)resize.z, 1.0F);
             vector4f.transform(rotator);
 
+            // Rotate this part to be facing the same direction as the body
+            point = new Vector3f(vector4f.x(), vector4f.y(), vector4f.z());
+            point = PlayerUtils.rotateAroundY(point, yRot);
+
+            dimensions.updateSize(point);
+
             if (vector4f.y() > min)
                 min = vector4f.y();
         }
 
-        minHeight = min;
-
         // Update any quad linkages now so it doesn't have to run through the same loop again
         updateQuadLinkages(rotator);
 
+        MultiLimbedDimensions totalDimensions = new MultiLimbedDimensions(dimensions);
+
         // Calculate the min height of children
         for (ExtendableModelRenderer testChild : child)
-            testChild.calculateMinHeight(PoseStackIn);
+            totalDimensions.combine(testChild.calculateMinHeight(PoseStackIn, yRot));
 
         PoseStackIn.popPose();
+
+        // Do not return size for this or any children if the model does not have a hitbox
+        if (!hasHitbox)
+            return new MultiLimbedDimensions();
+
+        return totalDimensions;
     }
 
     public Vec3 translateRelativePosition(Vec3 relativePos)

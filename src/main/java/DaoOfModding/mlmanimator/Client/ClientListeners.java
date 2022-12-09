@@ -1,11 +1,15 @@
 package DaoOfModding.mlmanimator.Client;
 
+import DaoOfModding.mlmanimator.Client.Models.MultiLimbedModel;
 import DaoOfModding.mlmanimator.Client.Poses.GenericPoses;
 import DaoOfModding.mlmanimator.Client.Poses.PlayerPoseHandler;
 import DaoOfModding.mlmanimator.Client.Poses.PoseHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.*;
 import net.minecraftforge.event.TickEvent;
@@ -23,7 +27,6 @@ public class ClientListeners
         // Do nothing on the server
         if (event.side == LogicalSide.SERVER)
             return;
-
 
         if (event.phase == TickEvent.Phase.START)
         {
@@ -68,6 +71,9 @@ public class ClientListeners
         // Do nothing if pose handler does not exist or can't be setup
         if (!PoseHandler.setupPoseHandler((AbstractClientPlayer)event.getEntity()))
             return;
+/*
+        // Update the players bounding box
+        PoseHandler.getPlayerPoseHandler(event.getEntity().getUUID()).getPlayerModel().updateBoundingBox(event.getEntity());*/
 
         // If MultiLimbedRenderer renders the player, cancel the render event
         event.setCanceled(MultiLimbedRenderer.render((AbstractClientPlayer)event.getEntity(), event.getPartialTick(), event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight()));
@@ -95,6 +101,8 @@ public class ClientListeners
         }
 
         MultiLimbedRenderer.rotateCamera(event);
+
+        event.getCamera().tick();
     }
 
     @SubscribeEvent
@@ -109,6 +117,8 @@ public class ClientListeners
             newFov = 0.95;
         if (newFov > 1.15)
             newFov = 1.15;*/
+
+        //System.out.println("FOV: " + newFov);
 
         event.setFOV(newFov);
     }

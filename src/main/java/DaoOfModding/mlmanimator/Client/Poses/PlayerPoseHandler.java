@@ -492,11 +492,15 @@ public class PlayerPoseHandler
     // movementDelta does not work for remote clients, so have to calculate it here instead
     private void calculateDelta(Player player)
     {
-        if (player instanceof AbstractClientPlayer)
+        if (player.isLocalPlayer())
             delta = player.getDeltaMovement();
         else
+        {
+            // TODO: Testing shit here, delete
+            System.out.println(player.getDisplayName().getString() + "'s delta is " + delta);
             delta = player.position().subtract(oldPos);
-        
+        }
+
         oldPos = player.position();
     }
 
@@ -545,6 +549,10 @@ public class PlayerPoseHandler
             if (getDeltaMovement().length() > 0)
             {
                 double yLook = 1 - getDeltaMovement().normalize().y;
+
+                // Don't swim down into the ground
+                if (player.isOnGround())
+                    yLook = 1;
 
                 PlayerPose swimPose = GenericPoses.SwimmingMoving.clone();
                 swimPose.addAngle(GenericLimbNames.body, new Vec3(Math.toRadians(90 * yLook), 0, 0), GenericPoses.swimBodyPriority);
