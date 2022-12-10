@@ -57,7 +57,7 @@ public class MultiLimbedRenderer
     private static Method moveTowardsClosestSpaceFunction;
     private static Method cameraMoveFunction;
 
-    private static final double defaultCameraDistance = 0.5f;
+    private static final double defaultCameraDistance = 0.3f;
     private static double decayingDistance = defaultCameraDistance;
 
     private static boolean fakeThird = false;
@@ -189,7 +189,7 @@ public class MultiLimbedRenderer
         Entity viewerEntity = rendererInfo.getEntity();
 
         // Calculate the camera position and player direction
-        Vec3 pos = new Vec3(Mth.lerp((double) partialTicks, viewerEntity.xOld, viewerEntity.getX()), Mth.lerp((double) partialTicks, viewerEntity.yOld, viewerEntity.getY()), Mth.lerp((double) partialTicks, viewerEntity.zOld, viewerEntity.getZ()));
+        Vec3 pos = new Vec3(Mth.lerp( partialTicks, viewerEntity.xOld, viewerEntity.getX()), Mth.lerp(partialTicks, viewerEntity.yOld, viewerEntity.getY()), Mth.lerp(partialTicks, viewerEntity.zOld, viewerEntity.getZ()));
         pos = pos.add(0, viewerEntity.getEyeHeight(), 0);
 
         Vec3 direction = Vec3.directionFromRotation(0, viewerEntity.getViewYRot((float)partialTicks));
@@ -377,8 +377,7 @@ public class MultiLimbedRenderer
     public static void adjustEyeHeight(AbstractClientPlayer player, PlayerPoseHandler handler)
     {
         // TODO - is this being done correctly?
-
-        float eyeHeight = handler.getPlayerModel().calculateEyeHeight() * -1;
+        float eyeHeight = handler.getPlayerModel().calculateEyeHeight() * -1f;
 
         try
         {
@@ -400,7 +399,7 @@ public class MultiLimbedRenderer
         adjustEyeHeight(entityIn, handler);
 
         // Decay the camera pushback so it reverts from being pushed back smoothly rather than being jerked forwards
-        decayCameraPushback(partialTicks);
+        //decayCameraPushback(partialTicks);
 
         render2FirstPerson(handler.getPlayerModel(), entityIn, partialTicks, PoseStackIn, bufferIn, packedLightIn);
 
@@ -412,6 +411,11 @@ public class MultiLimbedRenderer
         PoseStackIn.pushPose();
 
         PoseStackIn.scale(-1.0F, -1.0F, 1.0F);
+
+        Vec3 direction = Vec3.directionFromRotation(0, entityIn.getViewYRot(partialTicks));
+        direction = direction.scale(5);
+
+        PoseStackIn.translate(direction.x, 0, direction.z);
 
         currentModel = entityModel;
         currentEntity = entityIn;
@@ -514,6 +518,13 @@ public class MultiLimbedRenderer
 
         if (rendertype != null)
         {
+            // Push the model back so it's not directly bellow the camera in first person
+            if(MultiLimbedRenderer.isFakeThirdPerson() && entityIn.getUUID().compareTo(Minecraft.getInstance().player.getUUID()) == 0)
+            {
+                // TODO, adjust this based on head size?
+                PoseStackIn.translate(0, 0, defaultCameraDistance);
+            }
+
             int i = LivingEntityRenderer.getOverlayCoords(entityIn, 0);
             entityModel.render(PoseStackIn, null, packedLightIn, i, 1.0F, 1.0F, 1.0F, 1.0F);
 

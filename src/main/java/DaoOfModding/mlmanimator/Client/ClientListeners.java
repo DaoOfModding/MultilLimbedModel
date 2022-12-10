@@ -97,7 +97,7 @@ public class ClientListeners
             return;
 
         if (MultiLimbedRenderer.fakeThirdPersonOn()) {
-            MultiLimbedRenderer.pushBackCamera(event.getPartialTick());
+            //MultiLimbedRenderer.pushBackCamera(event.getPartialTick());
         }
 
         MultiLimbedRenderer.rotateCamera(event);

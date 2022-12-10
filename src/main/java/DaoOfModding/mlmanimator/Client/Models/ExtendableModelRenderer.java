@@ -418,15 +418,16 @@ public class ExtendableModelRenderer
         // If rendering in first person and this model is set not to render in first person, just render it's children
         if (MultiLimbedRenderer.isFakeThirdPerson() && !renderFirstPerson)
             fakerender(PoseStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
-        else {
-            //if (MultiLimbedRenderer.isFakeThirdPerson())
-            //    toggleFirstPersonVisability(true);
+        else
+        {
+            if (MultiLimbedRenderer.isFakeThirdPerson())
+                toggleFirstPersonVisability(true);
 
             //mPart.render(PoseStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
             renderCube(PoseStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
 
-            //if (MultiLimbedRenderer.isFakeThirdPerson())
-            //    toggleFirstPersonVisability(false);
+            if (MultiLimbedRenderer.isFakeThirdPerson())
+                toggleFirstPersonVisability(false);
 
             renderQuads(PoseStackIn, packedLightIn, packedOverlayIn);
         }

@@ -333,6 +333,7 @@ public class MultiLimbedModel
         return baseModel.renderType(resourcelocation);
     }
 
+    // Render models that only appear in first person
     public void renderFirstPerson(PoseStack PoseStackIn, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha)
     {
         lock();
@@ -355,6 +356,7 @@ public class MultiLimbedModel
 
         // Scale the model to match the scale size, and move it up or down so it's standing at the right height
         PoseStackIn.translate(0.0D, (1-sizeScale) * defaultHeight, 0.0D);
+
         PoseStackIn.scale(sizeScale, sizeScale, sizeScale);
 
         // Render the body, as all limbs are children or sub-children of the body, this should render everything
