@@ -9,6 +9,7 @@ import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -17,6 +18,7 @@ import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.resources.ResourceLocation;
@@ -84,6 +86,8 @@ public class MultiLimbedModel
         body.setPos(0, 0, 0);
         body.setRotationPoint(new Vec3(0.5, 0.5, 0.5));
         body.extend(GenericResizers.getBodyResizer());
+        body.addArmorSlot(EquipmentSlot.LEGS);
+        body.addArmorSlot(EquipmentSlot.CHEST);
 
         ExtendableModelRenderer head = new ExtendableModelRenderer(0, 0, GenericLimbNames.head);
         head.setRotationPoint(new Vec3(0.5, 0, 0.5));
@@ -91,10 +95,12 @@ public class MultiLimbedModel
         head.extend(GenericResizers.getHeadResizer());
         head.setLooking(true);
         head.setFirstPersonRender(false);
+        head.addArmorSlot(EquipmentSlot.HEAD);
 
         ExtendableModelRenderer rightArm = new ExtendableModelRenderer(40, 16, GenericLimbNames.rightArm);
         rightArm.setRotationPoint(new Vec3(0.5D, 0.66D, 0.5D));
         rightArm.setPos(0.0F, 0.0F, 0.5F);
+        rightArm.addArmorSlot(EquipmentSlot.CHEST);
         if (slim)
         {
             rightArm.setFixedPosAdjustment(-1.5F, 2F, 0.0F);
@@ -111,6 +117,7 @@ public class MultiLimbedModel
         ExtendableModelRenderer leftArm = new ExtendableModelRenderer(32, 48, GenericLimbNames.leftArm);
         leftArm.setRotationPoint(new Vec3(0.5D, 0.66D, 0.5D));
         leftArm.setPos(1.0F, 0.0F, 0.5F);
+        leftArm.addArmorSlot(EquipmentSlot.CHEST);
         if (slim)
         {
             leftArm.setFixedPosAdjustment(1.5F, 2F, 0.0F);
@@ -128,12 +135,16 @@ public class MultiLimbedModel
         rightLeg.setPos(0.25F, 1.0F, 0.5F);
         rightLeg.setRotationPoint(new Vec3(0.5, 0.66, 0.5));
         rightLeg.setFixedPosAdjustment(0F, 2F, 0.0F);
+        rightLeg.addArmorSlot(EquipmentSlot.LEGS);
+        rightLeg.addArmorSlot(EquipmentSlot.FEET);
         rightLeg.extend(GenericResizers.getLegResizer());
 
         ExtendableModelRenderer leftLeg = new ExtendableModelRenderer(0, 16, GenericLimbNames.leftLeg);
         leftLeg.setPos(0.75F, 1.0F, 0.5F);
         leftLeg.setRotationPoint(new Vec3(0.5, 0.66, 0.5));
         leftLeg.setFixedPosAdjustment(0F, 2F, 0.0F);
+        leftLeg.addArmorSlot(EquipmentSlot.LEGS);
+        leftLeg.addArmorSlot(EquipmentSlot.FEET);
         leftLeg.extend(GenericResizers.getLegResizer());
 
         addBody(body);
@@ -259,6 +270,12 @@ public class MultiLimbedModel
         addLimb(limb, limbModel, GenericLimbNames.body);
     }
 
+    // Updates the armor textures for all player body parts
+    public void updateArmorsTextures(Player player)
+    {
+        getBody().updateArmor(player);
+    }
+
     // Adds specified limb onto the specified limb
     public void addLimb(String limb, ExtendableModelRenderer limbModel, String addTo)
     {
@@ -341,7 +358,7 @@ public class MultiLimbedModel
         PoseStackIn.pushPose();
 
         for (ExtendableModelRenderer model : firstPersonLimbs.values())
-            model.render(PoseStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+            model.render(PoseStackIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
 
         PoseStackIn.popPose();
 
@@ -360,7 +377,7 @@ public class MultiLimbedModel
         PoseStackIn.scale(sizeScale, sizeScale, sizeScale);
 
         // Render the body, as all limbs are children or sub-children of the body, this should render everything
-        body.render(PoseStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+        body.render(PoseStackIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
 
         PoseStackIn.popPose();
 

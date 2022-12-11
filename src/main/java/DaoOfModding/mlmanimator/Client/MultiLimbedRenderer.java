@@ -16,22 +16,24 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.entity.ArmorStandRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.model.PlayerModel;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityDimensions;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Pose;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
+import net.minecraft.world.entity.*;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.ViewportEvent;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
+import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -459,6 +461,7 @@ public class MultiLimbedRenderer
         PoseStackIn.pushPose();
 
         MultiLimbedModel entityModel = handler.getPlayerModel();
+
         boolean shouldSit = PoseHandler.shouldSit(entityIn);
 
         entityModel.getBaseModel().riding = shouldSit;
@@ -515,6 +518,8 @@ public class MultiLimbedRenderer
         currentBuffer = bufferIn;
 
         RenderType rendertype = getRenderType(getSkin(currentEntity));
+
+        entityModel.updateArmorsTextures(entityIn);
 
         if (rendertype != null)
         {
@@ -578,5 +583,33 @@ public class MultiLimbedRenderer
     public static ResourceLocation getSkin(AbstractClientPlayer EntityIn)
     {
         return EntityIn.getSkinTextureLocation();
+    }
+
+    // Ripped pretty much completely from HumanoidArmorLayer
+    public static ResourceLocation getArmorResource(Player entity, EquipmentSlot slot)
+    {
+        ItemStack stack = entity.getItemBySlot(slot);
+
+        if (!(stack.getItem() instanceof ArmorItem))
+            return null;
+
+        ArmorItem item = (ArmorItem)stack.getItem();
+        String texture = item.getMaterial().getName();
+        String domain = "minecraft";
+        int idx = texture.indexOf(':');
+        if (idx != -1) {
+            domain = texture.substring(0, idx);
+            texture = texture.substring(idx + 1);
+        }
+
+        int inner = 1;
+        if (slot == EquipmentSlot.LEGS)
+            inner = 2;
+
+        String s1 = String.format(java.util.Locale.ROOT, "%s:textures/models/armor/%s_layer_%d%s.png", domain, texture, inner, "");
+
+        s1 = net.minecraftforge.client.ForgeHooksClient.getArmorTexture(entity, stack, s1, slot, "");
+
+        return new ResourceLocation(s1);
     }
 }

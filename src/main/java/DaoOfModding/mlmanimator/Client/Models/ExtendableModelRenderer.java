@@ -12,6 +12,7 @@ import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import com.mojang.math.Vector4f;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec2;
@@ -23,6 +24,10 @@ import java.util.HashMap;
 public class ExtendableModelRenderer
 {
     protected ModelPart mPart;
+
+    protected ArrayList<EquipmentSlot> armors = new ArrayList<EquipmentSlot>();
+    protected ArrayList<ResourceLocation> armorTexture = new ArrayList<ResourceLocation>();
+    protected ModelPart.Cube armorCube;
 
     protected int textureWidth = 64;
     protected int textureHeight = 32;
@@ -91,6 +96,11 @@ public class ExtendableModelRenderer
         copy.defaultResize = defaultResize;
         copy.thisDelta = thisDelta;
 
+        copy.hasHitbox = hasHitbox;
+
+        copy.armors = (ArrayList<EquipmentSlot>)armors.clone();
+        copy.armorTexture = armorTexture;
+
         copy.generateCube();
 
         for (ExtendableModelRenderer children : child)
@@ -120,10 +130,20 @@ public class ExtendableModelRenderer
         return defaultResize.multiply(thisSize);
     }
 
+    public ArrayList<EquipmentSlot> getArmorSlots()
+    {
+        return armors;
+    }
+
+    public void addArmorSlot(EquipmentSlot slot)
+    {
+        armors.add(slot);
+    }
+
     // 64 is the default size of Player skin models
     public ExtendableModelRenderer(int textureOffsetXIn, int textureOffsetYIn, String limbName)
     {
-        this (64, 64, textureOffsetXIn, textureOffsetYIn, limbName);
+        this(64, 64, textureOffsetXIn, textureOffsetYIn, limbName);
     }
 
     public ExtendableModelRenderer(int textureWidthIn, int textureHeightIn, int textureOffsetXIn, int textureOffsetYIn, String limbName)
@@ -226,6 +246,14 @@ public class ExtendableModelRenderer
         child.clear();
     }
 
+    public boolean hasArmor()
+    {
+        if (armors.size() == 0)
+            return false;
+
+        return true;
+    }
+
     public void setCustomTexture(ResourceLocation newLocation)
     {
         customTexture = newLocation;
@@ -318,12 +346,26 @@ public class ExtendableModelRenderer
         newModel.setPos((float)resizer.getPosition().x, (float)resizer.getPosition().y, (float)resizer.getPosition().z);
         newModel.setFixedPosAdjustment((float)resizer.getSpacing().x, (float)resizer.getSpacing().y, (float)resizer.getSpacing().z);
 
+        for (EquipmentSlot slot : armors)
+            newModel.addArmorSlot(slot);
+
         newModel.setParent(this);
 
         addChild(newModel);
 
         // Continue the extension
         newModel.extend(resizer.nextLevel());
+    }
+
+    public void updateArmor(Player player)
+    {
+        armorTexture.clear();
+
+        for (EquipmentSlot slot : armors)
+            armorTexture.add(MultiLimbedRenderer.getArmorResource(player, slot));
+
+        for (ExtendableModelRenderer child : getChildren())
+            child.updateArmor(player);
     }
 
     public void setDefaultResize(Vec3 newSize)
@@ -383,6 +425,8 @@ public class ExtendableModelRenderer
         points[7] = new Vector3f(x2, y2, z2);
 
         MultiLimbedRenderer.addCube(mPart, new ModelPart.Cube(textureOffsetX, textureOffsetY, (float)pos.x, (float)pos.y, (float)pos.z, width, height, depth, thisDelta, thisDelta, thisDelta, mirror, textureWidth, textureHeight));
+
+        armorCube = new ModelPart.Cube(textureOffsetX, textureOffsetY, (float)pos.x, (float)pos.y, (float)pos.z, width, height, depth, thisDelta, thisDelta, thisDelta, mirror, 64, 32);
     }
 
     // Toggle all parts set not to be visible in first person so that they don't render
@@ -403,8 +447,10 @@ public class ExtendableModelRenderer
             childSearch.toggleFirstPersonVisability(on);
     }
 
-    public void render(PoseStack PoseStackIn, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha)
+    public void render(PoseStack PoseStackIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha)
     {
+        VertexConsumer bufferIn;
+
         // Grab the vertex builder based on the texture to use for this model
         if (customTexture == null)
             bufferIn = MultiLimbedRenderer.getVertexBuilder();
@@ -458,8 +504,15 @@ public class ExtendableModelRenderer
 
             compile(PoseStackIn.last(), bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
 
+            // If there's an armor texture, render the model again with the armor's texture
+            for (ResourceLocation tex : armorTexture)
+            {
+                bufferIn = MultiLimbedRenderer.getVertexBuilder(tex);
+                compileCube(armorCube, PoseStackIn.last(), bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+            }
+
             for(ExtendableModelRenderer child : getChildren())
-                child.render(PoseStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+                child.render(PoseStackIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
 
             PoseStackIn.popPose();
         }
@@ -468,37 +521,40 @@ public class ExtendableModelRenderer
     // Thanks minecraft for making it SO GODDAMN COMPLICATED for me to freakin' RESIZE A CUBE
     protected void compile(PoseStack.Pose PoseStackIn, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha)
     {
+        for(ModelPart.Cube cubeBox : MultiLimbedRenderer.getCubes(mPart))
+            compileCube(cubeBox, PoseStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+    }
+
+    protected void compileCube(ModelPart.Cube cubeBox, PoseStack.Pose PoseStackIn, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha)
+    {
         Matrix4f matrix4f = PoseStackIn.pose();
         Matrix3f normalMatrix = PoseStackIn.normal();
 
         Vec3 resize = getResize();
 
-        for(ModelPart.Cube cubeBox : MultiLimbedRenderer.getCubes(mPart))
+        for (Object texturedquad : ModelRendererReflection.getPolygons(cubeBox))
         {
-            for (Object texturedquad : ModelRendererReflection.getPolygons(cubeBox))
+            Vector3f normals = ModelRendererReflection.getPolygonNormals(texturedquad).copy();
+            normals.transform(normalMatrix);
+            float f = normals.x();
+            float f1 = normals.y();
+            float f2 = normals.z();
+
+
+            Object[] vertices = ModelRendererReflection.getVertices(texturedquad);
+            for(int i = 0; i < 4; ++i)
             {
-                Vector3f normals = ModelRendererReflection.getPolygonNormals(texturedquad).copy();
-                normals.transform(normalMatrix);
-                float f = normals.x();
-                float f1 = normals.y();
-                float f2 = normals.z();
+                Vector3f vertex = ModelRendererReflection.getPositionTextureVertexPos(vertices[i]);
 
+                // ALL THAT EFFORT, ALL THAT REFLECTION, ALL THAT COPYING OF CODE, JUST TO BE ABLE TO DO THIS
+                float f3 = vertex.x() / 16.0F * (float)resize.x;
+                float f4 = vertex.y() / 16.0F * (float)resize.y;
+                float f5 = vertex.z() / 16.0F * (float)resize.z;
 
-                Object[] vertices = ModelRendererReflection.getVertices(texturedquad);
-                for(int i = 0; i < 4; ++i)
-                {
-                    Vector3f vertex = ModelRendererReflection.getPositionTextureVertexPos(vertices[i]);
+                Vector4f vector4f = new Vector4f(f3, f4, f5, 1.0F);
+                vector4f.transform(matrix4f);
 
-                    // ALL THAT EFFORT, ALL THAT REFLECTION, ALL THAT COPYING OF CODE, JUST TO BE ABLE TO DO THIS
-                    float f3 = vertex.x() / 16.0F * (float)resize.x;
-                    float f4 = vertex.y() / 16.0F * (float)resize.y;
-                    float f5 = vertex.z() / 16.0F * (float)resize.z;
-
-                    Vector4f vector4f = new Vector4f(f3, f4, f5, 1.0F);
-                    vector4f.transform(matrix4f);
-
-                    bufferIn.vertex(vector4f.x(), vector4f.y(), vector4f.z(), red, green, blue, alpha, ModelRendererReflection.getU(vertices[i]), ModelRendererReflection.getV(vertices[i]), packedOverlayIn, packedLightIn, f, f1,f2);
-                }
+                bufferIn.vertex(vector4f.x(), vector4f.y(), vector4f.z(), red, green, blue, alpha, ModelRendererReflection.getU(vertices[i]), ModelRendererReflection.getV(vertices[i]), packedOverlayIn, packedLightIn, f, f1,f2);
             }
         }
     }
@@ -547,7 +603,7 @@ public class ExtendableModelRenderer
                 mPart.translateAndRotate(PoseStackIn);
 
                 for(ExtendableModelRenderer children : child)
-                    children.render(PoseStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+                    children.render(PoseStackIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
 
                 PoseStackIn.popPose();
             }
