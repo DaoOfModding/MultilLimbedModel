@@ -1,45 +1,34 @@
 package DaoOfModding.mlmanimator.Client.Models;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Matrix3f;
-import com.mojang.math.Matrix4f;
-import com.mojang.math.Vector3f;
-import com.mojang.math.Vector4f;
-import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.builders.UVPair;
 import net.minecraft.world.phys.Vec3;
 
 public class ExtendableModelLayer
 {
     String name;
 
-    protected int textureOffsetX;
-    protected int textureOffsetY;
-
-    protected int textureSizeX;
-    protected int textureSizeY;
+    protected UVPair textureOffset;
+    protected UVPair textureSize;
 
     protected float extended = 0;
 
     protected ExtendableCube layerCube;
 
-    public ExtendableModelLayer(int texX, int texY, int texSizeX, int textSizeY, float extend, String newName)
+    public ExtendableModelLayer(UVPair texOffset, UVPair texSize, float extend, String newName)
     {
-        textureOffsetX = texX;
-        textureOffsetY = texY;
-        textureSizeX = texSizeX;
-        textureSizeY = textSizeY;
+        textureOffset = new UVPair(texOffset.u(), texOffset.v());
+        textureSize = new UVPair(texSize.u(), texSize.v());
         extended = extend;
         name = newName;
     }
 
     public void makeCube(float posX, float posY, float posZ, float width, float height, float depth, boolean mirror, Vec3 fullSize)
     {
-        layerCube = new ExtendableCube(textureOffsetX, textureOffsetY, posX, posY, posZ, width, height, depth, extended, extended, extended, mirror, textureSizeX, textureSizeY, fullSize);
+        layerCube = new ExtendableCube((int)textureOffset.u(), (int)textureOffset.v(), posX, posY, posZ, width, height, depth, extended, extended, extended, mirror, textureSize.u(), textureSize.v(), fullSize);
     }
 
     public ExtendableModelLayer clone()
     {
-        return new ExtendableModelLayer(textureOffsetX, textureOffsetY, textureSizeX, textureSizeY, extended, name);
+        return new ExtendableModelLayer(textureOffset, textureSize, extended, name);
     }
 }

@@ -12,6 +12,7 @@ import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import com.mojang.math.Vector4f;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.builders.UVPair;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
@@ -126,9 +127,9 @@ public class ExtendableModelRenderer
         return defaultResize.multiply(thisSize);
     }
 
-    public void addLayer(int texx, int texy, int texSizeX, int texSizeY, float extend, String name)
+    public void addLayer(UVPair tex, UVPair texSize, float extend, String name)
     {
-        layers.add(new ExtendableModelLayer(texx, texy, texSizeX, texSizeY, extend, name));
+        layers.add(new ExtendableModelLayer(tex, texSize, extend, name));
     }
 
     public ExtendableModelRenderer(String limbName)
@@ -307,7 +308,7 @@ public class ExtendableModelRenderer
         newModel.setFixedPosAdjustment((float)resizer.getSpacing().x, (float)resizer.getSpacing().y, (float)resizer.getSpacing().z);
 
         for (ExtendableModelLayer layer : layers)
-            newModel.addLayer(layer.textureOffsetX + (int)texModifier.x, layer.textureOffsetY + (int)texModifier.y, layer.textureSizeX, layer.textureSizeY, layer.extended, layer.name);
+            newModel.addLayer(new UVPair(layer.textureOffset.u() + (int)texModifier.x, layer.textureOffset.v() + (int)texModifier.y), layer.textureSize, layer.extended, layer.name);
 
         newModel.setParent(this);
 
