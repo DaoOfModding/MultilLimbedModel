@@ -62,6 +62,8 @@ public class MultiLimbedModel
 
     ArrayList<ExtendableModelRenderer> hands = new ArrayList<>();
 
+    TextureHandler textures = new TextureHandler();
+
 
     public MultiLimbedModel(PlayerModel model)
     {
@@ -82,25 +84,31 @@ public class MultiLimbedModel
     {
         //TODO: Setup armor models
         //TODO: Setup Jacket/Sleeve/Pants layer
-        ExtendableModelRenderer body = new ExtendableModelRenderer(16, 16, GenericLimbNames.body);
+        ExtendableModelRenderer body = new ExtendableModelRenderer(GenericLimbNames.body);
+        body.addLayer(16, 16, 64, 64, 0, TextureHandler.PLAYER_SKIN);
+        body.addLayer(16, 32, 64, 64, 0.25f, TextureHandler.PLAYER_SKIN);
+        body.addLayer(16, 16, 64, 32, 0.25f, TextureHandler.LEG_ARMOR);
+        body.addLayer(16, 16, 64, 32, 0.5f, TextureHandler.CHEST_ARMOR);
         body.setPos(0, 0, 0);
         body.setRotationPoint(new Vec3(0.5, 0.5, 0.5));
         body.extend(GenericResizers.getBodyResizer());
-        body.addArmorSlot(EquipmentSlot.LEGS);
-        body.addArmorSlot(EquipmentSlot.CHEST);
 
-        ExtendableModelRenderer head = new ExtendableModelRenderer(0, 0, GenericLimbNames.head);
+        ExtendableModelRenderer head = new ExtendableModelRenderer( GenericLimbNames.head);
+        head.addLayer(0, 0, 64, 64, 0, TextureHandler.PLAYER_SKIN);
+        head.addLayer(32, 0, 64, 64, 0.25f, TextureHandler.PLAYER_SKIN);
+        head.addLayer(0, 0, 64, 32, 0.5f, TextureHandler.HEAD_ARMOR);
         head.setRotationPoint(new Vec3(0.5, 0, 0.5));
         head.setPos(0.5F, 0, 0.5F);
         head.extend(GenericResizers.getHeadResizer());
         head.setLooking(true);
         head.setFirstPersonRender(false);
-        head.addArmorSlot(EquipmentSlot.HEAD);
 
-        ExtendableModelRenderer rightArm = new ExtendableModelRenderer(40, 16, GenericLimbNames.rightArm);
+        ExtendableModelRenderer rightArm = new ExtendableModelRenderer(GenericLimbNames.rightArm);
+        rightArm.addLayer(40, 16, 64, 64, 0, TextureHandler.PLAYER_SKIN);
+        rightArm.addLayer(40, 32, 64, 64, 0.25f, TextureHandler.PLAYER_SKIN);
+        rightArm.addLayer(40, 16, 64, 32, 0.5f, TextureHandler.CHEST_ARMOR);
         rightArm.setRotationPoint(new Vec3(0.5D, 0.66D, 0.5D));
         rightArm.setPos(0.0F, 0.0F, 0.5F);
-        rightArm.addArmorSlot(EquipmentSlot.CHEST);
         if (slim)
         {
             rightArm.setFixedPosAdjustment(-1.5F, 2F, 0.0F);
@@ -114,10 +122,12 @@ public class MultiLimbedModel
 
         rightArm.setHitbox(false);
 
-        ExtendableModelRenderer leftArm = new ExtendableModelRenderer(64, 64, 32, 48, 40, 48, GenericLimbNames.leftArm);
+        ExtendableModelRenderer leftArm = new ExtendableModelRenderer(GenericLimbNames.leftArm);
+        leftArm.addLayer(32, 48, 64, 64, 0, TextureHandler.PLAYER_SKIN);
+        leftArm.addLayer(48, 48, 64, 64, 0.25f, TextureHandler.PLAYER_SKIN);
+        leftArm.addLayer(40, 48, 64, 32, 0.5f, TextureHandler.CHEST_ARMOR);
         leftArm.setRotationPoint(new Vec3(0.5D, 0.66D, 0.5D));
         leftArm.setPos(1.0F, 0.0F, 0.5F);
-        leftArm.addArmorSlot(EquipmentSlot.CHEST);
         if (slim)
         {
             leftArm.setFixedPosAdjustment(1.5F, 2F, 0.0F);
@@ -131,20 +141,24 @@ public class MultiLimbedModel
 
         leftArm.setHitbox(false);
 
-        ExtendableModelRenderer rightLeg = new ExtendableModelRenderer(0, 16, GenericLimbNames.rightLeg);
+        ExtendableModelRenderer rightLeg = new ExtendableModelRenderer(GenericLimbNames.rightLeg);
+        rightLeg.addLayer(0, 16, 64, 64, 0, TextureHandler.PLAYER_SKIN);
+        rightLeg.addLayer(0, 32, 64, 64, 0.25f, TextureHandler.PLAYER_SKIN);
+        rightLeg.addLayer(0, 16, 64, 32, 0.25f, TextureHandler.LEG_ARMOR);
+        rightLeg.addLayer(0, 16, 64, 32, 0.5f, TextureHandler.FOOT_ARMOR);
         rightLeg.setPos(0.25F, 1.0F, 0.5F);
         rightLeg.setRotationPoint(new Vec3(0.5, 0.66, 0.5));
         rightLeg.setFixedPosAdjustment(0F, 2F, 0.0F);
-        rightLeg.addArmorSlot(EquipmentSlot.LEGS);
-        rightLeg.addArmorSlot(EquipmentSlot.FEET);
         rightLeg.extend(GenericResizers.getLegResizer());
 
-        ExtendableModelRenderer leftLeg = new ExtendableModelRenderer(0, 16, GenericLimbNames.leftLeg);
+        ExtendableModelRenderer leftLeg = new ExtendableModelRenderer(GenericLimbNames.leftLeg);
+        leftLeg.addLayer(16, 48, 64, 64, 0, TextureHandler.PLAYER_SKIN);
+        leftLeg.addLayer(0, 48, 64, 64, 0.25f, TextureHandler.PLAYER_SKIN);
+        leftLeg.addLayer(0, 16, 64, 32, 0.25f, TextureHandler.LEG_ARMOR);
+        leftLeg.addLayer(0, 16, 64, 32,  0.5f, TextureHandler.FOOT_ARMOR);
         leftLeg.setPos(0.75F, 1.0F, 0.5F);
         leftLeg.setRotationPoint(new Vec3(0.5, 0.66, 0.5));
         leftLeg.setFixedPosAdjustment(0F, 2F, 0.0F);
-        leftLeg.addArmorSlot(EquipmentSlot.LEGS);
-        leftLeg.addArmorSlot(EquipmentSlot.FEET);
         leftLeg.extend(GenericResizers.getLegResizer());
 
         addBody(body);
@@ -271,9 +285,9 @@ public class MultiLimbedModel
     }
 
     // Updates the armor textures for all player body parts
-    public void updateArmorsTextures(Player player)
+    public void updateArmorsTextures(LocalPlayer player)
     {
-        getBody().updateArmor(player);
+        textures.updateArmorTextures(player);
     }
 
     // Adds specified limb onto the specified limb
@@ -358,7 +372,7 @@ public class MultiLimbedModel
         PoseStackIn.pushPose();
 
         for (ExtendableModelRenderer model : firstPersonLimbs.values())
-            model.render(PoseStackIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+            model.render(PoseStackIn, packedLightIn, packedOverlayIn, red, green, blue, alpha, textures);
 
         PoseStackIn.popPose();
 
@@ -377,7 +391,7 @@ public class MultiLimbedModel
         PoseStackIn.scale(sizeScale, sizeScale, sizeScale);
 
         // Render the body, as all limbs are children or sub-children of the body, this should render everything
-        body.render(PoseStackIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+        body.render(PoseStackIn, packedLightIn, packedOverlayIn, red, green, blue, alpha, textures);
 
         PoseStackIn.popPose();
 

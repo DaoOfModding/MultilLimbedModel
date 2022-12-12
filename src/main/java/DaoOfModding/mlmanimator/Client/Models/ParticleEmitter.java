@@ -25,7 +25,7 @@ public class ParticleEmitter extends ExtendableModelRenderer
 
     public ParticleEmitter(ParticleOptions particleType, String name)
     {
-        super(0, 0, name);
+        super(name);
 
         particle = particleType;
     }

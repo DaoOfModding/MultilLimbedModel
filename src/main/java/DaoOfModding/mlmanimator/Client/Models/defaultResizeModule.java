@@ -4,7 +4,8 @@ import DaoOfModding.mlmanimator.Client.AnimationFramework.resizeModule;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 
-public class defaultResizeModule implements resizeModule {
+public class defaultResizeModule implements resizeModule
+{
     protected int depth;
 
     protected Vec3 usedSize;
@@ -18,13 +19,17 @@ public class defaultResizeModule implements resizeModule {
 
     protected Vec3 spacing;
 
+    protected Vec3 startingSize;
+
     protected float delta = 0;
 
-    public defaultResizeModule(int maxDepth, Vec3 direction, Vec3 position, Vec3 fullSize, Vec3 rotationPoint) {
+    public defaultResizeModule(int maxDepth, Vec3 direction, Vec3 position, Vec3 fullSize, Vec3 rotationPoint)
+    {
         this(maxDepth, direction, position, fullSize, rotationPoint, new Vec3(0, 0, 0));
     }
 
-    public defaultResizeModule(int maxDepth, Vec3 direction, Vec3 position, Vec3 fullSize, Vec3 rotationPoint, float delta) {
+    public defaultResizeModule(int maxDepth, Vec3 direction, Vec3 position, Vec3 fullSize, Vec3 rotationPoint, float delta)
+    {
         this(maxDepth, direction, position, fullSize, rotationPoint, new Vec3(0, 0, 0), delta);
     }
 
@@ -42,6 +47,8 @@ public class defaultResizeModule implements resizeModule {
     {
         depth = maxDepth;
         size = fullSize;
+        startingSize = new Vec3(fullSize.x, fullSize.y, fullSize.z);
+
         delta = newDelta;
 
         usedSize = new Vec3(0, 0, 0);
@@ -107,6 +114,8 @@ public class defaultResizeModule implements resizeModule {
 
         return true;
     }
+
+    public Vec3 getOriginalSize() {return startingSize; }
 
     public Vec3 getSpacing()
     {

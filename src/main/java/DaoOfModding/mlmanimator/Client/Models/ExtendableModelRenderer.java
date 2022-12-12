@@ -12,6 +12,7 @@ import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import com.mojang.math.Vector4f;
 import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.resources.ResourceLocation;
@@ -27,17 +28,7 @@ public class ExtendableModelRenderer
 {
     protected ModelPart mPart;
 
-    protected ArrayList<EquipmentSlot> armors = new ArrayList<EquipmentSlot>();
-    protected ArrayList<ResourceLocation> armorTexture = new ArrayList<ResourceLocation>();
-    protected ArrayList<Integer> armorColor = new ArrayList<Integer>();
-    protected ModelPart.Cube armorCube;
-    protected int armorTextureOffsetX;
-    protected int armorTextureOffsetY;
-
-    protected int textureWidth = 64;
-    protected int textureHeight = 32;
-    protected int textureOffsetX;
-    protected int textureOffsetY;
+    protected ArrayList<ExtendableModelLayer> layers = new ArrayList<ExtendableModelLayer>();
 
     protected ExtendableModelRenderer parent = null;
     protected ArrayList<ExtendableModelRenderer> child = new ArrayList<ExtendableModelRenderer>();
@@ -54,8 +45,6 @@ public class ExtendableModelRenderer
     protected boolean look = false;
     protected float notLookingPitch = 0;
     protected float oldNotLookingPitch = 0;
-
-    protected ResourceLocation customTexture = null;
 
     protected Vec3 rotationOffset = new Vec3(0, 0 ,0);
     protected Vec3 rotationPoint = new Vec3(0, 0, 0);
@@ -80,15 +69,15 @@ public class ExtendableModelRenderer
 
     public boolean mirror = false;
 
+    protected Vec3 fullDepth;
 
     public ExtendableModelRenderer clone()
     {
-        ExtendableModelRenderer copy = new ExtendableModelRenderer(textureWidth, textureHeight, textureOffsetX, textureOffsetY, armorTextureOffsetX, armorTextureOffsetY, name);
+        ExtendableModelRenderer copy = new ExtendableModelRenderer(name);
         copy.setParent(parent);
 
         copy.dimensions = dimensions;
         copy.look = look;
-        copy.customTexture = customTexture;
         copy.rotationOffset = rotationOffset;
         copy.rotationPoint = rotationPoint;
         copy.renderFirstPerson = renderFirstPerson;
@@ -103,8 +92,10 @@ public class ExtendableModelRenderer
 
         copy.hasHitbox = hasHitbox;
 
-        copy.armors = (ArrayList<EquipmentSlot>)armors.clone();
-        copy.armorTexture = armorTexture;
+        copy.fullDepth = fullDepth;
+
+        for (ExtendableModelLayer layer : layers)
+            copy.layers.add(layer.clone());
 
         copy.generateCube();
 
@@ -135,45 +126,13 @@ public class ExtendableModelRenderer
         return defaultResize.multiply(thisSize);
     }
 
-    public ArrayList<EquipmentSlot> getArmorSlots()
+    public void addLayer(int texx, int texy, int texSizeX, int texSizeY, float extend, String name)
     {
-        return armors;
+        layers.add(new ExtendableModelLayer(texx, texy, texSizeX, texSizeY, extend, name));
     }
 
-    public void addArmorSlot(EquipmentSlot slot)
+    public ExtendableModelRenderer(String limbName)
     {
-        armors.add(slot);
-    }
-
-    // 64 is the default size of Player skin models
-    public ExtendableModelRenderer(int textureOffsetXIn, int textureOffsetYIn, String limbName)
-    {
-        this(64, 64, textureOffsetXIn, textureOffsetYIn, limbName);
-    }
-
-    public ExtendableModelRenderer(int textureWidthIn, int textureHeightIn, int textureOffsetXIn, int textureOffsetYIn, String limbName)
-    {
-        textureWidth = textureWidthIn;
-        textureHeight = textureHeightIn;
-        textureOffsetX = textureOffsetXIn;
-        textureOffsetY = textureOffsetYIn;
-        armorTextureOffsetX = textureOffsetX;
-        armorTextureOffsetY = textureOffsetY;
-
-        name = limbName;
-
-        mPart = new ModelPart(new ArrayList<>(), new HashMap<String, ModelPart>());
-    }
-
-    public ExtendableModelRenderer(int textureWidthIn, int textureHeightIn, int textureOffsetXIn, int textureOffsetYIn, int armorTextureOffsetXIn, int armorTextureOffsetYIn, String limbName)
-    {
-        textureWidth = textureWidthIn;
-        textureHeight = textureHeightIn;
-        textureOffsetX = textureOffsetXIn;
-        textureOffsetY = textureOffsetYIn;
-        armorTextureOffsetX = armorTextureOffsetXIn;
-        armorTextureOffsetY = armorTextureOffsetYIn;
-
         name = limbName;
 
         mPart = new ModelPart(new ArrayList<>(), new HashMap<String, ModelPart>());
@@ -267,28 +226,6 @@ public class ExtendableModelRenderer
         child.clear();
     }
 
-    public boolean hasArmor()
-    {
-        if (armors.size() == 0)
-            return false;
-
-        return true;
-    }
-
-    public void setCustomTexture(ResourceLocation newLocation)
-    {
-        customTexture = newLocation;
-    }
-
-    // Set this custom texture for this model and all children
-    public void setCustomTextureForFamily(ResourceLocation newLocation)
-    {
-        customTexture = newLocation;
-
-        for (ExtendableModelRenderer childTexture : child)
-            childTexture.setCustomTextureForFamily(newLocation);
-    }
-
     // Set whether this model should be looking in the direction of the player
     public void setLooking(boolean isLooking)
     {
@@ -350,6 +287,8 @@ public class ExtendableModelRenderer
         defaultSize = resizer.getSize();
         thisDelta = resizer.getDelta();
 
+        fullDepth = resizer.getOriginalSize();
+
         Vec2 texModifier = resizer.getTextureModifier();
 
         // Add a box of the appropriate size to this model
@@ -361,14 +300,14 @@ public class ExtendableModelRenderer
 
 
         // Create the next model and add it as a child of this one
-        ExtendableModelRenderer newModel = new ExtendableModelRenderer(textureWidth, textureHeight, textureOffsetX + (int)texModifier.x, textureOffsetY + (int)texModifier.y, armorTextureOffsetX + (int)texModifier.x, armorTextureOffsetY + (int)texModifier.y,  name + "+");
+        ExtendableModelRenderer newModel = new ExtendableModelRenderer(name + "+");
         newModel.setRotationPoint(resizer.getRotationPoint());
 
         newModel.setPos((float)resizer.getPosition().x, (float)resizer.getPosition().y, (float)resizer.getPosition().z);
         newModel.setFixedPosAdjustment((float)resizer.getSpacing().x, (float)resizer.getSpacing().y, (float)resizer.getSpacing().z);
 
-        for (EquipmentSlot slot : armors)
-            newModel.addArmorSlot(slot);
+        for (ExtendableModelLayer layer : layers)
+            newModel.addLayer(layer.textureOffsetX + (int)texModifier.x, layer.textureOffsetY + (int)texModifier.y, layer.textureSizeX, layer.textureSizeY, layer.extended, layer.name);
 
         newModel.setParent(this);
 
@@ -376,27 +315,6 @@ public class ExtendableModelRenderer
 
         // Continue the extension
         newModel.extend(resizer.nextLevel());
-    }
-
-    public void updateArmor(Player player)
-    {
-        armorTexture.clear();
-        armorColor.clear();
-
-        for (EquipmentSlot slot : armors)
-        {
-            armorTexture.add(MultiLimbedRenderer.getArmorResource(player, slot));
-
-            ItemStack stack = player.getItemBySlot(slot);
-
-            if (stack.getItem() instanceof net.minecraft.world.item.DyeableLeatherItem)
-                armorColor.add(((net.minecraft.world.item.DyeableLeatherItem)stack.getItem()).getColor(stack));
-            else
-                armorColor.add(-1);
-        }
-
-        for (ExtendableModelRenderer child : getChildren())
-            child.updateArmor(player);
     }
 
     public void setDefaultResize(Vec3 newSize)
@@ -430,8 +348,6 @@ public class ExtendableModelRenderer
     {
         Vec3 pos = getRotationPoint();
 
-        MultiLimbedRenderer.clearCubes(mPart);
-
         pos = defaultSize.scale(-1).multiply(pos);
 
         float width = (float)(defaultSize.x);
@@ -455,9 +371,8 @@ public class ExtendableModelRenderer
         points[6] = new Vector3f(x2, y2, z1);
         points[7] = new Vector3f(x2, y2, z2);
 
-        MultiLimbedRenderer.addCube(mPart, new ModelPart.Cube(textureOffsetX, textureOffsetY, (float)pos.x, (float)pos.y, (float)pos.z, width, height, depth, thisDelta, thisDelta, thisDelta, mirror, textureWidth, textureHeight));
-
-        armorCube = new ModelPart.Cube(armorTextureOffsetX, armorTextureOffsetY, (float)pos.x, (float)pos.y, (float)pos.z, width, height, depth, thisDelta, thisDelta, thisDelta, mirror, 64, 32);
+        for (ExtendableModelLayer layer : layers)
+            layer.makeCube((float) pos.x, (float) pos.y, (float) pos.z, width, height, depth, mirror, fullDepth);
     }
 
     // Toggle all parts set not to be visible in first person so that they don't render
@@ -478,39 +393,28 @@ public class ExtendableModelRenderer
             childSearch.toggleFirstPersonVisability(on);
     }
 
-    public void render(PoseStack PoseStackIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha)
+    public void render(PoseStack PoseStackIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha, TextureHandler textures)
     {
-        VertexConsumer bufferIn;
-
-        // Grab the vertex builder based on the texture to use for this model
-        if (customTexture == null)
-            bufferIn = MultiLimbedRenderer.getVertexBuilder();
-        else
-            bufferIn = MultiLimbedRenderer.getVertexBuilder(customTexture);
-
         mPart.xRot += rotationOffset.x;
         mPart.yRot += rotationOffset.y;
         mPart.zRot += rotationOffset.z;
 
         // If rendering in first person and this model is set not to render in first person, just render it's children
         if (MultiLimbedRenderer.isFakeThirdPerson() && !renderFirstPerson)
-            fakerender(PoseStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+            fakerender(PoseStackIn, packedLightIn, packedOverlayIn, red, green, blue, alpha, textures);
         else
         {
             if (MultiLimbedRenderer.isFakeThirdPerson())
                 toggleFirstPersonVisability(true);
 
             //mPart.render(PoseStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
-            renderCube(PoseStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+            renderCube(PoseStackIn, packedLightIn, packedOverlayIn, red, green, blue, alpha, textures);
 
             if (MultiLimbedRenderer.isFakeThirdPerson())
                 toggleFirstPersonVisability(false);
 
             renderQuads(PoseStackIn, packedLightIn, packedOverlayIn);
         }
-       /*for (Quad quad : quads)
-           quad.render(PoseStackIn, packedLightIn, packedOverlayIn);
-        }*/
 
         mPart.xRot -= rotationOffset.x;
         mPart.yRot -= rotationOffset.y;
@@ -521,88 +425,36 @@ public class ExtendableModelRenderer
     {
         for (Quad quad : quads)
             quad.render(PoseStackIn, packedLightIn, packedOverlayIn);
-
-        /*for (ExtendableModelRenderer childSearch : getChildren())
-            childSearch.renderQuads(PoseStackIn, packedLightIn, packedOverlayIn);*/
     }
 
-    public void renderCube(PoseStack PoseStackIn, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha)
+    public void renderCube(PoseStack PoseStackIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha, TextureHandler textures)
     {
         if (mPart.visible)
         {
             PoseStackIn.pushPose();
             mPart.translateAndRotate(PoseStackIn);
 
-            compile(PoseStackIn.last(), bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
-
-            int num = 0;
-            // If there's an armor texture, render the model again with the armor's texture
-            for (ResourceLocation tex : armorTexture)
+            // Draw each model layer
+            for (ExtendableModelLayer layer : layers)
             {
-                bufferIn = MultiLimbedRenderer.getVertexBuilder(tex);
+                ResourceLocation tex = textures.getTexture(layer.name);
 
-                float r = red;
-                float g= green;
-                float b = blue;
-
-                int color = armorColor.get(num);
-                if (color != -1)
+                if (tex != null)
                 {
-                    r = (float)(color >> 16 & 255) / 255.0F;
-                    g = (float)(color >> 8 & 255) / 255.0F;
-                    b = (float)(color & 255) / 255.0F;
+                    VertexConsumer bufferIn = MultiLimbedRenderer.getVertexBuilder(tex);
+                    Vec3 color = textures.getColor(layer.name);
+
+                    if (color != null)
+                        layer.layerCube.compile(PoseStackIn.last(), bufferIn, packedLightIn, packedOverlayIn, (float) color.x, (float) color.y, (float) color.z, alpha, getResize());
+                    else
+                        layer.layerCube.compile(PoseStackIn.last(), bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha, getResize());
                 }
-
-                compileCube(armorCube, PoseStackIn.last(), bufferIn, packedLightIn, packedOverlayIn, r, g, b, alpha);
-
-                num++;
             }
 
             for(ExtendableModelRenderer child : getChildren())
-                child.render(PoseStackIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+                child.render(PoseStackIn, packedLightIn, packedOverlayIn, red, green, blue, alpha, textures);
 
             PoseStackIn.popPose();
-        }
-    }
-
-    // Thanks minecraft for making it SO GODDAMN COMPLICATED for me to freakin' RESIZE A CUBE
-    protected void compile(PoseStack.Pose PoseStackIn, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha)
-    {
-        for(ModelPart.Cube cubeBox : MultiLimbedRenderer.getCubes(mPart))
-            compileCube(cubeBox, PoseStackIn, bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
-    }
-
-    protected void compileCube(ModelPart.Cube cubeBox, PoseStack.Pose PoseStackIn, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha)
-    {
-        Matrix4f matrix4f = PoseStackIn.pose();
-        Matrix3f normalMatrix = PoseStackIn.normal();
-
-        Vec3 resize = getResize();
-
-        for (Object texturedquad : ModelRendererReflection.getPolygons(cubeBox))
-        {
-            Vector3f normals = ModelRendererReflection.getPolygonNormals(texturedquad).copy();
-            normals.transform(normalMatrix);
-            float f = normals.x();
-            float f1 = normals.y();
-            float f2 = normals.z();
-
-
-            Object[] vertices = ModelRendererReflection.getVertices(texturedquad);
-            for(int i = 0; i < 4; ++i)
-            {
-                Vector3f vertex = ModelRendererReflection.getPositionTextureVertexPos(vertices[i]);
-
-                // ALL THAT EFFORT, ALL THAT REFLECTION, ALL THAT COPYING OF CODE, JUST TO BE ABLE TO DO THIS
-                float f3 = vertex.x() / 16.0F * (float)resize.x;
-                float f4 = vertex.y() / 16.0F * (float)resize.y;
-                float f5 = vertex.z() / 16.0F * (float)resize.z;
-
-                Vector4f vector4f = new Vector4f(f3, f4, f5, 1.0F);
-                vector4f.transform(matrix4f);
-
-                bufferIn.vertex(vector4f.x(), vector4f.y(), vector4f.z(), red, green, blue, alpha, ModelRendererReflection.getU(vertices[i]), ModelRendererReflection.getV(vertices[i]), packedOverlayIn, packedLightIn, f, f1,f2);
-            }
         }
     }
 
@@ -640,7 +492,7 @@ public class ExtendableModelRenderer
     }
 
     // Render all children for this model, but not the model itself
-    public void fakerender(PoseStack PoseStackIn, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha)
+    public void fakerender(PoseStack PoseStackIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha, TextureHandler textures)
     {
         if (mPart.visible)
         {
@@ -650,7 +502,7 @@ public class ExtendableModelRenderer
                 mPart.translateAndRotate(PoseStackIn);
 
                 for(ExtendableModelRenderer children : child)
-                    children.render(PoseStackIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+                    children.render(PoseStackIn, packedLightIn, packedOverlayIn, red, green, blue, alpha, textures);
 
                 PoseStackIn.popPose();
             }

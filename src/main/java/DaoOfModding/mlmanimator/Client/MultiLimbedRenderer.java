@@ -1,14 +1,11 @@
 package DaoOfModding.mlmanimator.Client;
 
-import DaoOfModding.mlmanimator.Client.Models.ModelRendererReflection;
-import DaoOfModding.mlmanimator.Client.Models.MultiLimbedDimensions;
 import DaoOfModding.mlmanimator.Client.Models.MultiLimbedModel;
 import DaoOfModding.mlmanimator.Client.Poses.PlayerPoseHandler;
 import DaoOfModding.mlmanimator.Client.Poses.PoseHandler;
 import DaoOfModding.mlmanimator.mlmanimator;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -16,28 +13,22 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.ArmorStandRenderer;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.model.PlayerModel;
-import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.world.entity.*;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.ViewportEvent;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
-import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.List;
 import java.util.Map;
 
 public class MultiLimbedRenderer
@@ -48,12 +39,10 @@ public class MultiLimbedRenderer
     protected static MultiLimbedModel currentModel;
     protected static AbstractClientPlayer currentEntity;
     protected static VertexConsumer currentVertexBuilder;
-    protected static ResourceLocation lastSkin = null;
 
     private static Field eyeHeightField;
     private static Field thirdPersonField;
     private static Field slimField;
-    private static Field cubeField;
     private static Field childField;
     private static Field dimensions;
     private static Method moveTowardsClosestSpaceFunction;
@@ -76,8 +65,6 @@ public class MultiLimbedRenderer
         cameraMoveFunction = ObfuscationReflectionHelper.findMethod(Camera.class, "m_90584_", double.class, double.class, double.class);
         // slim - H - f_103380_
         slimField = ObfuscationReflectionHelper.findField(PlayerModel.class, "f_103380_");
-        // cubes - m - f_104212_
-        cubeField = ObfuscationReflectionHelper.findField(ModelPart.class, "f_104212_");
         // children - f_104213_
         childField = ObfuscationReflectionHelper.findField(ModelPart.class, "f_104213_");
 
@@ -89,13 +76,9 @@ public class MultiLimbedRenderer
 
         try {
             Field modifiers = Field.class.getDeclaredField("modifiers");
-            modifiers.setInt(cubeField, cubeField.getModifiers() & ~Modifier.FINAL);
             modifiers.setInt(childField, childField.getModifiers() & ~Modifier.FINAL);
         }
         catch (Exception e) { mlmanimator.LOGGER.error("Error clearing final modifier: " + e); }
-
-        try { ModelRendererReflection.setupReflection(); }
-        catch (Exception e) { mlmanimator.LOGGER.error("Error setting up reflection : " + e); }
     }
 
     public static void setDimensions(Player entity, EntityDimensions value)
@@ -302,48 +285,6 @@ public class MultiLimbedRenderer
         handler.getPlayerModel().calculateHeightAdjustment(entityIn);
     }
 
-    public static void clearCubes(ModelPart model)
-    {
-        try
-        {
-            cubeField.set(model, new ObjectArrayList<>());
-        }
-        catch(Exception e)
-        {
-            mlmanimator.LOGGER.error("Error adjusting model cubes");
-        }
-    }
-
-    public static void addCube(ModelPart model, ModelPart.Cube toAdd)
-    {
-        try
-        {
-            List<ModelPart.Cube> cubes = getCubes(model);
-
-            cubes.add(toAdd);
-
-            cubeField.set(model, cubes);
-        }
-        catch(Exception e)
-        {
-            mlmanimator.LOGGER.error("Error adjusting model cubes");
-        }
-    }
-
-    public static List<ModelPart.Cube> getCubes(ModelPart model)
-    {
-        try
-        {
-            return (List<ModelPart.Cube>)cubeField.get(model);
-        }
-        catch(Exception e)
-        {
-            mlmanimator.LOGGER.error("Error getting cubes");
-        }
-
-        return null;
-    }
-
     public static void addChild(ModelPart child, String limbName, ModelPart parent)
     {
         try
@@ -431,8 +372,6 @@ public class MultiLimbedRenderer
             entityModel.renderFirstPerson(PoseStackIn, null, packedLightIn, i, 1.0F, 1.0F, 1.0F, 1.0F);
         }
 
-        lastSkin = null;
-
         PoseStackIn.popPose();
     }
 
@@ -519,7 +458,7 @@ public class MultiLimbedRenderer
 
         RenderType rendertype = getRenderType(getSkin(currentEntity));
 
-        entityModel.updateArmorsTextures(entityIn);
+        entityModel.updateArmorsTextures((LocalPlayer) entityIn);
 
         if (rendertype != null)
         {
@@ -537,8 +476,6 @@ public class MultiLimbedRenderer
             entityModel.renderHandItem(true, 1, entityIn, entityIn.getOffhandItem(), PoseStackIn, Minecraft.getInstance().renderBuffers().bufferSource(), packedLightIn);
         }
 
-        lastSkin = null;
-
         PoseStackIn.popPose();
     }
 
@@ -552,11 +489,8 @@ public class MultiLimbedRenderer
     public static VertexConsumer getVertexBuilder(ResourceLocation resourceLocation)
     {
         // If the last vertexbuilder call used the same skin, then don't bother recreating it
-        if (lastSkin != resourceLocation)
-        {
-            RenderType rendertype = getRenderType(resourceLocation);
-            currentVertexBuilder = currentBuffer.getBuffer(rendertype);
-        }
+        RenderType rendertype = getRenderType(resourceLocation);
+        currentVertexBuilder = currentBuffer.getBuffer(rendertype);
 
         return currentVertexBuilder;
     }
@@ -585,31 +519,4 @@ public class MultiLimbedRenderer
         return EntityIn.getSkinTextureLocation();
     }
 
-    // Ripped pretty much completely from HumanoidArmorLayer
-    public static ResourceLocation getArmorResource(Player entity, EquipmentSlot slot)
-    {
-        ItemStack stack = entity.getItemBySlot(slot);
-
-        if (!(stack.getItem() instanceof ArmorItem))
-            return null;
-
-        ArmorItem item = (ArmorItem)stack.getItem();
-        String texture = item.getMaterial().getName();
-        String domain = "minecraft";
-        int idx = texture.indexOf(':');
-        if (idx != -1) {
-            domain = texture.substring(0, idx);
-            texture = texture.substring(idx + 1);
-        }
-
-        int inner = 1;
-        if (slot == EquipmentSlot.LEGS)
-            inner = 2;
-
-        String s1 = String.format(java.util.Locale.ROOT, "%s:textures/models/armor/%s_layer_%d%s.png", domain, texture, inner, "");
-
-        s1 = net.minecraftforge.client.ForgeHooksClient.getArmorTexture(entity, stack, s1, slot, "");
-
-        return new ResourceLocation(s1);
-    }
 }

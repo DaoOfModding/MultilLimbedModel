@@ -4,6 +4,7 @@ import DaoOfModding.mlmanimator.Client.Models.MultiLimbedModel;
 import DaoOfModding.mlmanimator.Client.Poses.GenericPoses;
 import DaoOfModding.mlmanimator.Client.Poses.PlayerPoseHandler;
 import DaoOfModding.mlmanimator.Client.Poses.PoseHandler;
+import DaoOfModding.mlmanimator.mlmanimator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ArmorStandArmorModel;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -19,6 +20,7 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
 @Mod.EventBusSubscriber(value = Dist.CLIENT)
 public class ClientListeners

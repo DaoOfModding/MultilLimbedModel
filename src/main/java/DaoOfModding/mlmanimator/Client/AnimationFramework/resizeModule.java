@@ -12,5 +12,6 @@ public interface resizeModule
     public float getDelta();
     public resizeModule nextLevel();
     public boolean continueResizing();
+    public Vec3 getOriginalSize();
     public Vec3 getSpacing();
 }
