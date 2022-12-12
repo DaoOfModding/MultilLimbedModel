@@ -63,9 +63,13 @@ public class ExtendableCube
         float f10 = (float)textureOffsetY;
         float f11 = (float)textureOffsetY + depth;
         float f12 = (float)textureOffsetY + depth + height;
+
+        // Fix to enable the bottom of model to render the correct texture when extended
+        float f10Full = (float)textureOffsetY - (float)fullSize.y;
+        float f11Full = (float)textureOffsetY - (float)fullSize.y + depth;
         
         this.polygons[2] = new Polygon(new Vertex[]{vertex4, vertex3, vertex7, vertex}, f5, f10, f6, f11, texSixeX, texSixeY, mirror, Direction.DOWN);
-        this.polygons[3] = new Polygon(new Vertex[]{vertex1, vertex2, vertex6, vertex5}, f6, f11, f7, f10, texSixeX, texSixeY, mirror, Direction.UP);
+        this.polygons[3] = new Polygon(new Vertex[]{vertex1, vertex2, vertex6, vertex5}, f6, f11Full, f7, f10Full, texSixeX, texSixeY, mirror, Direction.UP);
         this.polygons[1] = new Polygon(new Vertex[]{vertex7, vertex3, vertex6, vertex2}, f4, f11, f5, f12, texSixeX, texSixeY, mirror, Direction.WEST);
         this.polygons[4] = new Polygon(new Vertex[]{vertex, vertex7, vertex2, vertex1}, f5, f11, f6, f12, texSixeX, texSixeY, mirror, Direction.NORTH);
         this.polygons[0] = new Polygon(new Vertex[]{vertex4, vertex, vertex1, vertex5}, f6, f11, f8, f12, texSixeX, texSixeY, mirror, Direction.EAST);

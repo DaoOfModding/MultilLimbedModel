@@ -19,8 +19,6 @@ public class defaultResizeModule implements resizeModule
 
     protected Vec3 spacing;
 
-    protected Vec3 startingSize;
-
     protected float delta = 0;
 
     public defaultResizeModule(int maxDepth, Vec3 direction, Vec3 position, Vec3 fullSize, Vec3 rotationPoint)
@@ -47,7 +45,6 @@ public class defaultResizeModule implements resizeModule
     {
         depth = maxDepth;
         size = fullSize;
-        startingSize = new Vec3(fullSize.x, fullSize.y, fullSize.z);
 
         delta = newDelta;
 
@@ -115,7 +112,7 @@ public class defaultResizeModule implements resizeModule
         return true;
     }
 
-    public Vec3 getOriginalSize() {return startingSize; }
+    public Vec3 getOriginalSize() {return usedSize; }
 
     public Vec3 getSpacing()
     {

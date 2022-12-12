@@ -86,17 +86,17 @@ public class MultiLimbedModel
         //TODO: Setup Jacket/Sleeve/Pants layer
         ExtendableModelRenderer body = new ExtendableModelRenderer(GenericLimbNames.body);
         body.addLayer(16, 16, 64, 64, 0, TextureHandler.PLAYER_SKIN);
-        body.addLayer(16, 32, 64, 64, 0.25f, TextureHandler.PLAYER_SKIN);
-        body.addLayer(16, 16, 64, 32, 0.25f, TextureHandler.LEG_ARMOR);
-        body.addLayer(16, 16, 64, 32, 0.5f, TextureHandler.CHEST_ARMOR);
+        body.addLayer(16, 32, 64, 64, 0.5f, TextureHandler.PLAYER_SKIN);
+        body.addLayer(16, 16, 64, 32, 0.5f, TextureHandler.LEG_ARMOR);
+        body.addLayer(16, 16, 64, 32, 1f, TextureHandler.CHEST_ARMOR);
         body.setPos(0, 0, 0);
         body.setRotationPoint(new Vec3(0.5, 0.5, 0.5));
         body.extend(GenericResizers.getBodyResizer());
 
         ExtendableModelRenderer head = new ExtendableModelRenderer( GenericLimbNames.head);
         head.addLayer(0, 0, 64, 64, 0, TextureHandler.PLAYER_SKIN);
-        head.addLayer(32, 0, 64, 64, 0.25f, TextureHandler.PLAYER_SKIN);
-        head.addLayer(0, 0, 64, 32, 0.5f, TextureHandler.HEAD_ARMOR);
+        head.addLayer(32, 0, 64, 64, 0.5f, TextureHandler.PLAYER_SKIN);
+        head.addLayer(0, 0, 64, 32, 1f, TextureHandler.HEAD_ARMOR);
         head.setRotationPoint(new Vec3(0.5, 0, 0.5));
         head.setPos(0.5F, 0, 0.5F);
         head.extend(GenericResizers.getHeadResizer());
@@ -105,8 +105,8 @@ public class MultiLimbedModel
 
         ExtendableModelRenderer rightArm = new ExtendableModelRenderer(GenericLimbNames.rightArm);
         rightArm.addLayer(40, 16, 64, 64, 0, TextureHandler.PLAYER_SKIN);
-        rightArm.addLayer(40, 32, 64, 64, 0.25f, TextureHandler.PLAYER_SKIN);
-        rightArm.addLayer(40, 16, 64, 32, 0.5f, TextureHandler.CHEST_ARMOR);
+        rightArm.addLayer(40, 32, 64, 64, 0.5f, TextureHandler.PLAYER_SKIN);
+        rightArm.addLayer(40, 16, 64, 32, 1f, TextureHandler.CHEST_ARMOR);
         rightArm.setRotationPoint(new Vec3(0.5D, 0.66D, 0.5D));
         rightArm.setPos(0.0F, 0.0F, 0.5F);
         if (slim)
@@ -124,8 +124,8 @@ public class MultiLimbedModel
 
         ExtendableModelRenderer leftArm = new ExtendableModelRenderer(GenericLimbNames.leftArm);
         leftArm.addLayer(32, 48, 64, 64, 0, TextureHandler.PLAYER_SKIN);
-        leftArm.addLayer(48, 48, 64, 64, 0.25f, TextureHandler.PLAYER_SKIN);
-        leftArm.addLayer(40, 48, 64, 32, 0.5f, TextureHandler.CHEST_ARMOR);
+        leftArm.addLayer(48, 48, 64, 64, 0.5f, TextureHandler.PLAYER_SKIN);
+        leftArm.addLayer(40, 48, 64, 32, 1f, TextureHandler.CHEST_ARMOR);
         leftArm.setRotationPoint(new Vec3(0.5D, 0.66D, 0.5D));
         leftArm.setPos(1.0F, 0.0F, 0.5F);
         if (slim)
@@ -143,9 +143,9 @@ public class MultiLimbedModel
 
         ExtendableModelRenderer rightLeg = new ExtendableModelRenderer(GenericLimbNames.rightLeg);
         rightLeg.addLayer(0, 16, 64, 64, 0, TextureHandler.PLAYER_SKIN);
-        rightLeg.addLayer(0, 32, 64, 64, 0.25f, TextureHandler.PLAYER_SKIN);
-        rightLeg.addLayer(0, 16, 64, 32, 0.25f, TextureHandler.LEG_ARMOR);
-        rightLeg.addLayer(0, 16, 64, 32, 0.5f, TextureHandler.FOOT_ARMOR);
+        rightLeg.addLayer(0, 32, 64, 64, 0.5f, TextureHandler.PLAYER_SKIN);
+        rightLeg.addLayer(0, 16, 64, 32, 0.5f, TextureHandler.LEG_ARMOR);
+        rightLeg.addLayer(0, 16, 64, 32, 1f, TextureHandler.FOOT_ARMOR);
         rightLeg.setPos(0.25F, 1.0F, 0.5F);
         rightLeg.setRotationPoint(new Vec3(0.5, 0.66, 0.5));
         rightLeg.setFixedPosAdjustment(0F, 2F, 0.0F);
@@ -153,9 +153,9 @@ public class MultiLimbedModel
 
         ExtendableModelRenderer leftLeg = new ExtendableModelRenderer(GenericLimbNames.leftLeg);
         leftLeg.addLayer(16, 48, 64, 64, 0, TextureHandler.PLAYER_SKIN);
-        leftLeg.addLayer(0, 48, 64, 64, 0.25f, TextureHandler.PLAYER_SKIN);
-        leftLeg.addLayer(0, 16, 64, 32, 0.25f, TextureHandler.LEG_ARMOR);
-        leftLeg.addLayer(0, 16, 64, 32,  0.5f, TextureHandler.FOOT_ARMOR);
+        leftLeg.addLayer(0, 48, 64, 64, 0.5f, TextureHandler.PLAYER_SKIN);
+        leftLeg.addLayer(0, 16, 64, 32, 0.5f, TextureHandler.LEG_ARMOR);
+        leftLeg.addLayer(0, 16, 64, 32,  1f, TextureHandler.FOOT_ARMOR);
         leftLeg.setPos(0.75F, 1.0F, 0.5F);
         leftLeg.setRotationPoint(new Vec3(0.5, 0.66, 0.5));
         leftLeg.setFixedPosAdjustment(0F, 2F, 0.0F);

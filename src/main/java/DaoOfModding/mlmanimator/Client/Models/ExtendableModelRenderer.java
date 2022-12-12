@@ -69,7 +69,7 @@ public class ExtendableModelRenderer
 
     public boolean mirror = false;
 
-    protected Vec3 fullDepth;
+    protected Vec3 usedSize;
 
     public ExtendableModelRenderer clone()
     {
@@ -92,7 +92,7 @@ public class ExtendableModelRenderer
 
         copy.hasHitbox = hasHitbox;
 
-        copy.fullDepth = fullDepth;
+        copy.usedSize = usedSize;
 
         for (ExtendableModelLayer layer : layers)
             copy.layers.add(layer.clone());
@@ -284,10 +284,10 @@ public class ExtendableModelRenderer
     // Each Model will rotate around the midpoint of the previous model, a 1 or -1 in the rotationPoint will move that point to the edge of the specified side
     public void extend(resizeModule resizer)
     {
+        usedSize = resizer.getOriginalSize();
+
         defaultSize = resizer.getSize();
         thisDelta = resizer.getDelta();
-
-        fullDepth = resizer.getOriginalSize();
 
         Vec2 texModifier = resizer.getTextureModifier();
 
@@ -372,7 +372,7 @@ public class ExtendableModelRenderer
         points[7] = new Vector3f(x2, y2, z2);
 
         for (ExtendableModelLayer layer : layers)
-            layer.makeCube((float) pos.x, (float) pos.y, (float) pos.z, width, height, depth, mirror, fullDepth);
+            layer.makeCube((float) pos.x, (float) pos.y, (float) pos.z, width, height, depth, mirror, usedSize);
     }
 
     // Toggle all parts set not to be visible in first person so that they don't render
