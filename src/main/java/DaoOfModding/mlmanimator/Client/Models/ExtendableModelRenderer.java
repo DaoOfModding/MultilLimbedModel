@@ -15,6 +15,8 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ArmorItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 
@@ -27,7 +29,10 @@ public class ExtendableModelRenderer
 
     protected ArrayList<EquipmentSlot> armors = new ArrayList<EquipmentSlot>();
     protected ArrayList<ResourceLocation> armorTexture = new ArrayList<ResourceLocation>();
+    protected ArrayList<Integer> armorColor = new ArrayList<Integer>();
     protected ModelPart.Cube armorCube;
+    protected int armorTextureOffsetX;
+    protected int armorTextureOffsetY;
 
     protected int textureWidth = 64;
     protected int textureHeight = 32;
@@ -78,7 +83,7 @@ public class ExtendableModelRenderer
 
     public ExtendableModelRenderer clone()
     {
-        ExtendableModelRenderer copy = new ExtendableModelRenderer(textureWidth, textureHeight, textureOffsetX, textureOffsetY, name);
+        ExtendableModelRenderer copy = new ExtendableModelRenderer(textureWidth, textureHeight, textureOffsetX, textureOffsetY, armorTextureOffsetX, armorTextureOffsetY, name);
         copy.setParent(parent);
 
         copy.dimensions = dimensions;
@@ -152,6 +157,22 @@ public class ExtendableModelRenderer
         textureHeight = textureHeightIn;
         textureOffsetX = textureOffsetXIn;
         textureOffsetY = textureOffsetYIn;
+        armorTextureOffsetX = textureOffsetX;
+        armorTextureOffsetY = textureOffsetY;
+
+        name = limbName;
+
+        mPart = new ModelPart(new ArrayList<>(), new HashMap<String, ModelPart>());
+    }
+
+    public ExtendableModelRenderer(int textureWidthIn, int textureHeightIn, int textureOffsetXIn, int textureOffsetYIn, int armorTextureOffsetXIn, int armorTextureOffsetYIn, String limbName)
+    {
+        textureWidth = textureWidthIn;
+        textureHeight = textureHeightIn;
+        textureOffsetX = textureOffsetXIn;
+        textureOffsetY = textureOffsetYIn;
+        armorTextureOffsetX = armorTextureOffsetXIn;
+        armorTextureOffsetY = armorTextureOffsetYIn;
 
         name = limbName;
 
@@ -340,7 +361,7 @@ public class ExtendableModelRenderer
 
 
         // Create the next model and add it as a child of this one
-        ExtendableModelRenderer newModel = new ExtendableModelRenderer(textureWidth, textureHeight, textureOffsetX + (int)texModifier.x, textureOffsetY + (int)texModifier.y, name + "+");
+        ExtendableModelRenderer newModel = new ExtendableModelRenderer(textureWidth, textureHeight, textureOffsetX + (int)texModifier.x, textureOffsetY + (int)texModifier.y, armorTextureOffsetX + (int)texModifier.x, armorTextureOffsetY + (int)texModifier.y,  name + "+");
         newModel.setRotationPoint(resizer.getRotationPoint());
 
         newModel.setPos((float)resizer.getPosition().x, (float)resizer.getPosition().y, (float)resizer.getPosition().z);
@@ -360,9 +381,19 @@ public class ExtendableModelRenderer
     public void updateArmor(Player player)
     {
         armorTexture.clear();
+        armorColor.clear();
 
         for (EquipmentSlot slot : armors)
+        {
             armorTexture.add(MultiLimbedRenderer.getArmorResource(player, slot));
+
+            ItemStack stack = player.getItemBySlot(slot);
+
+            if (stack.getItem() instanceof net.minecraft.world.item.DyeableLeatherItem)
+                armorColor.add(((net.minecraft.world.item.DyeableLeatherItem)stack.getItem()).getColor(stack));
+            else
+                armorColor.add(-1);
+        }
 
         for (ExtendableModelRenderer child : getChildren())
             child.updateArmor(player);
@@ -426,7 +457,7 @@ public class ExtendableModelRenderer
 
         MultiLimbedRenderer.addCube(mPart, new ModelPart.Cube(textureOffsetX, textureOffsetY, (float)pos.x, (float)pos.y, (float)pos.z, width, height, depth, thisDelta, thisDelta, thisDelta, mirror, textureWidth, textureHeight));
 
-        armorCube = new ModelPart.Cube(textureOffsetX, textureOffsetY, (float)pos.x, (float)pos.y, (float)pos.z, width, height, depth, thisDelta, thisDelta, thisDelta, mirror, 64, 32);
+        armorCube = new ModelPart.Cube(armorTextureOffsetX, armorTextureOffsetY, (float)pos.x, (float)pos.y, (float)pos.z, width, height, depth, thisDelta, thisDelta, thisDelta, mirror, 64, 32);
     }
 
     // Toggle all parts set not to be visible in first person so that they don't render
@@ -504,11 +535,27 @@ public class ExtendableModelRenderer
 
             compile(PoseStackIn.last(), bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
 
+            int num = 0;
             // If there's an armor texture, render the model again with the armor's texture
             for (ResourceLocation tex : armorTexture)
             {
                 bufferIn = MultiLimbedRenderer.getVertexBuilder(tex);
-                compileCube(armorCube, PoseStackIn.last(), bufferIn, packedLightIn, packedOverlayIn, red, green, blue, alpha);
+
+                float r = red;
+                float g= green;
+                float b = blue;
+
+                int color = armorColor.get(num);
+                if (color != -1)
+                {
+                    r = (float)(color >> 16 & 255) / 255.0F;
+                    g = (float)(color >> 8 & 255) / 255.0F;
+                    b = (float)(color & 255) / 255.0F;
+                }
+
+                compileCube(armorCube, PoseStackIn.last(), bufferIn, packedLightIn, packedOverlayIn, r, g, b, alpha);
+
+                num++;
             }
 
             for(ExtendableModelRenderer child : getChildren())

@@ -114,7 +114,7 @@ public class MultiLimbedModel
 
         rightArm.setHitbox(false);
 
-        ExtendableModelRenderer leftArm = new ExtendableModelRenderer(32, 48, GenericLimbNames.leftArm);
+        ExtendableModelRenderer leftArm = new ExtendableModelRenderer(64, 64, 32, 48, 40, 48, GenericLimbNames.leftArm);
         leftArm.setRotationPoint(new Vec3(0.5D, 0.66D, 0.5D));
         leftArm.setPos(1.0F, 0.0F, 0.5F);
         leftArm.addArmorSlot(EquipmentSlot.CHEST);
