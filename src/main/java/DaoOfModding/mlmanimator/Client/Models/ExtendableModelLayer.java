@@ -1,6 +1,7 @@
 package DaoOfModding.mlmanimator.Client.Models;
 
 import net.minecraft.client.model.geom.builders.UVPair;
+import net.minecraft.core.Direction;
 import net.minecraft.world.phys.Vec3;
 
 public class ExtendableModelLayer
@@ -14,17 +15,30 @@ public class ExtendableModelLayer
 
     protected ExtendableCube layerCube;
 
+    protected boolean mirr;
+
     public ExtendableModelLayer(UVPair texOffset, UVPair texSize, float extend, String newName)
+    {
+        this(texOffset, texSize, extend, newName, false);
+    }
+
+    public ExtendableModelLayer(UVPair texOffset, UVPair texSize, float extend, String newName, boolean mirror)
     {
         textureOffset = new UVPair(texOffset.u(), texOffset.v());
         textureSize = new UVPair(texSize.u(), texSize.v());
         extended = extend;
         name = newName;
+        mirr = mirror;
     }
 
-    public void makeCube(float posX, float posY, float posZ, float width, float height, float depth, boolean mirror, Vec3 fullSize)
+    public void makeCube(float posX, float posY, float posZ, float width, float height, float depth, Vec3 fullSize)
     {
-        layerCube = new ExtendableCube((int)textureOffset.u(), (int)textureOffset.v(), posX, posY, posZ, width, height, depth, extended, extended, extended, mirror, textureSize.u(), textureSize.v(), fullSize);
+        layerCube = new ExtendableCube((int)textureOffset.u(), (int)textureOffset.v(), posX, posY, posZ, width, height, depth, extended, extended, extended, mirr, textureSize.u(), textureSize.v(), fullSize);
+    }
+
+    public void setVisable(Direction dir, Boolean on)
+    {
+        layerCube.setVisable(dir, on);
     }
 
     public ExtendableModelLayer clone()

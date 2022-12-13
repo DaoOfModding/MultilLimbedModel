@@ -260,9 +260,6 @@ public class MultiLimbedRenderer
 
         adjustEyeHeight(entityIn, handler);
 
-        // Decay the camera pushback so it reverts from being pushed back smoothly rather than being jerked forwards
-        //decayCameraPushback(partialTicks);
-
         render2FirstPerson(handler.getPlayerModel(), entityIn, partialTicks, PoseStackIn, bufferIn, packedLightIn);
 
         return enableFullBodyFirstPerson;

@@ -14,6 +14,7 @@ import com.mojang.math.Vector4f;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.builders.UVPair;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.Direction;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.resources.ResourceLocation;
@@ -22,6 +23,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -67,8 +69,6 @@ public class ExtendableModelRenderer
     protected boolean oldVisability;
 
     protected boolean hasHitbox = true;
-
-    public boolean mirror = false;
 
     protected Vec3 usedSize;
 
@@ -130,6 +130,11 @@ public class ExtendableModelRenderer
     public void addLayer(UVPair tex, UVPair texSize, float extend, String name)
     {
         layers.add(new ExtendableModelLayer(tex, texSize, extend, name));
+    }
+
+    public void addLayer(UVPair tex, UVPair texSize, float extend, String name, boolean mirror)
+    {
+        layers.add(new ExtendableModelLayer(tex, texSize, extend, name, mirror));
     }
 
     public ExtendableModelRenderer(String limbName)
@@ -295,10 +300,16 @@ public class ExtendableModelRenderer
         // Add a box of the appropriate size to this model
         generateCube();
 
+        // Set the top of the model to not be drawn if this isn't the top
+        if (usedSize.length() > 0)
+            setVisibleDirection(resizer.getTop(), false);
+
         // Return this model if at max depth
         if (!resizer.continueResizing())
             return;
 
+        // Set the bottom of the model to not be drawn if this isn't the bottom
+        setVisibleDirection(resizer.getBottom(), false);
 
         // Create the next model and add it as a child of this one
         ExtendableModelRenderer newModel = new ExtendableModelRenderer(name + "+");
@@ -316,6 +327,15 @@ public class ExtendableModelRenderer
 
         // Continue the extension
         newModel.extend(resizer.nextLevel());
+    }
+
+    public void setVisibleDirection(@Nullable Direction dir, boolean on)
+    {
+        if (dir == null)
+            return;
+
+        for (ExtendableModelLayer layer : layers)
+            layer.setVisable(dir, on);
     }
 
     public void setDefaultResize(Vec3 newSize)
@@ -373,7 +393,7 @@ public class ExtendableModelRenderer
         points[7] = new Vector3f(x2, y2, z2);
 
         for (ExtendableModelLayer layer : layers)
-            layer.makeCube((float) pos.x, (float) pos.y, (float) pos.z, width, height, depth, mirror, usedSize);
+            layer.makeCube((float) pos.x, (float) pos.y, (float) pos.z, width, height, depth, usedSize);
     }
 
     public void setUsedSize(Vec3 newUsed)

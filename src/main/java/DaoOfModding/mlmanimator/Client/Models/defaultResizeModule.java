@@ -1,8 +1,11 @@
 package DaoOfModding.mlmanimator.Client.Models;
 
 import DaoOfModding.mlmanimator.Client.AnimationFramework.resizeModule;
+import net.minecraft.core.Direction;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+
+import javax.annotation.Nullable;
 
 public class defaultResizeModule implements resizeModule
 {
@@ -19,6 +22,9 @@ public class defaultResizeModule implements resizeModule
 
     protected Vec3 spacing;
 
+    protected Direction top;
+    protected Direction bottom;
+
     protected float delta = 0;
 
     public defaultResizeModule(int maxDepth, Vec3 direction, Vec3 position, Vec3 fullSize, Vec3 rotationPoint)
@@ -26,23 +32,32 @@ public class defaultResizeModule implements resizeModule
         this(maxDepth, direction, position, fullSize, rotationPoint, new Vec3(0, 0, 0));
     }
 
+    public defaultResizeModule(int maxDepth, Vec3 direction, Vec3 position, Vec3 fullSize, Vec3 rotationPoint, @Nullable Direction t, @Nullable Direction b)
+    {
+        this(maxDepth, direction, position, fullSize, rotationPoint, new Vec3(0, 0, 0), 0, t, b);
+    }
+
     public defaultResizeModule(int maxDepth, Vec3 direction, Vec3 position, Vec3 fullSize, Vec3 rotationPoint, float delta)
     {
-        this(maxDepth, direction, position, fullSize, rotationPoint, new Vec3(0, 0, 0), delta);
+        this(maxDepth, direction, position, fullSize, rotationPoint, new Vec3(0, 0, 0), delta, null, null);
     }
 
     // Default resize module for models of depth 1
-    public defaultResizeModule(Vec3 fullSize) {
+    public defaultResizeModule(Vec3 fullSize)
+    {
         this(1, new Vec3(0, 1, 0), new Vec3(0, 0, 0), fullSize, new Vec3(0, 0, 0), new Vec3(0, 0, 0));
     }
 
     public defaultResizeModule(int maxDepth, Vec3 direction, Vec3 position, Vec3 fullSize, Vec3 rotationPoint, Vec3 spacing)
     {
-        this (maxDepth, direction, position, fullSize, rotationPoint, spacing, 0);
+        this (maxDepth, direction, position, fullSize, rotationPoint, spacing, 0, null, null);
     }
 
-    public defaultResizeModule(int maxDepth, Vec3 direction, Vec3 position, Vec3 fullSize, Vec3 rotationPoint, Vec3 spacing, float newDelta)
+    public defaultResizeModule(int maxDepth, Vec3 direction, Vec3 position, Vec3 fullSize, Vec3 rotationPoint, Vec3 spacing, float newDelta, @Nullable Direction t, @Nullable Direction b)
     {
+        top = t;
+        bottom = b;
+
         depth = maxDepth;
         size = fullSize;
 
@@ -122,5 +137,15 @@ public class defaultResizeModule implements resizeModule
     public float getDelta()
     {
         return delta;
+    }
+
+    public Direction getTop()
+    {
+        return top;
+    }
+
+    public Direction getBottom()
+    {
+        return bottom;
     }
 }

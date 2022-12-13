@@ -22,6 +22,13 @@ public class ExtendableCube
     public final float maxY;
     public final float maxZ;
 
+    public boolean up = true;
+    public boolean down = true;
+    public boolean north = true;
+    public boolean east = true;
+    public boolean south = true;
+    public boolean west = true;
+
     public ExtendableCube(int textureOffsetX, int textureOffsetY, float posX, float posY, float posZ, float width, float height, float depth, float expansionX, float expansionY, float expansionZ, boolean mirror, float texSixeX, float texSixeY, Vec3 fullSize)
     {
         this.minX = posX;
@@ -34,16 +41,14 @@ public class ExtendableCube
         float f = posX + width;
         float f1 = posY + height;
         float f2 = posZ + depth;
-        /*posX -= expansionX;
-        posY -= expansionY;
-        posZ -= expansionZ;
-        f += expansionX;
-        f1 += expansionY;
-        f2 += expansionZ;*/
-        if (mirror) {
+
+        if (mirror)
+        {
             float f3 = f;
             f = posX;
             posX = f3;
+
+            expansionX = -expansionX;
         }
 
         Vertex vertex7 = new Vertex(posX, posY, posZ, -expansionX, -expansionY, -expansionZ, 0.0F, 0.0F);
@@ -82,30 +87,68 @@ public class ExtendableCube
         Matrix4f matrix4f = PoseStackIn.pose();
         Matrix3f normalMatrix = PoseStackIn.normal();
 
-        for (Polygon texturedquad : polygons)
+        for (int j = 0; j < 6; j++)
         {
-            Vector3f normals = texturedquad.normal.copy();
-            normals.transform(normalMatrix);
-            float f = normals.x();
-            float f1 = normals.y();
-            float f2 = normals.z();
-
-
-            Vertex[] vertices = texturedquad.vertices;
-            for(int i = 0; i < 4; ++i)
+            if (isVisable(j))
             {
-                Vector3f vertex = vertices[i].pos;
+                Polygon texturedquad = polygons[j];
 
-                float f3 = vertex.x() / 16.0F * (float)resize.x + vertices[i].repos.x() / 16.0f;
-                float f4 = vertex.y() / 16.0F * (float)resize.y + vertices[i].repos.y() / 16.0f;
-                float f5 = vertex.z() / 16.0F * (float)resize.z + vertices[i].repos.z() / 16.0f;
+                Vector3f normals = texturedquad.normal.copy();
+                normals.transform(normalMatrix);
+                float f = normals.x();
+                float f1 = normals.y();
+                float f2 = normals.z();
 
-                Vector4f vector4f = new Vector4f(f3, f4, f5, 1.0F);
-                vector4f.transform(matrix4f);
 
-                bufferIn.vertex(vector4f.x(), vector4f.y(), vector4f.z(), red, green, blue, alpha, vertices[i].u, vertices[i].v, packedOverlayIn, packedLightIn, f, f1,f2);
+                Vertex[] vertices = texturedquad.vertices;
+                for (int i = 0; i < 4; ++i) {
+                    Vector3f vertex = vertices[i].pos;
+
+                    float f3 = vertex.x() / 16.0F * (float) resize.x + vertices[i].repos.x() / 16.0f;
+                    float f4 = vertex.y() / 16.0F * (float) resize.y + vertices[i].repos.y() / 16.0f;
+                    float f5 = vertex.z() / 16.0F * (float) resize.z + vertices[i].repos.z() / 16.0f;
+
+                    Vector4f vector4f = new Vector4f(f3, f4, f5, 1.0F);
+                    vector4f.transform(matrix4f);
+
+                    bufferIn.vertex(vector4f.x(), vector4f.y(), vector4f.z(), red, green, blue, alpha, vertices[i].u, vertices[i].v, packedOverlayIn, packedLightIn, f, f1, f2);
+                }
             }
         }
+    }
+
+    protected boolean isVisable(int num)
+    {
+        if (num == 1 && east)
+            return true;
+        else if (num == 0 && west)
+            return true;
+        else if (num == 3 && down)
+            return true;
+        else if (num == 2 && up)
+            return true;
+        else if (num == 5 && north)
+            return true;
+        else if (num == 4 && south)
+            return true;
+
+        return false;
+    }
+
+    protected void setVisable(Direction dir, boolean on)
+    {
+        if (dir == Direction.EAST)
+            east = on;
+        else if (dir == Direction.WEST)
+            west = on;
+        else if (dir == Direction.SOUTH)
+            south = on;
+        else if (dir == Direction.NORTH)
+            north = on;
+        else if (dir == Direction.UP)
+            up = on;
+        else if (dir == Direction.DOWN)
+            down = on;
     }
 
     @OnlyIn(Dist.CLIENT)

@@ -61,7 +61,7 @@ public class GenericTextureValues
     {
         rightArm.addLayer(GenericTextureValues.rightArm, GenericTextureValues.skin_Size, GenericTextureValues.innerExtention, TextureHandler.PLAYER_SKIN);
         rightArm.addLayer(GenericTextureValues.rightSleeve, GenericTextureValues.skin_Size, GenericTextureValues.outerExtention, TextureHandler.PLAYER_SKIN);
-        rightArm.addLayer(GenericTextureValues.rightArmArmor, GenericTextureValues.armor_Size, GenericTextureValues.ArmArmorExtention, TextureHandler.CHEST_ARMOR);
+        rightArm.addLayer(GenericTextureValues.rightArmArmor, GenericTextureValues.armor_Size, GenericTextureValues.ArmArmorExtention, TextureHandler.CHEST_ARMOR, true);
     }
 
     public static void addGenericLeftLegLayers(ExtendableModelRenderer leftLeg)
@@ -76,7 +76,7 @@ public class GenericTextureValues
     {
         rightLeg.addLayer(GenericTextureValues.rightLeg, GenericTextureValues.skin_Size, GenericTextureValues.innerExtention, TextureHandler.PLAYER_SKIN);
         rightLeg.addLayer(GenericTextureValues.rightPants, GenericTextureValues.skin_Size, GenericTextureValues.outerExtention, TextureHandler.PLAYER_SKIN);
-        rightLeg.addLayer(GenericTextureValues.rightLegArmor, GenericTextureValues.armor_Size, GenericTextureValues.rightlegArmorExtention, TextureHandler.LEG_ARMOR);
-        rightLeg.addLayer(GenericTextureValues.rightLegArmor, GenericTextureValues.armor_Size, GenericTextureValues.rightFootArmorExtention, TextureHandler.FOOT_ARMOR);
+        rightLeg.addLayer(GenericTextureValues.rightLegArmor, GenericTextureValues.armor_Size, GenericTextureValues.rightlegArmorExtention, TextureHandler.LEG_ARMOR, true);
+        rightLeg.addLayer(GenericTextureValues.rightLegArmor, GenericTextureValues.armor_Size, GenericTextureValues.rightFootArmorExtention, TextureHandler.FOOT_ARMOR, true);
     }
 }
