@@ -14,10 +14,10 @@ public class GenericTextureValues
     public static final UVPair jacket = new UVPair(16, 32);
     public static final UVPair leftArm = new UVPair(32, 48);
     public static final UVPair leftSleeve = new UVPair(48, 48);
-    public static final UVPair leftArmArmor = new UVPair(40, 48);
+    public static final UVPair leftArmArmor = new UVPair(40, 16);
     public static final UVPair rightArm = new UVPair(40, 16);
     public static final UVPair rightSleeve = new UVPair(40, 32);
-    public static final UVPair rightArmArmor = new UVPair(40, 48);
+    public static final UVPair rightArmArmor = new UVPair(40, 16);
     public static final UVPair leftLeg = new UVPair(16, 48);
     public static final UVPair leftPants = new UVPair(0, 48);
     public static final UVPair leftLegArmor = new UVPair(0, 16);

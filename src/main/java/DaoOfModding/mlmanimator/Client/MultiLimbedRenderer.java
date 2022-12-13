@@ -167,87 +167,6 @@ public class MultiLimbedRenderer
         }
     }
 
-    // Push the camera to be in front of the player, but not so far in front that it sees through blocks
-    public static void pushBackCamera(double partialTicks)
-    {
-        Camera rendererInfo = Minecraft.getInstance().gameRenderer.getMainCamera();
-        Entity viewerEntity = rendererInfo.getEntity();
-
-        // Calculate the camera position and player direction
-        Vec3 pos = new Vec3(Mth.lerp( partialTicks, viewerEntity.xOld, viewerEntity.getX()), Mth.lerp(partialTicks, viewerEntity.yOld, viewerEntity.getY()), Mth.lerp(partialTicks, viewerEntity.zOld, viewerEntity.getZ()));
-        pos = pos.add(0, viewerEntity.getEyeHeight(), 0);
-
-        Vec3 direction = Vec3.directionFromRotation(0, viewerEntity.getViewYRot((float)partialTicks));
-
-        // Calculate the amount the camera needs to be pushed back to not hit a wall, set decayingDistance to equal that amount if it is smaller than it
-        double cameraPush = calcCameraDistance(rendererInfo.getEntity(), defaultCameraDistance + 0.15, direction) - 0.15;
-
-        if (cameraPush < decayingDistance)
-            decayingDistance = cameraPush;
-
-        // Pushing camera position forward by decayingDistance across the X & Z axies
-        pos = pos.add(direction.scale(decayingDistance));
-
-        // Move the camera so that it's just in front of the head rather than inside it
-        // Adjust the amount by decayingDistance so that it is pushed back enough to not see through walls
-        try
-        {
-            cameraMoveFunction.invoke(rendererInfo, pos.x, pos.y, pos.z);
-        }
-        catch(Exception e)
-        {
-            mlmanimator.LOGGER.error("Error adjusting camera position");
-        }
-    }
-
-    private static void decayCameraPushback(float partialTick)
-    {
-        if (decayingDistance == defaultCameraDistance)
-            return;
-
-        decayingDistance += partialTick / 40.0;
-
-        if (decayingDistance > defaultCameraDistance)
-            decayingDistance = defaultCameraDistance;
-    }
-
-    // Calculate the distance the camera should be from the specified entity (up to a max of startingDistance)
-    private static double calcCameraDistance(Entity renderViewEntity, double startingDistance, Vec3 direction)
-    {
-        // Get the players position
-        Vec3 pos = renderViewEntity.position().add(0, renderViewEntity.getEyeHeight(), 0);
-
-        // Test against 8 separate points
-        for(int i = 0; i < 8; ++i)
-        {
-            float f = (float) ((i & 1) * 2 - 1);
-            float f1 = (float) ((i >> 1 & 1) * 2 - 1);
-            float f2 = (float) ((i >> 2 & 1) * 2 - 1);
-            f = f * 0.15F;
-            f1 = f1 * 0.15F;
-            f2 = f2 * 0.15F;
-
-            // Calculate the position to test
-            Vec3 modifiedPos = pos.add(f, f1, f2);
-
-            // Calculate the camera position
-            Vec3 testPos = modifiedPos.add(direction.scale(startingDistance));
-
-            // Test the distance between the players and camera position, checking if it's blocked by anything visually
-            HitResult result = renderViewEntity.level.clip(new ClipContext(modifiedPos, testPos, ClipContext.Block.VISUAL, ClipContext.Fluid.NONE, renderViewEntity));
-
-            // If it is blocked, check the distance and set that to the new camera distance
-            if (result.getType() != HitResult.Type.MISS)
-            {
-                double d0 = result.getLocation().distanceTo(pos);
-                if (d0 < startingDistance)
-                    startingDistance = d0;
-            }
-        }
-
-        return startingDistance;
-    }
-
     public static boolean isFakeThirdPerson()
     {
         return fakeThird;
@@ -354,11 +273,6 @@ public class MultiLimbedRenderer
         PoseStackIn.pushPose();
 
         PoseStackIn.scale(-1.0F, -1.0F, 1.0F);
-
-        Vec3 direction = Vec3.directionFromRotation(0, entityIn.getViewYRot(partialTicks));
-        direction = direction.scale(5);
-
-        PoseStackIn.translate(direction.x, 0, direction.z);
 
         currentModel = entityModel;
         currentEntity = entityIn;
