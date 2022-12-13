@@ -376,6 +376,12 @@ public class ExtendableModelRenderer
             layer.makeCube((float) pos.x, (float) pos.y, (float) pos.z, width, height, depth, mirror, usedSize);
     }
 
+    public void setUsedSize(Vec3 newUsed)
+    {
+        usedSize = newUsed;
+        generateCube();
+    }
+
     // Toggle all parts set not to be visible in first person so that they don't render
     public void toggleFirstPersonVisability(boolean on)
     {

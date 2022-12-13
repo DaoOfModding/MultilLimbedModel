@@ -34,26 +34,26 @@ public class ExtendableCube
         float f = posX + width;
         float f1 = posY + height;
         float f2 = posZ + depth;
-        posX -= expansionX;
+        /*posX -= expansionX;
         posY -= expansionY;
         posZ -= expansionZ;
         f += expansionX;
         f1 += expansionY;
-        f2 += expansionZ;
+        f2 += expansionZ;*/
         if (mirror) {
             float f3 = f;
             f = posX;
             posX = f3;
         }
 
-        Vertex vertex7 = new Vertex(posX, posY, posZ, 0.0F, 0.0F);
-        Vertex vertex = new Vertex(f, posY, posZ, 0.0F, 8.0F);
-        Vertex vertex1 = new Vertex(f, f1, posZ, 8.0F, 8.0F);
-        Vertex vertex2 = new Vertex(posX, f1, posZ, 8.0F, 0.0F);
-        Vertex vertex3 = new Vertex(posX, posY, f2, 0.0F, 0.0F);
-        Vertex vertex4 = new Vertex(f, posY, f2, 0.0F, 8.0F);
-        Vertex vertex5 = new Vertex(f, f1, f2, 8.0F, 8.0F);
-        Vertex vertex6 = new Vertex(posX, f1, f2, 8.0F, 0.0F);
+        Vertex vertex7 = new Vertex(posX, posY, posZ, -expansionX, -expansionY, -expansionZ, 0.0F, 0.0F);
+        Vertex vertex = new Vertex(f, posY, posZ, expansionX, -expansionY, -expansionZ, 0.0F, 8.0F);
+        Vertex vertex1 = new Vertex(f, f1, posZ, expansionX, expansionY, -expansionZ, 8.0F, 8.0F);
+        Vertex vertex2 = new Vertex(posX, f1, posZ, -expansionX, expansionY, -expansionZ, 8.0F, 0.0F);
+        Vertex vertex3 = new Vertex(posX, posY, f2, -expansionX, -expansionY, expansionZ, 0.0F, 0.0F);
+        Vertex vertex4 = new Vertex(f, posY, f2, expansionX, -expansionY, expansionZ, 0.0F, 8.0F);
+        Vertex vertex5 = new Vertex(f, f1, f2, expansionX, expansionY, expansionZ, 8.0F, 8.0F);
+        Vertex vertex6 = new Vertex(posX, f1, f2, -expansionX, expansionY, expansionZ, 8.0F, 0.0F);
         float f4 = (float)textureOffsetX;
         float f5 = (float)textureOffsetX + depth;
         float f6 = (float)textureOffsetX + depth + width;
@@ -96,9 +96,9 @@ public class ExtendableCube
             {
                 Vector3f vertex = vertices[i].pos;
 
-                float f3 = vertex.x() / 16.0F * (float)resize.x;
-                float f4 = vertex.y() / 16.0F * (float)resize.y;
-                float f5 = vertex.z() / 16.0F * (float)resize.z;
+                float f3 = vertex.x() / 16.0F * (float)resize.x + vertices[i].repos.x() / 16.0f;
+                float f4 = vertex.y() / 16.0F * (float)resize.y + vertices[i].repos.y() / 16.0f;
+                float f5 = vertex.z() / 16.0F * (float)resize.z + vertices[i].repos.z() / 16.0f;
 
                 Vector4f vector4f = new Vector4f(f3, f4, f5, 1.0F);
                 vector4f.transform(matrix4f);
@@ -147,19 +147,22 @@ public class ExtendableCube
         public final float u;
         public final float v;
 
-        public Vertex(float x, float y, float z, float texU, float texV)
+        public final Vector3f repos;
+
+        public Vertex(float x, float y, float z, float reX, float reY, float reZ,  float texU, float texV)
         {
-            this(new Vector3f(x, y, z), texU, texV);
+            this(new Vector3f(x, y, z), new Vector3f(reX, reY, reZ), texU, texV);
         }
 
         public Vertex remap(float texU, float texV)
         {
-            return new Vertex(this.pos, texU, texV);
+            return new Vertex(this.pos, this.repos, texU, texV);
         }
 
-        public Vertex(Vector3f position, float texU, float texV)
+        public Vertex(Vector3f position, Vector3f reposition, float texU, float texV)
         {
             this.pos = position;
+            this.repos = reposition;
             this.u = texU;
             this.v = texV;
         }

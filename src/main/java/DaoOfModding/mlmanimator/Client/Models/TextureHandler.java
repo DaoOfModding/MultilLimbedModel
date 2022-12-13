@@ -1,9 +1,6 @@
 package DaoOfModding.mlmanimator.Client.Models;
 
-import DaoOfModding.mlmanimator.Client.MultiLimbedRenderer;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;

@@ -80,6 +80,11 @@ public class MultiLimbedModel
             setupDefaultLimbs();
     }
 
+    public TextureHandler getTextureHandler()
+    {
+        return textures;
+    }
+
     private void setupDefaultLimbs()
     {
         //TODO: Setup armor models
