@@ -4,6 +4,9 @@ import net.minecraft.client.model.geom.builders.UVPair;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class ExtendableModelLayer
 {
     String name;
@@ -16,6 +19,8 @@ public class ExtendableModelLayer
     protected ExtendableCube layerCube;
 
     protected boolean mirr;
+
+    protected HashMap<Direction, Boolean> visability = new HashMap<Direction, Boolean>();
 
     public ExtendableModelLayer(UVPair texOffset, UVPair texSize, float extend, String newName)
     {
@@ -34,11 +39,22 @@ public class ExtendableModelLayer
     public void makeCube(float posX, float posY, float posZ, float width, float height, float depth, Vec3 fullSize)
     {
         layerCube = new ExtendableCube((int)textureOffset.u(), (int)textureOffset.v(), posX, posY, posZ, width, height, depth, extended, extended, extended, mirr, textureSize.u(), textureSize.v(), fullSize);
+
+        updateCubeVisability();
     }
 
     public void setVisable(Direction dir, Boolean on)
     {
-        layerCube.setVisable(dir, on);
+        visability.put(dir, on);
+
+        if (layerCube != null)
+            updateCubeVisability();
+    }
+
+    private void updateCubeVisability()
+    {
+        for (Map.Entry<Direction, Boolean> set : visability.entrySet())
+            layerCube.setVisable(set.getKey(), set.getValue());
     }
 
     public ExtendableModelLayer clone()

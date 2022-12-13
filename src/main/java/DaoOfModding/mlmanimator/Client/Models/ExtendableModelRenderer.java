@@ -137,6 +137,14 @@ public class ExtendableModelRenderer
         layers.add(new ExtendableModelLayer(tex, texSize, extend, name, mirror));
     }
 
+    public void addLayer(UVPair tex, UVPair texSize, float extend, String name, Direction invisibleDirection)
+    {
+        ExtendableModelLayer layer = new ExtendableModelLayer(tex, texSize, extend, name);
+        layer.setVisable(invisibleDirection, false);
+
+        layers.add(layer);
+    }
+
     public ExtendableModelRenderer(String limbName)
     {
         name = limbName;
@@ -319,7 +327,7 @@ public class ExtendableModelRenderer
         newModel.setFixedPosAdjustment((float)resizer.getSpacing().x, (float)resizer.getSpacing().y, (float)resizer.getSpacing().z);
 
         for (ExtendableModelLayer layer : layers)
-            newModel.addLayer(new UVPair(layer.textureOffset.u() + (int)texModifier.x, layer.textureOffset.v() + (int)texModifier.y), layer.textureSize, layer.extended, layer.name);
+            newModel.addLayer(new UVPair(layer.textureOffset.u() + (int)texModifier.x, layer.textureOffset.v() + (int)texModifier.y), layer.textureSize, layer.extended + resizer.getDelta(), layer.name);
 
         newModel.setParent(this);
 
