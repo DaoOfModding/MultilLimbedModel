@@ -34,4 +34,49 @@ public class GenericTextureValues
     public static final float ArmArmorExtention = 1.01f;
     public static final float leftFootArmorExtention = 1.01f;
     public static final float rightFootArmorExtention = 1f;
+
+    public static void addGenericBodyLayers(ExtendableModelRenderer body)
+    {
+        body.addLayer(GenericTextureValues.chest, GenericTextureValues.skin_Size, GenericTextureValues.innerExtention, TextureHandler.PLAYER_SKIN);
+        body.addLayer(GenericTextureValues.jacket, GenericTextureValues.skin_Size, GenericTextureValues.outerExtention, TextureHandler.PLAYER_SKIN);
+        body.addLayer(GenericTextureValues.chest, GenericTextureValues.armor_Size, GenericTextureValues.chestLegArmorExtention, TextureHandler.LEG_ARMOR);
+        body.addLayer(GenericTextureValues.chest, GenericTextureValues.armor_Size, GenericTextureValues.ArmorExtention, TextureHandler.CHEST_ARMOR);
+    }
+
+    public static void addGenericHeadLayers(ExtendableModelRenderer head)
+    {
+        head.addLayer(GenericTextureValues.head, GenericTextureValues.skin_Size, GenericTextureValues.innerExtention, TextureHandler.PLAYER_SKIN);
+        head.addLayer(GenericTextureValues.hat, GenericTextureValues.skin_Size, GenericTextureValues.outerExtention, TextureHandler.PLAYER_SKIN);
+        head.addLayer(GenericTextureValues.head, GenericTextureValues.armor_Size, GenericTextureValues.ArmorExtention, TextureHandler.HEAD_ARMOR);
+    }
+
+    public static void addGenericLeftArmLayers(ExtendableModelRenderer leftArm)
+    {
+        leftArm.addLayer(GenericTextureValues.leftArm, GenericTextureValues.skin_Size, GenericTextureValues.innerExtention, TextureHandler.PLAYER_SKIN);
+        leftArm.addLayer(GenericTextureValues.leftSleeve, GenericTextureValues.skin_Size, GenericTextureValues.outerExtention, TextureHandler.PLAYER_SKIN);
+        leftArm.addLayer(GenericTextureValues.leftArmArmor, GenericTextureValues.armor_Size, GenericTextureValues.ArmArmorExtention, TextureHandler.CHEST_ARMOR);
+    }
+
+    public static void addGenericRightArmLayers(ExtendableModelRenderer rightArm)
+    {
+        rightArm.addLayer(GenericTextureValues.rightArm, GenericTextureValues.skin_Size, GenericTextureValues.innerExtention, TextureHandler.PLAYER_SKIN);
+        rightArm.addLayer(GenericTextureValues.rightSleeve, GenericTextureValues.skin_Size, GenericTextureValues.outerExtention, TextureHandler.PLAYER_SKIN);
+        rightArm.addLayer(GenericTextureValues.rightArmArmor, GenericTextureValues.armor_Size, GenericTextureValues.ArmArmorExtention, TextureHandler.CHEST_ARMOR);
+    }
+
+    public static void addGenericLeftLegLayers(ExtendableModelRenderer leftLeg)
+    {
+        leftLeg.addLayer(GenericTextureValues.leftLeg, GenericTextureValues.skin_Size, GenericTextureValues.innerExtention, TextureHandler.PLAYER_SKIN);
+        leftLeg.addLayer(GenericTextureValues.leftPants, GenericTextureValues.skin_Size, GenericTextureValues.outerExtention, TextureHandler.PLAYER_SKIN);
+        leftLeg.addLayer(GenericTextureValues.leftLegArmor, GenericTextureValues.armor_Size, GenericTextureValues.leftlegArmorExtention, TextureHandler.LEG_ARMOR);
+        leftLeg.addLayer(GenericTextureValues.leftLegArmor, GenericTextureValues.armor_Size,  GenericTextureValues.leftFootArmorExtention, TextureHandler.FOOT_ARMOR);
+    }
+
+    public static void addGenericRightLegLayers(ExtendableModelRenderer rightLeg)
+    {
+        rightLeg.addLayer(GenericTextureValues.rightLeg, GenericTextureValues.skin_Size, GenericTextureValues.innerExtention, TextureHandler.PLAYER_SKIN);
+        rightLeg.addLayer(GenericTextureValues.rightPants, GenericTextureValues.skin_Size, GenericTextureValues.outerExtention, TextureHandler.PLAYER_SKIN);
+        rightLeg.addLayer(GenericTextureValues.rightLegArmor, GenericTextureValues.armor_Size, GenericTextureValues.rightlegArmorExtention, TextureHandler.LEG_ARMOR);
+        rightLeg.addLayer(GenericTextureValues.rightLegArmor, GenericTextureValues.armor_Size, GenericTextureValues.rightFootArmorExtention, TextureHandler.FOOT_ARMOR);
+    }
 }
