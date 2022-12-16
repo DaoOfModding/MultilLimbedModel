@@ -179,6 +179,11 @@ public class ExtendableModelRenderer
             quads.remove(quad);
     }
 
+    public void setName(String newName)
+    {
+        name = newName;
+    }
+
     public void addQuadLinkage(QuadLinkage link)
     {
         quadLinkage.add(link);

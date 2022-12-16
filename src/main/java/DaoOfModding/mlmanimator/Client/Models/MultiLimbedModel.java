@@ -456,33 +456,11 @@ public class MultiLimbedModel
         size.scaleValues(sizeScale / 16f);
         size = new MultiLimbedDimensions(size);
 
+        for (ExtendableModelRenderer model : firstPersonLimbs.values())
+            model.calculateMinHeight(new PoseStack(), 0);
+
         MultiLimbedRenderer.setDimensions(player, new EntityDimensions(size.getBiggestWidth(), size.getHeight(), false));
         player.setBoundingBox(size.makeBoundingBox(player.position()));
-    }
-
-    private Vec3 collision(Level level, AABB bounding)
-    {
-        BlockPos blockpos = new BlockPos(bounding.minX + 0.001D, bounding.minY + 0.001D, bounding.minZ + 0.001D);
-        BlockPos blockpos1 = new BlockPos(bounding.maxX - 0.001D, bounding.maxY - 0.001D, bounding.maxZ - 0.001D);
-
-        if (level.hasChunksAt(blockpos, blockpos1))
-        {
-            BlockPos.MutableBlockPos blockpos$mutableblockpos = new BlockPos.MutableBlockPos();
-
-            for(int i = blockpos.getX(); i <= blockpos1.getX(); ++i) {
-                for(int j = blockpos.getY(); j <= blockpos1.getY(); ++j) {
-                    for(int k = blockpos.getZ(); k <= blockpos1.getZ(); ++k) {
-                        blockpos$mutableblockpos.set(i, j, k);
-                        BlockState blockstate = level.getBlockState(blockpos$mutableblockpos);
-
-                        if (blockstate.isSuffocating(level.getChunkForCollisions(SectionPos.blockToSectionCoord(i), SectionPos.blockToSectionCoord(k)), blockpos))
-                            return new Vec3(i, j, k);
-                    }
-                }
-            }
-        }
-
-        return null;
     }
 
     // Find the limb at the lowest height and return it's height
