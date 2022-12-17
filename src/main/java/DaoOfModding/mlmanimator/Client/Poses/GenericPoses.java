@@ -41,6 +41,7 @@ public class GenericPoses
     }
 
     // TODO: Add swimming, sleeping, sitting, etc poses
+    // TODO: Crouch, FlyFalling Animations + Elytra animations
 
     public static void setupSwimming()
     {
@@ -63,6 +64,8 @@ public class GenericPoses
         Idle.addAngle(GenericLimbNames.rightLeg, new Vec3(0, 0, 0), 0);
         Idle.addAngle(GenericLimbNames.lowerLeftLeg, new Vec3(0, 0, 0), 0);
         Idle.addAngle(GenericLimbNames.lowerRightLeg, new Vec3(0, 0, 0), 0);
+        Idle.addAngle(GenericLimbNames.leftWingElytra, new Vec3(0, 0, Math.toRadians(-10)), 0);
+        Idle.addAngle(GenericLimbNames.rightWingElytra, new Vec3(0, 0, Math.toRadians(10)), 0);
     }
 
     public static void addToIdle(PlayerPose toAdd)

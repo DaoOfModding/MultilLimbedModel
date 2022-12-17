@@ -1,33 +1,25 @@
 package DaoOfModding.mlmanimator.Client.Models;
 
 import DaoOfModding.mlmanimator.Client.MultiLimbedRenderer;
-import DaoOfModding.mlmanimator.Common.PlayerUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
-import net.minecraft.CrashReport;
-import net.minecraft.CrashReportCategory;
-import net.minecraft.ReportedException;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.SectionPos;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.*;
 
@@ -83,6 +75,11 @@ public class MultiLimbedModel
     public TextureHandler getTextureHandler()
     {
         return textures;
+    }
+
+    public void setTextureHandler(TextureHandler handler)
+    {
+        textures = handler;
     }
 
     private void setupDefaultLimbs()
@@ -161,6 +158,30 @@ public class MultiLimbedModel
         addLimbReference(GenericLimbNames.lowerRightArm, rightArm.getChildren().get(0));
         addLimbReference(GenericLimbNames.lowerLeftLeg, leftLeg.getChildren().get(0));
         addLimbReference(GenericLimbNames.lowerRightLeg, rightLeg.getChildren().get(0));
+
+
+        ExtendableModelRenderer leftWing = new ExtendableModelRenderer(GenericLimbNames.leftWingElytra);
+        leftWing.addLayer(GenericTextureValues.elytra, GenericTextureValues.armor_Size, GenericTextureValues.innerExtention, TextureHandler.ELYTRA);
+        leftWing.setRotationPoint(new Vec3(1, 1, 1));
+        leftWing.setDefaultResize(new Vec3(1, 1, 2));
+        leftWing.setPos(0F, 0, 1F);
+        leftWing.setFixedPosAdjustment(0, 2f, 0.01f);
+        leftWing.extend(GenericResizers.getElytraResizer());
+        leftWing.setHitbox(false);
+
+        ExtendableModelRenderer rightWing = new ExtendableModelRenderer(GenericLimbNames.rightWingElytra);
+        rightWing.addLayer(GenericTextureValues.elytra, GenericTextureValues.armor_Size, GenericTextureValues.innerExtention, TextureHandler.ELYTRA, true);
+        rightWing.setRotationPoint(new Vec3(0, 1, 1));
+        rightWing.setDefaultResize(new Vec3(1, 1, 2));
+        rightWing.setPos(1F, 0, 1F);
+        rightWing.setFixedPosAdjustment(0, 2f, 0);
+        rightWing.extend(GenericResizers.getElytraResizer());
+        rightWing.setHitbox(false);
+
+        addLimb(GenericLimbNames.leftWingElytra, leftWing);
+        addLimb(GenericLimbNames.rightWingElytra, rightWing);
+
+        // TODO : Add cape, ears, ParrotOnShoulder?, BeeStinger?
 
         setViewPoint(head);
         setHand(0, rightArm.getChildren().get(0));
@@ -264,8 +285,28 @@ public class MultiLimbedModel
         lock();
 
         body.tick(player);
+        updateElytra(player);
 
         unlock();
+    }
+
+    public void updateElytra(Player player)
+    {
+        ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
+
+        // Set the elytra parts to be invisible if the eyltra is not equipped
+        if (chest.getItem() != Items.ELYTRA)
+        {
+            getLimb(GenericLimbNames.rightWingElytra).mPart.visible = false;
+            getLimb(GenericLimbNames.leftWingElytra).mPart.visible = false;
+
+            return;
+        }
+        else
+        {
+            getLimb(GenericLimbNames.rightWingElytra).mPart.visible = true;
+            getLimb(GenericLimbNames.leftWingElytra).mPart.visible = true;
+        }
     }
 
     // Adds specified limb onto the body

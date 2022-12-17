@@ -25,6 +25,8 @@ public class GenericTextureValues
     public static final UVPair rightPants = new UVPair(0, 32);
     public static final UVPair rightLegArmor = new UVPair(0, 16);
 
+    public static final UVPair elytra = new UVPair(22, 0);
+
     public static final float innerExtention = 0f;
     public static final float outerExtention = 0.5f;
     public static final float ArmorExtention = 1f;

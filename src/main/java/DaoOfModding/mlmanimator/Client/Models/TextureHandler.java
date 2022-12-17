@@ -4,6 +4,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
@@ -17,6 +18,9 @@ public class TextureHandler
     public static final String CHEST_ARMOR = "CHESTARMOR";
     public static final String LEG_ARMOR = "LEGARMOR";
     public static final String FOOT_ARMOR = "FOOTARMOR";
+    public static final String ELYTRA = "ELYTRA";
+
+    private static final ResourceLocation ELYTRA_WINGS_LOCATION = new ResourceLocation("textures/entity/elytra.png");
 
     HashMap<String, ResourceLocation> textures = new HashMap<String, ResourceLocation>();
     HashMap<String, Vec3> textureColor = new HashMap<String, Vec3>();
@@ -42,6 +46,22 @@ public class TextureHandler
         addColor(LEG_ARMOR, getArmorColor(player, EquipmentSlot.LEGS));
         addTexture(FOOT_ARMOR, (getArmorResource(player, EquipmentSlot.FEET)));
         addColor(FOOT_ARMOR, getArmorColor(player, EquipmentSlot.FEET));
+
+        updateElytraTextures(player);
+    }
+
+    private void updateElytraTextures(LocalPlayer player)
+    {
+        ResourceLocation elytraTexture;
+
+        if (player.isElytraLoaded() && player.getElytraTextureLocation() != null)
+            elytraTexture = player.getElytraTextureLocation();
+        else if (player.isCapeLoaded() && player.getCloakTextureLocation() != null && player.isModelPartShown(PlayerModelPart.CAPE))
+            elytraTexture = player.getCloakTextureLocation();
+        else
+            elytraTexture = ELYTRA_WINGS_LOCATION;
+
+        addTexture(TextureHandler.ELYTRA, elytraTexture);
     }
 
     public void addColor(String name, Vec3 color)

@@ -30,4 +30,9 @@ public class GenericResizers
     {
         return new defaultResizeModule(new Vec3(8, 8, 8));
     }
+
+    public static resizeModule getElytraResizer()
+    {
+        return new defaultResizeModule(new Vec3(10, 20, 2));
+    }
 }
