@@ -162,19 +162,18 @@ public class MultiLimbedModel
 
         ExtendableModelRenderer leftWing = new ExtendableModelRenderer(GenericLimbNames.leftWingElytra);
         leftWing.addLayer(GenericTextureValues.elytra, GenericTextureValues.armor_Size, GenericTextureValues.innerExtention, TextureHandler.ELYTRA);
-        leftWing.setRotationPoint(new Vec3(1, 1, 1));
+        leftWing.setRotationPoint(new Vec3(0, 1, 1));
         leftWing.setDefaultResize(new Vec3(1, 1, 2));
-        leftWing.setPos(0F, 0, 1F);
-        leftWing.setFixedPosAdjustment(0, 2f, 0.01f);
+        leftWing.setPos(1F, 0, 1F);
+        leftWing.setFixedPosAdjustment(0, 0f, 0.01f);
         leftWing.extend(GenericResizers.getElytraResizer());
         leftWing.setHitbox(false);
 
         ExtendableModelRenderer rightWing = new ExtendableModelRenderer(GenericLimbNames.rightWingElytra);
         rightWing.addLayer(GenericTextureValues.elytra, GenericTextureValues.armor_Size, GenericTextureValues.innerExtention, TextureHandler.ELYTRA, true);
-        rightWing.setRotationPoint(new Vec3(0, 1, 1));
+        rightWing.setRotationPoint(new Vec3(1, 1, 1));
         rightWing.setDefaultResize(new Vec3(1, 1, 2));
-        rightWing.setPos(1F, 0, 1F);
-        rightWing.setFixedPosAdjustment(0, 2f, 0);
+        rightWing.setPos(0F, 0, 1F);
         rightWing.extend(GenericResizers.getElytraResizer());
         rightWing.setHitbox(false);
 

@@ -5,6 +5,7 @@ import DaoOfModding.mlmanimator.Client.Models.ExtendableModelRenderer;
 import DaoOfModding.mlmanimator.Client.Models.GenericLimbNames;
 import DaoOfModding.mlmanimator.Client.Models.MultiLimbedModel;
 import DaoOfModding.mlmanimator.Client.MultiLimbedRenderer;
+import com.mojang.math.Vector3f;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -132,8 +133,8 @@ public class PlayerPoseHandler
                 while (limbModel.getParent() != null)
                 {
                     limbModel = limbModel.getParent();
-                    angles = angles.subtract(limbModel.getModelPart().xRot, limbModel.getModelPart().yRot, limbModel.getModelPart().zRot);
-                    notLooking = notLooking.add(limbModel.getModelPart().xRot, limbModel.getModelPart().yRot, limbModel.getModelPart().zRot);
+                    angles = angles.subtract(limbModel.getModelPart().xRot, limbModel.getModelPart().yRot, -limbModel.getModelPart().zRot);
+                    notLooking = notLooking.add(limbModel.getModelPart().xRot, limbModel.getModelPart().yRot, -limbModel.getModelPart().zRot);
                 }
 
                 // Add the base head's angles to this model if this limb should currently be looking with the camera
@@ -548,19 +549,20 @@ public class PlayerPoseHandler
             // If player is moving in the water apply swimming pose
             if (getDeltaMovement().length() > 0)
             {
-                double yLook = 1 - getDeltaMovement().normalize().y;
-
-                // Don't swim down into the ground
-                if (player.isOnGround())
-                    yLook = 1;
-
                 PlayerPose swimPose = GenericPoses.SwimmingMoving.clone();
-                swimPose.addAngle(GenericLimbNames.body, new Vec3(Math.toRadians(90 * yLook), 0, 0), GenericPoses.swimBodyPriority);
+                rotateBody(swimPose, player, GenericPoses.swimBodyPriority);
 
                 addPose(swimPose);
             }
             else
                 addPose(GenericPoses.Swimming);
+        }
+        else if (player.isFallFlying())
+        {
+            PlayerPose flyFalling = GenericPoses.FlyFalling.clone();
+            rotateBody(flyFalling, player, GenericPoses.flyFallingPriority);
+
+            addPose(flyFalling);
         }
         else if (PoseHandler.isJumping(player.getUUID()))
         {
@@ -569,11 +571,43 @@ public class PlayerPoseHandler
             else
                 addPose(GenericPoses.Jumping);
         }
+        else if (player.isCrouching())
+        {
+            if (player.isOnGround() && (getDeltaMovement().x != 0 || getDeltaMovement().z != 0))
+            {
+                addPose(GenericPoses.Walking);
+                addPose(GenericPoses.CrouchingWalk);
+            }
+            else
+                addPose(GenericPoses.Crouching);
+        }
         // If player is moving add the walking pose to the PoseHandler
         else if (player.isOnGround() && (getDeltaMovement().x != 0 || getDeltaMovement().z != 0))
             addPose(GenericPoses.Walking);
 
         // Update the PoseHandler
         updateRenderPose();
+    }
+
+    public void rotateBody(PlayerPose pose, Player player, int priority)
+    {
+        double yLook = 1 - getDeltaMovement().normalize().y;
+        double xLook = 0;
+
+        if (player.isOnGround())
+            yLook = 1;
+
+        Vec3 vec3 = player.getLookAngle();
+        Vec3 vec31 = player.getDeltaMovement();
+        double d0 = vec31.horizontalDistanceSqr();
+        double d1 = vec3.horizontalDistanceSqr();
+        if (d0 > 0.0D && d1 > 0.0D)
+        {
+            double d2 = (vec31.x * vec3.x + vec31.z * vec3.z) / Math.sqrt(d0 * d1);
+            double d3 = vec31.x * vec3.z - vec31.z * vec3.x;
+            xLook = Math.signum(d3) * Math.acos(d2);
+        }
+
+        pose.addAngle(GenericLimbNames.body, new Vec3(Math.toRadians(90 * yLook), 0, -xLook), priority);
     }
 }
