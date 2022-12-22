@@ -10,6 +10,7 @@ import net.minecraft.client.model.ArmorStandArmorModel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -41,6 +42,24 @@ public class ClientListeners
 
             handler.doDefaultPoses(event.player);
             handler.getPlayerModel().tick(event.player);
+        }
+    }
+
+    @SubscribeEvent
+    public static void entityTick(TickEvent.ClientTickEvent event)
+    {
+        if (event.phase == TickEvent.Phase.END)
+        {
+            // Cancel player repositioning when riding
+            if (Minecraft.getInstance().level != null)
+                for (Player player : Minecraft.getInstance().level.players())
+                    if (player.isPassenger())
+                    {
+                        // TODO - Ensure this doesn't need another offset based on model height
+
+                        player.setPosRaw(player.position().x, player.position().y - player.getMyRidingOffset(), player.position().z);
+
+                    }
         }
     }
 

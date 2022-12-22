@@ -24,6 +24,10 @@ public class GenericPoses
     public static final int swimBodyPriority = 99;
     public static final int swimLegPriority = 20;
 
+    public static final int sleepBodyPriority = 99;
+
+    public static final int sitPriority = 25;
+
     public static PlayerPose Idle = new PlayerPose();
     public static PlayerPose HoldingMain = new PlayerPose();
     public static PlayerPose HoldingOff = new PlayerPose();
@@ -35,6 +39,8 @@ public class GenericPoses
     public static PlayerPose Swimming = new PlayerPose();
     public static PlayerPose SwimmingMoving = new PlayerPose();
     public static PlayerPose FlyFalling = new PlayerPose();
+    public static PlayerPose Sleeping = new PlayerPose();
+    public static PlayerPose Sitting = new PlayerPose();
 
     public static void init()
     {
@@ -46,11 +52,12 @@ public class GenericPoses
         setupCrouching();
         setupCrouchingWalk();
         setupSwimming();
+        setupSitting();
 
         setupAction();
     }
 
-    // TODO: Sleeping, sitting, etc poses
+    // TODO: Arm poses (Look at PlayerRenderer.getArmPose)
 
     public static void setupSwimming()
     {
@@ -60,6 +67,12 @@ public class GenericPoses
         SwimmingMoving.addAngle(GenericLimbNames.leftLeg, new Vec3(Math.toRadians(30), 0, 0), swimLegPriority, 15f, 1);
         SwimmingMoving.addAngle(GenericLimbNames.rightLeg, new Vec3(Math.toRadians(30), 0, 0), swimLegPriority, 15f, 1);
         SwimmingMoving.addAngle(GenericLimbNames.rightLeg, new Vec3(Math.toRadians(-30), 0, 0), swimLegPriority, 15f, 1);
+    }
+
+    public static void setupSitting()
+    {
+        Sitting.addAngle(GenericLimbNames.leftLeg, new Vec3(Math.toRadians(-90), Math.toRadians(-20), 0), sitPriority);
+        Sitting.addAngle(GenericLimbNames.rightLeg, new Vec3(Math.toRadians(-90), Math.toRadians(20), 0), sitPriority);
     }
 
     public static void setupFlyFalling()

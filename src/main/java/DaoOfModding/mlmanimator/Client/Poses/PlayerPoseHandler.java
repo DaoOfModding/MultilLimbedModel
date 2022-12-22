@@ -5,9 +5,9 @@ import DaoOfModding.mlmanimator.Client.Models.ExtendableModelRenderer;
 import DaoOfModding.mlmanimator.Client.Models.GenericLimbNames;
 import DaoOfModding.mlmanimator.Client.Models.MultiLimbedModel;
 import DaoOfModding.mlmanimator.Client.MultiLimbedRenderer;
-import com.mojang.math.Vector3f;
 import net.minecraft.client.model.PlayerModel;
-import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.core.Direction;
+import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
@@ -543,8 +543,25 @@ public class PlayerPoseHandler
                 setJumping(true);
         }
 
-        // If player is in the water
-        if (player.isInWater())
+        if (player.isPassenger())
+        {
+            // TODO: Account for horses rearing up
+            addPose(GenericPoses.Sitting);
+        }
+        if (player.isSleeping())
+        {
+            PlayerPose sleeping = GenericPoses.Sleeping.clone();
+
+            Direction direction = player.getBedOrientation();
+            if (direction != null)
+            {
+                float f4 = player.getEyeHeight(Pose.STANDING) - 0.1F;
+                sleeping.addAngle(GenericLimbNames.body, new Vec3((-direction.getStepX()) * f4, 0.0D, (-direction.getStepZ()) * f4), GenericPoses.sleepBodyPriority);
+            }
+
+            addPose(sleeping);
+        }
+        else if (player.isInWater())
         {
             // If player is moving in the water apply swimming pose
             if (getDeltaMovement().length() > 0)
@@ -595,7 +612,7 @@ public class PlayerPoseHandler
         double xLook = 0;
 
         if (player.isOnGround())
-            yLook = 1;
+            yLook = 1.1;
 
         Vec3 vec3 = player.getLookAngle();
         Vec3 vec31 = player.getDeltaMovement();
