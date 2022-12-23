@@ -35,12 +35,20 @@ public class GenericPoses
     public static PlayerPose Jumping = new PlayerPose();
     public static PlayerPose Crouching = new PlayerPose();
     public static PlayerPose CrouchingWalk = new PlayerPose();
-    public static PlayerPose slashing = new PlayerPose();
     public static PlayerPose Swimming = new PlayerPose();
     public static PlayerPose SwimmingMoving = new PlayerPose();
     public static PlayerPose FlyFalling = new PlayerPose();
     public static PlayerPose Sleeping = new PlayerPose();
     public static PlayerPose Sitting = new PlayerPose();
+
+    public static PlayerPose slashing = new PlayerPose();
+    public static PlayerPose block = new PlayerPose();
+    public static PlayerPose bow = new PlayerPose();
+    public static PlayerPose spear = new PlayerPose();
+    public static PlayerPose crossbow = new PlayerPose();
+    public static PlayerPose spyglass = new PlayerPose();
+    public static PlayerPose horn = new PlayerPose();
+    public static PlayerPose crossbowHold = new PlayerPose();
 
     public static void init()
     {
@@ -138,7 +146,8 @@ public class GenericPoses
     public static void setupAction()
     {
         // TODO: Make this... not shit
-        slashing.addAngle(GenericLimbNames.lowerRightArm, new Vec3(Math.toRadians(-130), 0, 0), armAttackPriority, 1f, -1);
+        slashing.addAngle(GenericLimbNames.lowerRightArm, new Vec3(Math.toRadians(-130), 0, 0), armAttackPriority, 5f, -1);
+        slashing.addAngle(GenericLimbNames.lowerRightArm, new Vec3(Math.toRadians(-40), 0, 0), armAttackPriority, 1f, -1);
     }
 
     public static void setupWalking()

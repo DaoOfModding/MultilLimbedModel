@@ -64,12 +64,6 @@ public class ClientListeners
     }
 
     @SubscribeEvent
-    public static void playerInteract(PlayerInteractEvent.LeftClickEmpty event)
-    {
-        PoseHandler.getPlayerPoseHandler(event.getEntity().getUUID()).addPose(GenericPoses.slashing);
-    }
-
-    @SubscribeEvent
     public static void renderFirstPerson(RenderHandEvent event)
     {
         // Do nothing unless this is trying to render the main hand

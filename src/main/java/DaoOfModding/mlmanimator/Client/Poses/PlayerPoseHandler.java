@@ -5,10 +5,14 @@ import DaoOfModding.mlmanimator.Client.Models.ExtendableModelRenderer;
 import DaoOfModding.mlmanimator.Client.Models.GenericLimbNames;
 import DaoOfModding.mlmanimator.Client.Models.MultiLimbedModel;
 import DaoOfModding.mlmanimator.Client.MultiLimbedRenderer;
+import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.CrossbowItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.HashMap;
@@ -511,27 +515,6 @@ public class PlayerPoseHandler
 
         addPose(GenericPoses.Idle);
 
-        // Add holding animations if the player is holding an item
-        if (!player.getMainHandItem().isEmpty())
-        {
-            PlayerPose holding = GenericPoses.HoldingMain.clone();
-            Vec3 holdingVector = model.getHoldingVector();
-            holdingVector = holdingVector.add(Math.toRadians(-30), Math.toRadians(-5), 0 );
-            holding.addAngle(GenericLimbNames.rightArm, holdingVector, 1);
-
-            addPose(holding);
-        }
-
-        if (!player.getOffhandItem().isEmpty())
-        {
-            PlayerPose holding = GenericPoses.HoldingOff.clone();
-            Vec3 holdingVector = model.getHoldingVector();
-            holdingVector = holdingVector.add(Math.toRadians(-30), Math.toRadians(5), 0 );
-            holding.addAngle(GenericLimbNames.leftArm, holdingVector, 1);
-
-            addPose(holding);
-        }
-
         // Tell the PoseHandler that the player is not jumping if they are on the ground or in water
         if (player.isOnGround() || player.isInWater())
             setJumping(false);
@@ -602,8 +585,66 @@ public class PlayerPoseHandler
         else if (player.isOnGround() && (getDeltaMovement().x != 0 || getDeltaMovement().z != 0))
             addPose(GenericPoses.Walking);
 
+        doArmPose(player);
+
         // Update the PoseHandler
         updateRenderPose();
+    }
+
+    public void doArmPose(Player player)
+    {
+        ItemStack itemstack = player.getItemInHand(player.getUsedItemHand());
+
+        if (itemstack.isEmpty())
+        {
+            if (player.swinging)
+                addPose(GenericPoses.slashing);
+        }
+        else
+        {
+            if (player.getUseItemRemainingTicks() > 0)
+            {
+                UseAnim useanim = itemstack.getUseAnimation();
+                if (useanim == UseAnim.BLOCK)
+                    addPose(GenericPoses.block);
+                else if (useanim == UseAnim.BOW)
+                    addPose(GenericPoses.bow);
+                else if (useanim == UseAnim.SPEAR)
+                    addPose(GenericPoses.spear);
+                else if (useanim == UseAnim.CROSSBOW)
+                    addPose(GenericPoses.crossbow);
+                else if (useanim == UseAnim.SPYGLASS)
+                    addPose(GenericPoses.spyglass);
+                else if (useanim == UseAnim.TOOT_HORN)
+                    addPose(GenericPoses.horn);
+            }
+            else
+            {
+                if (player.swinging)
+                    addPose(GenericPoses.slashing);
+                else if (itemstack.getItem() instanceof CrossbowItem && CrossbowItem.isCharged(itemstack))
+                    addPose(GenericPoses.crossbowHold);
+            }
+
+            // Add holding animations if the player is holding an item
+            PlayerPose holding = GenericPoses.HoldingMain.clone();
+            Vec3 holdingVector = model.getHoldingVector();
+            holdingVector = holdingVector.add(Math.toRadians(-30), Math.toRadians(-5), 0 );
+            holding.addAngle(GenericLimbNames.rightArm, holdingVector, 1);
+
+            addPose(holding);
+        }
+
+        // Add offHand holding animations if the player is holding an item
+        if (!player.getOffhandItem().isEmpty())
+        {
+            PlayerPose holding = GenericPoses.HoldingOff.clone();
+            Vec3 holdingVector = model.getHoldingVector();
+            holdingVector = holdingVector.add(Math.toRadians(-30), Math.toRadians(5), 0 );
+            holding.addAngle(GenericLimbNames.leftArm, holdingVector, 1);
+
+            addPose(holding);
+        }
     }
 
     public void rotateBody(PlayerPose pose, Player player, int priority)
