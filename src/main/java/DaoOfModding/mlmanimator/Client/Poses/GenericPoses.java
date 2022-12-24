@@ -41,14 +41,14 @@ public class GenericPoses
     public static PlayerPose Sleeping = new PlayerPose();
     public static PlayerPose Sitting = new PlayerPose();
 
-    public static PlayerPose slashing = new PlayerPose();
-    public static PlayerPose block = new PlayerPose();
-    public static PlayerPose bow = new PlayerPose();
-    public static PlayerPose spear = new PlayerPose();
-    public static PlayerPose crossbow = new PlayerPose();
-    public static PlayerPose spyglass = new PlayerPose();
-    public static PlayerPose horn = new PlayerPose();
-    public static PlayerPose crossbowHold = new PlayerPose();
+    public static ArmPose slashing = new ArmPose();
+    public static ArmPose block = new ArmPose();
+    public static ArmPose bow = new ArmPose();
+    public static ArmPose spear = new ArmPose();
+    public static ArmPose crossbow = new ArmPose();
+    public static ArmPose spyglass = new ArmPose();
+    public static ArmPose horn = new ArmPose();
+    public static ArmPose crossbowHold = new ArmPose();
 
     public static void init()
     {
@@ -146,8 +146,8 @@ public class GenericPoses
     public static void setupAction()
     {
         // TODO: Make this... not shit
-        slashing.addAngle(GenericLimbNames.lowerRightArm, new Vec3(Math.toRadians(-130), 0, 0), armAttackPriority, 5f, -1);
-        slashing.addAngle(GenericLimbNames.lowerRightArm, new Vec3(Math.toRadians(-40), 0, 0), armAttackPriority, 1f, -1);
+        slashing.addAngle(ArmPose.lowerArm, new Vec3(Math.toRadians(-130), 0, 0), armAttackPriority, 5f, -1);
+        slashing.addAngle(ArmPose.lowerArm, new Vec3(Math.toRadians(-40), 0, 0), armAttackPriority, 1f, -1);
     }
 
     public static void setupWalking()

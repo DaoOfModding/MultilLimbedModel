@@ -31,7 +31,7 @@ public class PoseHandler
 
         PlayerRenderer renderer = (PlayerRenderer) Minecraft.getInstance().getEntityRenderDispatcher().getSkinMap().get(player.getModelName());
 
-        PlayerPoseHandler newHandler = new PlayerPoseHandler(player.getUUID(), renderer.getModel());
+        PlayerPoseHandler newHandler = new PlayerPoseHandler(player, renderer.getModel());
         poses.add(newHandler);
 
         loaded = true;

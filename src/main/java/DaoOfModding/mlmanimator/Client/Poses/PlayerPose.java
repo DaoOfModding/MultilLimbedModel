@@ -9,23 +9,23 @@ import java.util.Set;
 
 public class PlayerPose
 {
-    private HashMap<String, Integer> priorities = new HashMap<String, Integer>();
-    private HashMap<String, Integer> sizePriorities = new HashMap<String, Integer>();
-    private HashMap<String, Float> sizeSpeed = new HashMap<String, Float>();
+    protected HashMap<String, Integer> priorities = new HashMap<String, Integer>();
+    protected HashMap<String, Integer> sizePriorities = new HashMap<String, Integer>();
+    protected HashMap<String, Float> sizeSpeed = new HashMap<String, Float>();
 
     // X = Depth, positive goes backwards, negative goes forward
     // Y = Rotation
     // Z = Left and Right, Positive goes right, negative goes left
-    private HashMap<String, ArrayList<Vec3>> angles = new HashMap<String, ArrayList<Vec3>>();
-    private HashMap<String, ArrayList<Float>> speed = new HashMap<String, ArrayList<Float>>();
+    protected HashMap<String, ArrayList<Vec3>> angles = new HashMap<String, ArrayList<Vec3>>();
+    protected HashMap<String, ArrayList<Float>> speed = new HashMap<String, ArrayList<Float>>();
 
 
-    private HashMap<String, Vec3> offset = new HashMap<String, Vec3>();
-    private HashMap<String, Vec3> sizes = new HashMap<String, Vec3>();
-    private HashMap<String, Integer> aLock = new HashMap<String, Integer>();
+    protected HashMap<String, Vec3> offset = new HashMap<String, Vec3>();
+    protected HashMap<String, Vec3> sizes = new HashMap<String, Vec3>();
+    protected HashMap<String, Integer> aLock = new HashMap<String, Integer>();
 
-    private boolean disableHeadLook = false;
-    private int disableHeadLookPriority = 0;
+    protected boolean disableHeadLook = false;
+    protected int disableHeadLookPriority = 0;
 
     public PlayerPose()
     {

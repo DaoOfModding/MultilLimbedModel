@@ -5,9 +5,11 @@ import DaoOfModding.mlmanimator.Client.Models.ExtendableModelRenderer;
 import DaoOfModding.mlmanimator.Client.Models.GenericLimbNames;
 import DaoOfModding.mlmanimator.Client.Models.MultiLimbedModel;
 import DaoOfModding.mlmanimator.Client.MultiLimbedRenderer;
-import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CrossbowItem;
@@ -15,10 +17,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class PlayerPoseHandler
 {
@@ -52,12 +51,51 @@ public class PlayerPoseHandler
 
     private boolean slim = false;
 
-    public PlayerPoseHandler(UUID id, PlayerModel playerModel)
+    private ArrayList<Arm> arms = new ArrayList<Arm>();
+
+    public PlayerPoseHandler(Player player, PlayerModel playerModel)
     {
-        playerID = id;
+        playerID = player.getUUID();
         slim = MultiLimbedRenderer.isSlim(playerModel);
 
         model = new MultiLimbedModel(playerModel);
+
+        Arm Main;
+        Arm Off;
+
+        if (player.getMainArm() == HumanoidArm.LEFT)
+        {
+            Main = new Arm(InteractionHand.MAIN_HAND, GenericLimbNames.leftArm, GenericLimbNames.lowerLeftArm, true);
+            Off = new Arm(InteractionHand.OFF_HAND, GenericLimbNames.rightArm, GenericLimbNames.lowerRightArm, false);
+        }
+        else
+        {
+            Main = new Arm(InteractionHand.MAIN_HAND, GenericLimbNames.rightArm, GenericLimbNames.lowerRightArm, false);
+            Off = new Arm(InteractionHand.OFF_HAND, GenericLimbNames.leftArm, GenericLimbNames.lowerLeftArm, true);
+        }
+
+        arms.add(Main);
+        arms.add(Off);
+    }
+
+    public void addArm(Arm newArm)
+    {
+        arms.add(newArm);
+    }
+
+    public void removeArm(Arm toRemove)
+    {
+        arms.remove(toRemove);
+    }
+
+    public void removeArms()
+    {
+        arms.clear();
+    }
+
+    public ArrayList<Arm> getArms()
+    {
+        return arms;
     }
 
     public MultiLimbedModel getPlayerModel()
@@ -585,51 +623,15 @@ public class PlayerPoseHandler
         else if (player.isOnGround() && (getDeltaMovement().x != 0 || getDeltaMovement().z != 0))
             addPose(GenericPoses.Walking);
 
-        doArmPose(player);
+        for (Arm arm : arms)
+            doArmPose(player, arm);
 
-        // Update the PoseHandler
-        updateRenderPose();
-    }
-
-    public void doArmPose(Player player)
-    {
-        ItemStack itemstack = player.getItemInHand(player.getUsedItemHand());
-
-        if (itemstack.isEmpty())
+        if (!player.getMainHandItem().isEmpty())
         {
-            if (player.swinging)
-                addPose(GenericPoses.slashing);
-        }
-        else
-        {
-            if (player.getUseItemRemainingTicks() > 0)
-            {
-                UseAnim useanim = itemstack.getUseAnimation();
-                if (useanim == UseAnim.BLOCK)
-                    addPose(GenericPoses.block);
-                else if (useanim == UseAnim.BOW)
-                    addPose(GenericPoses.bow);
-                else if (useanim == UseAnim.SPEAR)
-                    addPose(GenericPoses.spear);
-                else if (useanim == UseAnim.CROSSBOW)
-                    addPose(GenericPoses.crossbow);
-                else if (useanim == UseAnim.SPYGLASS)
-                    addPose(GenericPoses.spyglass);
-                else if (useanim == UseAnim.TOOT_HORN)
-                    addPose(GenericPoses.horn);
-            }
-            else
-            {
-                if (player.swinging)
-                    addPose(GenericPoses.slashing);
-                else if (itemstack.getItem() instanceof CrossbowItem && CrossbowItem.isCharged(itemstack))
-                    addPose(GenericPoses.crossbowHold);
-            }
-
             // Add holding animations if the player is holding an item
             PlayerPose holding = GenericPoses.HoldingMain.clone();
             Vec3 holdingVector = model.getHoldingVector();
-            holdingVector = holdingVector.add(Math.toRadians(-30), Math.toRadians(-5), 0 );
+            holdingVector = holdingVector.add(Math.toRadians(-30), Math.toRadians(-5), 0);
             holding.addAngle(GenericLimbNames.rightArm, holdingVector, 1);
 
             addPose(holding);
@@ -644,6 +646,57 @@ public class PlayerPoseHandler
             holding.addAngle(GenericLimbNames.leftArm, holdingVector, 1);
 
             addPose(holding);
+        }
+
+        // Update the PoseHandler
+        updateRenderPose();
+    }
+
+    public ArmPose convertArmPose(Arm arm, ArmPose pose)
+    {
+        ArmPose newPose = pose.clone();
+        newPose.setUpperArm(arm.upperLimb);
+        newPose.setLowerArm(arm.lowerLimb);
+        newPose.setMirrored(arm.mirrored);
+
+        return newPose;
+    }
+
+    public void doArmPose(Player player, Arm arm)
+    {
+        // TODO: Let this easily work for both hands
+        ItemStack itemstack = player.getItemInHand(arm.hand);
+
+        if (itemstack.isEmpty())
+        {
+            if (player.swinging && arm.hand == player.getUsedItemHand())
+                addPose(convertArmPose(arm, GenericPoses.slashing));
+        }
+        else
+        {
+            if (player.getUseItemRemainingTicks() > 0)
+            {
+                UseAnim useanim = itemstack.getUseAnimation();
+                if (useanim == UseAnim.BLOCK)
+                    addPose(convertArmPose(arm, GenericPoses.block));
+                else if (useanim == UseAnim.BOW)
+                    addPose(convertArmPose(arm, GenericPoses.bow));
+                else if (useanim == UseAnim.SPEAR)
+                    addPose(convertArmPose(arm, GenericPoses.spear));
+                else if (useanim == UseAnim.CROSSBOW)
+                    addPose(convertArmPose(arm, GenericPoses.crossbow));
+                else if (useanim == UseAnim.SPYGLASS)
+                    addPose(convertArmPose(arm, GenericPoses.spyglass));
+                else if (useanim == UseAnim.TOOT_HORN)
+                    addPose(convertArmPose(arm, GenericPoses.horn));
+            }
+            else
+            {
+                if (player.swinging && arm.hand == player.getUsedItemHand())
+                    addPose(convertArmPose(arm, GenericPoses.slashing));
+                else if (itemstack.getItem() instanceof CrossbowItem && CrossbowItem.isCharged(itemstack))
+                    addPose(convertArmPose(arm, GenericPoses.crossbowHold));
+            }
         }
     }
 
