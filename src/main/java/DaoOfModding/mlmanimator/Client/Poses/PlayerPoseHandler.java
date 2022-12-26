@@ -664,7 +664,7 @@ public class PlayerPoseHandler
 
     public void doArmPose(Player player, Arm arm)
     {
-        // TODO: Let this easily work for both hands
+        // TODO: setup these animations, adjust Arm to work better with custom arms
         ItemStack itemstack = player.getItemInHand(arm.hand);
 
         if (itemstack.isEmpty())

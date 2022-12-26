@@ -609,6 +609,11 @@ public class ExtendableModelRenderer
         return totalDimensions;
     }
 
+    public MultiLimbedDimensions getDimensions()
+    {
+        return dimensions;
+    }
+
     public Vec3 translateRelativePosition(Vec3 relativePos)
     {
         Vec3 minPos = new Vec3(points[0].x(), points[0].y(), points[0].z());

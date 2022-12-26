@@ -502,6 +502,16 @@ public class MultiLimbedModel
         player.setBoundingBox(size.makeBoundingBox(player.position()));
     }
 
+    public MultiLimbedDimensions getSize()
+    {
+        return size;
+    }
+
+    public Vec3 getHeadPos()
+    {
+        return getViewPoint().getDimensions().getMidPoint().scale(sizeScale / 16f);
+    }
+
     // Find the limb at the lowest height and return it's height
     public float getHeightAdjustment()
     {

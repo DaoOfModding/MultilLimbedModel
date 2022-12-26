@@ -376,8 +376,8 @@ public class MultiLimbedRenderer
             // Push the model back so it's not directly bellow the camera in first person
             if(MultiLimbedRenderer.isFakeThirdPerson() && entityIn.getUUID().compareTo(Minecraft.getInstance().player.getUUID()) == 0)
             {
-                // TODO, adjust this based on head size?
-                PoseStackIn.translate(0, 0, defaultCameraDistance);
+                // TODO, adjust this based on head position? - Maybe done, needs tests
+                PoseStackIn.translate(0, 0, getCameraDistance());
             }
 
             int i = LivingEntityRenderer.getOverlayCoords(entityIn, 0);
@@ -388,6 +388,12 @@ public class MultiLimbedRenderer
         }
 
         PoseStackIn.popPose();
+    }
+
+    public static double getCameraDistance()
+    {
+        // System.out.println((currentModel.getSize().getDepth() + currentModel.getHeadPos().z) / 2);
+        return (currentModel.getSize().getDepth()  / 2) + currentModel.getHeadPos().z;
     }
 
     // Returns the vertex builder for the current entity

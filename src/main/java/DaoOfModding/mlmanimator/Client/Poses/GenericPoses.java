@@ -7,26 +7,27 @@ import net.minecraft.world.phys.Vec3;
 
 public class GenericPoses
 {
-    public static final int walkLegPriority = 10;
-    public static final int walkArmPriority = 5;
+    public static final int walkLegPriority = 100;
+    public static final int walkArmPriority = 50;
 
-    public static final int crouchPriority = 15;
+    public static final int crouchPriority = 150;
 
-    public static final int jumpLegPriority = 20;
-    public static final int jumpArmPriority = 15;
+    public static final int jumpLegPriority = 200;
+    public static final int jumpArmPriority = 150;
 
-    public static final int flyFallingPriority = 99;
+    public static final int flyFallingPriority = 1000;
 
-    public static final int armHoldPriority = 50;
+    public static final int armHoldPriority = 500;
 
-    public static final int armAttackPriority = 99;
+    public static final int armAttackPriority = 1000;
+    public static final int armBlockPriority = 500;
 
-    public static final int swimBodyPriority = 99;
-    public static final int swimLegPriority = 20;
+    public static final int swimBodyPriority = 1000;
+    public static final int swimLegPriority = 200;
 
     public static final int sleepBodyPriority = 99;
 
-    public static final int sitPriority = 25;
+    public static final int sitPriority = 250;
 
     public static PlayerPose Idle = new PlayerPose();
     public static PlayerPose HoldingMain = new PlayerPose();
@@ -46,9 +47,9 @@ public class GenericPoses
     public static ArmPose bow = new ArmPose();
     public static ArmPose spear = new ArmPose();
     public static ArmPose crossbow = new ArmPose();
+    public static ArmPose crossbowHold = new ArmPose();
     public static ArmPose spyglass = new ArmPose();
     public static ArmPose horn = new ArmPose();
-    public static ArmPose crossbowHold = new ArmPose();
 
     public static void init()
     {

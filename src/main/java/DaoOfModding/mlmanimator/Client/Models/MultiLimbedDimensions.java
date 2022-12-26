@@ -28,14 +28,6 @@ public class MultiLimbedDimensions extends EntityDimensions
         maxSize = copy.maxSize.copy();
     }
 
-    public MultiLimbedDimensions stepTowards(MultiLimbedDimensions towards, float amount)
-    {
-        minSize.lerp(towards.minSize, amount);
-        maxSize.lerp(towards.maxSize, amount);
-
-        return this;
-    }
-
     @Override
     public AABB makeBoundingBox(Vec3 position)
     {
@@ -136,6 +128,11 @@ public class MultiLimbedDimensions extends EntityDimensions
         maxSize.setZ(maxSize.z() * value);
         minSize.setX(minSize.x() * value);
         minSize.setZ(minSize.z() * value);
+    }
+
+    public Vec3 getMidPoint()
+    {
+        return (new Vec3((maxSize.x() + minSize.x()) / 2, (maxSize.y() + minSize.y()) / 2, (maxSize.z() + minSize.z()) / 2));
     }
 
     // Rotate around Y axis
