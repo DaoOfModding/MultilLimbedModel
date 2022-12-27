@@ -4,6 +4,7 @@ import DaoOfModding.mlmanimator.Client.Models.GenericLimbNames;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -68,7 +69,7 @@ public class ArmPose extends PlayerPose
     // Get the angle of the first frame for the specified limb
     public Vec3 getAngle(String limb)
     {
-        return super.getAngle(limbConvert(limb));
+        return getAngle(limbConvert(limb), 0);
     }
 
     // Get the number of frames stored in the specified limb
@@ -103,7 +104,15 @@ public class ArmPose extends PlayerPose
     // Get all angle frames for the specified limb
     public ArrayList<Vec3> getAngles(String limb)
     {
-        return super.getAngles(limbConvert(limb));
+        if (!mirror)
+            return super.getAngles(limbConvert(limb));
+
+        ArrayList<Vec3> mirroredAngles = (ArrayList<Vec3>)super.getAngles(limbConvert(limb)).clone();
+
+        for (int i = 0; i < mirroredAngles.size(); i++)
+            mirroredAngles.set(i, mirroredAngles.get(i).multiply(1, -1, -1));
+
+        return mirroredAngles;
     }
 
     // Get all angle frames for the specified limb
