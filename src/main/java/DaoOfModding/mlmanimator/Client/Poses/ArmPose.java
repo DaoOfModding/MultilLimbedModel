@@ -4,7 +4,6 @@ import DaoOfModding.mlmanimator.Client.Models.GenericLimbNames;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -17,6 +16,7 @@ public class ArmPose extends PlayerPose
     String lowerArmLimb = GenericLimbNames.lowerRightArm;
 
     Boolean mirror = false;
+    Boolean holding = false;
 
     public void setUpperArm(String newUpper)
     {
@@ -31,6 +31,11 @@ public class ArmPose extends PlayerPose
     public void setMirrored(boolean on)
     {
         mirror = on;
+    }
+
+    public void setHolding(boolean on)
+    {
+        holding = on;
     }
 
     private String limbConvert(String limb)
@@ -136,6 +141,7 @@ public class ArmPose extends PlayerPose
         copyPose.setLowerArm(lowerArm);
         copyPose.setUpperArm(upperArm);
         copyPose.setMirrored(mirror);
+        copyPose.setHolding(holding);
 
         return copyPose;
     }

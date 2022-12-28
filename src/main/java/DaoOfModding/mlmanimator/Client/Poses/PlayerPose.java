@@ -140,6 +140,15 @@ public class PlayerPose
         return angles.get(limb);
     }
 
+    // Clear all angle frames for the specified limb
+    public void clearAngles(String limb)
+    {
+        angles.remove(limb);
+        priorities.remove(limb);
+        speed.remove(limb);
+        aLock.remove(limb);
+    }
+
     // Get all angle frames for the specified limb
     public ArrayList<Float> getSpeeds(String limb)
     {

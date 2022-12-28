@@ -30,7 +30,6 @@ public class GenericPoses
     public static final int sitPriority = 250;
 
     public static PlayerPose Idle = new PlayerPose();
-    public static PlayerPose HoldingMain = new PlayerPose();
     public static PlayerPose HoldingOff = new PlayerPose();
     public static PlayerPose Walking = new PlayerPose();
     public static PlayerPose Jumping = new PlayerPose();
@@ -42,9 +41,11 @@ public class GenericPoses
     public static PlayerPose Sleeping = new PlayerPose();
     public static PlayerPose Sitting = new PlayerPose();
 
+    public static ArmPose Holding = new ArmPose();
     public static ArmPose slashing = new ArmPose();
     public static ArmPose block = new ArmPose();
     public static ArmPose bow = new ArmPose();
+    public static ArmPose bowOff = new ArmPose();
     public static ArmPose spear = new ArmPose();
     public static ArmPose crossbow = new ArmPose();
     public static ArmPose crossbowHold = new ArmPose();
@@ -138,10 +139,9 @@ public class GenericPoses
 
     public static void setupHolding()
     {
-        HoldingMain.addAngle(GenericLimbNames.lowerRightArm, new Vec3(Math.toRadians(-35), 0, 0), armHoldPriority);
-        //HoldingMain.addAngle(GenericLimbNames.rightArm, new Vec3(Math.toRadians(-30), 0, 0), 1);
-        HoldingOff.addAngle(GenericLimbNames.lowerLeftArm, new Vec3(Math.toRadians(-35), 0, 0), armHoldPriority);
-        //HoldingOff.addAngle(GenericLimbNames.leftArm, new Vec3(Math.toRadians(-30), 0, 0), 1);
+        Holding.addAngle(ArmPose.upperArm, new Vec3(Math.toRadians(-30), Math.toRadians(-5), 0),armHoldPriority);
+        Holding.addAngle(ArmPose.lowerArm, new Vec3(Math.toRadians(-35), 0, 0), armHoldPriority);
+        Holding.setHolding(true);
     }
 
     public static void setupAction()
@@ -152,6 +152,10 @@ public class GenericPoses
 
         block.addAngle(ArmPose.upperArm, new Vec3(Math.toRadians(-45), Math.toRadians(-30), 0), armBlockPriority);
         block.addAngle(ArmPose.lowerArm, new Vec3(0, 0, 0), armBlockPriority);
+
+        bow.addAngle(ArmPose.upperArm, new Vec3(Math.toRadians(-90), Math.toRadians(-10), 0), armHoldPriority);
+        bow.addAngle(ArmPose.lowerArm, new Vec3(0, 0, 0), armHoldPriority);
+        bow.setHolding(true);
     }
 
     public static void setupWalking()

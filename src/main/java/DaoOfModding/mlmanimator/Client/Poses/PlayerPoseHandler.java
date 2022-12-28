@@ -12,6 +12,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
@@ -626,28 +627,6 @@ public class PlayerPoseHandler
         for (Arm arm : arms)
             doArmPose(player, arm);
 
-        if (!player.getMainHandItem().isEmpty())
-        {
-            // Add holding animations if the player is holding an item
-            PlayerPose holding = GenericPoses.HoldingMain.clone();
-            Vec3 holdingVector = model.getHoldingVector();
-            holdingVector = holdingVector.add(Math.toRadians(-30), Math.toRadians(-5), 0);
-            holding.addAngle(GenericLimbNames.rightArm, holdingVector, 1);
-
-            addPose(holding);
-        }
-
-        // Add offHand holding animations if the player is holding an item
-        if (!player.getOffhandItem().isEmpty())
-        {
-            PlayerPose holding = GenericPoses.HoldingOff.clone();
-            Vec3 holdingVector = model.getHoldingVector();
-            holdingVector = holdingVector.add(Math.toRadians(-30), Math.toRadians(5), 0 );
-            holding.addAngle(GenericLimbNames.leftArm, holdingVector, 1);
-
-            addPose(holding);
-        }
-
         // Update the PoseHandler
         updateRenderPose();
     }
@@ -658,6 +637,20 @@ public class PlayerPoseHandler
         newPose.setUpperArm(arm.upperLimb);
         newPose.setLowerArm(arm.lowerLimb);
         newPose.setMirrored(arm.mirrored);
+
+        if (pose.holding)
+        {
+            Vec3 holdingVector = model.getHoldingVector();
+
+            if (newPose.mirror)
+                holdingVector = holdingVector.multiply(1, -1 ,-1);
+
+            // Remove existing angles and re-add them with the holding vector added to them
+            newPose.clearAngles(ArmPose.upperArm);
+
+            for (Vec3 angle : pose.getAngles(ArmPose.upperArm))
+                newPose.addAngle(ArmPose.upperArm, angle.add(holdingVector), pose.getPriority(arm.upperLimb));
+        }
 
         return newPose;
     }
@@ -680,7 +673,10 @@ public class PlayerPoseHandler
                 if (useanim == UseAnim.BLOCK)
                     addPose(convertArmPose(arm, GenericPoses.block));
                 else if (useanim == UseAnim.BOW)
+                {
+                    // TODO: add off-hand bow use animation
                     addPose(convertArmPose(arm, GenericPoses.bow));
+                }
                 else if (useanim == UseAnim.SPEAR)
                     addPose(convertArmPose(arm, GenericPoses.spear));
                 else if (useanim == UseAnim.CROSSBOW)
@@ -696,6 +692,8 @@ public class PlayerPoseHandler
                     addPose(convertArmPose(arm, GenericPoses.slashing));
                 else if (itemstack.getItem() instanceof CrossbowItem && CrossbowItem.isCharged(itemstack))
                     addPose(convertArmPose(arm, GenericPoses.crossbowHold));
+                else
+                    addPose(convertArmPose(arm, GenericPoses.Holding));
             }
         }
     }
