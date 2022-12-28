@@ -153,9 +153,13 @@ public class GenericPoses
         block.addAngle(ArmPose.upperArm, new Vec3(Math.toRadians(-45), Math.toRadians(-30), 0), armBlockPriority);
         block.addAngle(ArmPose.lowerArm, new Vec3(0, 0, 0), armBlockPriority);
 
-        bow.addAngle(ArmPose.upperArm, new Vec3(Math.toRadians(-90), Math.toRadians(-10), 0), armHoldPriority);
+        bow.addAngle(ArmPose.upperArm, new Vec3(Math.toRadians(-100), Math.toRadians(-10), 0), armHoldPriority);
         bow.addAngle(ArmPose.lowerArm, new Vec3(0, 0, 0), armHoldPriority);
         bow.setHolding(true);
+
+        bowOff.addAngle(ArmPose.upperArm, new Vec3(Math.toRadians(-100), Math.toRadians(-35), 0), armHoldPriority);
+        bowOff.addAngle(ArmPose.lowerArm, new Vec3(0, 0, 0), armHoldPriority);
+        bowOff.setHolding(true);
     }
 
     public static void setupWalking()

@@ -649,7 +649,7 @@ public class PlayerPoseHandler
             newPose.clearAngles(ArmPose.upperArm);
 
             for (Vec3 angle : pose.getAngles(ArmPose.upperArm))
-                newPose.addAngle(ArmPose.upperArm, angle.add(holdingVector), pose.getPriority(arm.upperLimb));
+                newPose.addAngle(ArmPose.upperArm, angle.add(holdingVector), pose.getPriority(ArmPose.upperArm));
         }
 
         return newPose;
@@ -674,8 +674,11 @@ public class PlayerPoseHandler
                     addPose(convertArmPose(arm, GenericPoses.block));
                 else if (useanim == UseAnim.BOW)
                 {
-                    // TODO: add off-hand bow use animation
                     addPose(convertArmPose(arm, GenericPoses.bow));
+
+                    for (Arm notArm : arms)
+                        if (arm != notArm)
+                            addPose(convertArmPose(notArm, GenericPoses.bowOff));
                 }
                 else if (useanim == UseAnim.SPEAR)
                     addPose(convertArmPose(arm, GenericPoses.spear));
