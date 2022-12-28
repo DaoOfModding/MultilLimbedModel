@@ -160,6 +160,17 @@ public class GenericPoses
         bowOff.addAngle(ArmPose.upperArm, new Vec3(Math.toRadians(-100), Math.toRadians(-35), 0), armHoldPriority);
         bowOff.addAngle(ArmPose.lowerArm, new Vec3(0, 0, 0), armHoldPriority);
         bowOff.setHolding(true);
+
+        spear.addAngle(ArmPose.upperArm, new Vec3(Math.toRadians(-180), 0, 0), armHoldPriority);
+        spear.addAngle(ArmPose.lowerArm, new Vec3(0, 0, 0), armHoldPriority);
+
+        spyglass.addAngle(ArmPose.upperArm, new Vec3(Math.toRadians(-90), 0, Math.toRadians(25)), armHoldPriority);
+        spyglass.addAngle(ArmPose.lowerArm, new Vec3(Math.toRadians(-55), 0, 0), armHoldPriority);
+        spyglass.setHolding(true);
+
+        horn.addAngle(ArmPose.upperArm, new Vec3(Math.toRadians(-80), 0, Math.toRadians(25)), armHoldPriority);
+        horn.addAngle(ArmPose.lowerArm, new Vec3(Math.toRadians(-45), 0, 0), armHoldPriority);
+        horn.setHolding(true);
     }
 
     public static void setupWalking()

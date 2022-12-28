@@ -18,6 +18,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
@@ -442,13 +443,18 @@ public class MultiLimbedModel
 
         //TODO: FIX THIS
 
+
         // Transform the camera based depending on which hand is holding the item
         ItemTransforms.TransformType cameraTransform = ItemTransforms.TransformType.THIRD_PERSON_RIGHT_HAND;
         if (left)
             cameraTransform = ItemTransforms.TransformType.THIRD_PERSON_LEFT_HAND;
 
+        // If the item being held is a used spyglass, attach to the head instead
+        if (entityIn.getUseItemRemainingTicks() > 0 && item.getUseAnimation() == UseAnim.SPYGLASS)
+                getViewPoint().moveToThisModel(PoseStackIn, new Vec3(-0.25, -0.5, -1));
         // Rotate the item to the hand
-        hand.moveToThisModel(PoseStackIn, new Vec3(0, 1, -1));
+        else
+            hand.moveToThisModel(PoseStackIn, new Vec3(0, 1, -1));
 
         // Turn the item around to fit in the hand
         PoseStackIn.mulPose(Vector3f.XP.rotationDegrees(-90.0F));
