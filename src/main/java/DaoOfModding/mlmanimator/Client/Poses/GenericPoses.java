@@ -30,7 +30,6 @@ public class GenericPoses
     public static final int sitPriority = 250;
 
     public static PlayerPose Idle = new PlayerPose();
-    public static PlayerPose HoldingOff = new PlayerPose();
     public static PlayerPose Walking = new PlayerPose();
     public static PlayerPose Jumping = new PlayerPose();
     public static PlayerPose Crouching = new PlayerPose();
@@ -48,7 +47,7 @@ public class GenericPoses
     public static ArmPose bowOff = new ArmPose();
     public static ArmPose spear = new ArmPose();
     public static ArmPose crossbow = new ArmPose();
-    public static ArmPose crossbowHold = new ArmPose();
+    public static ArmPose crossbowOff = new ArmPose();
     public static ArmPose spyglass = new ArmPose();
     public static ArmPose horn = new ArmPose();
 
@@ -171,6 +170,13 @@ public class GenericPoses
         horn.addAngle(ArmPose.upperArm, new Vec3(Math.toRadians(-80), 0, Math.toRadians(25)), armHoldPriority);
         horn.addAngle(ArmPose.lowerArm, new Vec3(Math.toRadians(-45), 0, 0), armHoldPriority);
         horn.setHolding(true);
+
+        crossbow.addAngle(ArmPose.upperArm, new Vec3(Math.toRadians(-20), 0, Math.toRadians(-20)), armHoldPriority);
+        crossbow.addAngle(ArmPose.lowerArm, new Vec3(Math.toRadians(0), 0, 0), armHoldPriority);
+
+        crossbowOff.addAngle(ArmPose.upperArm, new Vec3(Math.toRadians(-30), 0, Math.toRadians(-40)), armHoldPriority, 5f, -1);
+        crossbowOff.addAngle(ArmPose.upperArm, new Vec3(Math.toRadians(-30), 0, Math.toRadians(-50)), armHoldPriority, 70f, -1);
+        crossbowOff.addAngle(ArmPose.lowerArm, new Vec3(Math.toRadians(0), 0, 0), armHoldPriority);
     }
 
     public static void setupWalking()

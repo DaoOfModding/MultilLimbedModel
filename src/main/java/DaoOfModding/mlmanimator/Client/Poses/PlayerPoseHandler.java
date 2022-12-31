@@ -683,7 +683,13 @@ public class PlayerPoseHandler
                 else if (useanim == UseAnim.SPEAR)
                     addPose(convertArmPose(arm, GenericPoses.spear));
                 else if (useanim == UseAnim.CROSSBOW)
+                {
                     addPose(convertArmPose(arm, GenericPoses.crossbow));
+
+                    for (Arm notArm : arms)
+                        if (arm != notArm)
+                            addPose(convertArmPose(notArm, GenericPoses.crossbowOff));
+                }
                 else if (useanim == UseAnim.SPYGLASS)
                     addPose(convertArmPose(arm, GenericPoses.spyglass));
                 else if (useanim == UseAnim.TOOT_HORN)
@@ -694,7 +700,13 @@ public class PlayerPoseHandler
                 if (player.swinging && arm.hand == player.getUsedItemHand())
                     addPose(convertArmPose(arm, GenericPoses.slashing));
                 else if (itemstack.getItem() instanceof CrossbowItem && CrossbowItem.isCharged(itemstack))
-                    addPose(convertArmPose(arm, GenericPoses.crossbowHold));
+                {
+                    addPose(convertArmPose(arm, GenericPoses.bow));
+
+                    for (Arm notArm : arms)
+                        if (arm != notArm)
+                            addPose(convertArmPose(notArm, GenericPoses.bowOff));
+                }
                 else
                     addPose(convertArmPose(arm, GenericPoses.Holding));
             }
