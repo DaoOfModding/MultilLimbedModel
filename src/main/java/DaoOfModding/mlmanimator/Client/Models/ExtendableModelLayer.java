@@ -51,7 +51,7 @@ public class ExtendableModelLayer
             updateCubeVisability();
     }
 
-    private void updateCubeVisability()
+    protected void updateCubeVisability()
     {
         for (Map.Entry<Direction, Boolean> set : visability.entrySet())
             layerCube.setVisable(set.getKey(), set.getValue());

@@ -38,7 +38,7 @@ public class ArmPose extends PlayerPose
         holding = on;
     }
 
-    private String limbConvert(String limb)
+    protected String limbConvert(String limb)
     {
         if (limb.compareTo(upperArmLimb) == 0)
             return upperArm;

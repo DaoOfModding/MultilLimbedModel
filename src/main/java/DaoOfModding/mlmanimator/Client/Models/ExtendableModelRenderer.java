@@ -549,6 +549,14 @@ public class ExtendableModelRenderer
         }
     }
 
+    public void translatePoseStackToThis(PoseStack PoseStackIn)
+    {
+        if (parent != null)
+            parent.translatePoseStackToThis(PoseStackIn);
+
+        mPart.translateAndRotate(PoseStackIn);
+    }
+
     // Get the minimum height of any point on this model
     public float getMinHeight()
     {

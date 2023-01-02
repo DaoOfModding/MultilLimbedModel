@@ -17,7 +17,7 @@ public class Quad
 {
     public static enum QuadVertex { TopLeft, TopRight, BottomRight, BottomLeft };
 
-    private static final Vec2 texUV[] = {new Vec2(0, 0), new Vec2(1, 0), new Vec2(1, 1), new Vec2(0, 1)};
+    protected static final Vec2 texUV[] = {new Vec2(0, 0), new Vec2(1, 0), new Vec2(1, 1), new Vec2(0, 1)};
 
     protected Vec3 quadPos[] = new Vec3[4];
     protected Vec3 normal[] = new Vec3[4];
@@ -63,7 +63,7 @@ public class Quad
         normal[3] = calculateNormal(quadPos[3], quadPos[2], quadPos[0]);
     }
 
-    private Vec3 calculateNormal(Vec3 point, Vec3 leftPoint, Vec3 rightPoint)
+    protected Vec3 calculateNormal(Vec3 point, Vec3 leftPoint, Vec3 rightPoint)
     {
         return (leftPoint.subtract(point)).cross(rightPoint.subtract(point)).normalize();
     }

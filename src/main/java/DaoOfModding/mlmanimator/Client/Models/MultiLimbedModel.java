@@ -1,17 +1,21 @@
 package DaoOfModding.mlmanimator.Client.Models;
 
 import DaoOfModding.mlmanimator.Client.MultiLimbedRenderer;
-import DaoOfModding.mlmanimator.Client.Poses.Arm;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.ParrotModel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.entity.ParrotRenderer;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -25,23 +29,26 @@ import java.util.*;
 
 public class MultiLimbedModel
 {
-    private float sizeScale = 1;
-    private double defaultHeight = 1.5;
+    protected float sizeScale = 1;
+    protected double defaultHeight = 1.5;
 
-    private static float defaultEyeHeight = 2;
+    protected static float defaultEyeHeight = 2;
 
-    private float lowestModelHeight = 0;
+    protected float lowestModelHeight = 0;
 
-    private Vec3 lookVector = new Vec3(0, 0, 0);
+    protected Vec3 lookVector = new Vec3(0, 0, 0);
 
-    private MultiLimbedDimensions size = null;
+    protected MultiLimbedDimensions size = null;
 
-    private boolean slim = false;
+    protected boolean slim = false;
 
     PlayerModel baseModel;
 
     ExtendableModelRenderer body;
     HashMap<String, ExtendableModelRenderer> limbs = new HashMap<String, ExtendableModelRenderer>();
+
+    ExtendableModelRenderer leftShoulderModel;
+    ExtendableModelRenderer rightShoulderModel;
 
     ExtendableModelRenderer viewPoint;
     HashMap<String, ExtendableModelRenderer> firstPersonLimbs = new HashMap<String, ExtendableModelRenderer>();
@@ -50,11 +57,15 @@ public class MultiLimbedModel
 
     HashMap<String, ParticleEmitter> emitters = new HashMap<String, ParticleEmitter>();
 
-    private boolean lock = false;
+    protected boolean lock = false;
 
     ArrayList<ExtendableModelRenderer> hands = new ArrayList<>();
 
     TextureHandler textures = new TextureHandler();
+
+    ParrotModel parrot = null;
+    RenderType leftShoulder = null;
+    RenderType rightShoulder = null;
 
 
     public MultiLimbedModel(PlayerModel model)
@@ -82,10 +93,8 @@ public class MultiLimbedModel
         textures = handler;
     }
 
-    private void setupDefaultLimbs()
+    protected void setupDefaultLimbs()
     {
-        //TODO: Setup armor models
-        //TODO: Setup Jacket/Sleeve/Pants layer
         ExtendableModelRenderer body = new ExtendableModelRenderer(GenericLimbNames.body);
         GenericTextureValues.addGenericBodyLayers(body);
         body.setPos(0, 0, 0);
@@ -181,10 +190,26 @@ public class MultiLimbedModel
         addLimb(GenericLimbNames.rightWingElytra, rightWing);
 
         // TODO : Add cape, ears, ParrotOnShoulder?, BeeStinger?
+        // BeeStinger/Arrows are things stuck in the player, may ignore for now
+        // Ears are for ONE custom skin, screw that
+        // Need to do cape, custom head, parrot on shoulder
+        // TODO: Animation for spin attack
 
         setViewPoint(head);
         setHand(0, rightArm.getChildren().get(0));
         setHand(1, leftArm.getChildren().get(0));
+        setLeftShoulder(leftArm);
+        setRightShoulder(rightArm);
+    }
+
+    public void setLeftShoulder(ExtendableModelRenderer lShoulder)
+    {
+        leftShoulderModel = lShoulder;
+    }
+
+    public void setRightShoulder(ExtendableModelRenderer rShoulder)
+    {
+        rightShoulderModel = rShoulder;
     }
 
     public PlayerModel getBaseModel()
@@ -203,16 +228,26 @@ public class MultiLimbedModel
     }
 
     // Stop multi-threading breaking stuff via locking
-    private void lock()
+    public void lock()
     {
         while (lock) {}
 
         lock = true;
     }
 
-    private void unlock()
+    public void unlock()
     {
         lock = false;
+    }
+
+    public ParrotModel getParrotModel()
+    {
+        return parrot;
+    }
+
+    public void setParrotModel(ParrotModel parrotModel)
+    {
+        parrot = parrotModel;
     }
 
     public ExtendableModelRenderer getViewPoint()
@@ -285,11 +320,29 @@ public class MultiLimbedModel
 
         body.tick(player);
         updateElytra(player);
+        updateShoulder(player);
 
         unlock();
     }
 
-    public void updateElytra(Player player)
+    protected void updateShoulder(Player player)
+    {
+        // Do nothing if the parrot model does not currently exist
+        if (parrot == null)
+            return;
+
+        if (player.getShoulderEntityLeft().getString("id").equals("minecraft:parrot"))
+            leftShoulder = parrot.renderType(ParrotRenderer.PARROT_LOCATIONS[player.getShoulderEntityLeft().getInt("Variant")]);
+        else
+            leftShoulder = null;
+
+        if (player.getShoulderEntityRight().getString("id").equals("minecraft:parrot"))
+            rightShoulder = parrot.renderType(ParrotRenderer.PARROT_LOCATIONS[player.getShoulderEntityRight().getInt("Variant")]);
+        else
+            rightShoulder = null;
+    }
+
+    protected void updateElytra(Player player)
     {
         ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
 
@@ -395,7 +448,7 @@ public class MultiLimbedModel
     }
 
     // Render models that only appear in first person
-    public void renderFirstPerson(PoseStack PoseStackIn, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha)
+    public void renderFirstPerson(PoseStack PoseStackIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha)
     {
         lock();
 
@@ -409,10 +462,8 @@ public class MultiLimbedModel
         unlock();
     }
 
-    public void render(PoseStack PoseStackIn, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha)
+    public void render(PoseStack PoseStackIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha)
     {
-        lock();
-
         PoseStackIn.pushPose();
 
         // Scale the model to match the scale size, and move it up or down so it's standing at the right height
@@ -424,8 +475,40 @@ public class MultiLimbedModel
         body.render(PoseStackIn, packedLightIn, packedOverlayIn, red, green, blue, alpha, textures);
 
         PoseStackIn.popPose();
+    }
 
-        unlock();
+    public void renderShoulder(PoseStack PoseStackIn, MultiBufferSource renderTypeBuffer, int packedLightIn, float red, float green, float blue, float alpha, int ticks)
+    {
+        //TODO: This appears sorta janky when moving, but so does VANILLA minecraft, so...
+        if (leftShoulder != null && leftShoulderModel != null)
+        {
+            PoseStackIn.pushPose();
+
+            leftShoulderModel.translatePoseStackToThis(PoseStackIn);
+            // WHY 6 AND NOT 16!? I DON'T KNOW
+            Vec3 move = leftShoulderModel.translateRelativePosition(new Vec3(0.5, -1, 0.5)).scale(sizeScale/6f);
+            PoseStackIn.translate(move.x, move.y -0.125f, move.z);
+
+            VertexConsumer vertexconsumer = renderTypeBuffer.getBuffer(leftShoulder);
+            parrot.renderOnShoulder(PoseStackIn, vertexconsumer, packedLightIn, OverlayTexture.NO_OVERLAY, red, green, blue, alpha, ticks);
+
+            PoseStackIn.popPose();
+        }
+
+        if (rightShoulder != null && rightShoulderModel != null)
+        {
+            PoseStackIn.pushPose();
+
+            leftShoulderModel.translatePoseStackToThis(PoseStackIn);
+            // WHY 6 AND NOT 16!? I DON'T KNOW
+            Vec3 move = rightShoulderModel.translateRelativePosition(new Vec3(0.5, -1, 0.5)).scale(sizeScale/6f);
+            PoseStackIn.translate(move.x, move.y -0.125f, move.z);
+
+            VertexConsumer vertexconsumer = renderTypeBuffer.getBuffer(rightShoulder);
+            parrot.renderOnShoulder(PoseStackIn, vertexconsumer, packedLightIn, OverlayTexture.NO_OVERLAY, red, green, blue, alpha, ticks);
+
+            PoseStackIn.popPose();
+        }
     }
 
     public void renderHandItem(boolean left, int slot, LivingEntity entityIn, ItemStack item, PoseStack PoseStackIn, MultiBufferSource renderTypeBuffer, int packedLightIn)

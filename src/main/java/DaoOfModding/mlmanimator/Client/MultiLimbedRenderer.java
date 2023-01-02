@@ -1,12 +1,15 @@
 package DaoOfModding.mlmanimator.Client;
 
 import DaoOfModding.mlmanimator.Client.Models.MultiLimbedModel;
+import DaoOfModding.mlmanimator.Client.Models.RendererGrabber;
 import DaoOfModding.mlmanimator.Client.Poses.PlayerPoseHandler;
 import DaoOfModding.mlmanimator.Client.Poses.PoseHandler;
 import DaoOfModding.mlmanimator.mlmanimator;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.EntityModel;
+import net.minecraft.client.model.ParrotModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.Camera;
@@ -15,6 +18,9 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.renderer.entity.layers.ParrotOnShoulderLayer;
+import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.world.entity.*;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -29,31 +35,35 @@ import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.List;
 import java.util.Map;
 
 public class MultiLimbedRenderer
 {
     // Yeah, I know this is an AWFUL way to do things
-    // It's a hack to get around the base ModelRenderer render function being full of private variables
+    // It's a hack to get around the base ModelRenderer render function being full of protected variables
     protected static MultiBufferSource currentBuffer;
     protected static MultiLimbedModel currentModel;
     protected static AbstractClientPlayer currentEntity;
     protected static VertexConsumer currentVertexBuilder;
 
-    private static Field eyeHeightField;
-    private static Field thirdPersonField;
-    private static Field slimField;
-    private static Field childField;
-    private static Field dimensions;
-    private static Method moveTowardsClosestSpaceFunction;
-    private static Method cameraMoveFunction;
+    protected static Field eyeHeightField;
+    protected static Field thirdPersonField;
+    protected static Field slimField;
+    protected static Field childField;
+    protected static Field dimensions;
+    protected static Method moveTowardsClosestSpaceFunction;
+    protected static Method cameraMoveFunction;
 
-    private static final double defaultCameraDistance = 0.3f;
-    private static double decayingDistance = defaultCameraDistance;
+    protected static Field layers;
+    protected static Field parrotModel;
 
-    private static boolean fakeThird = false;
+    protected static final double defaultCameraDistance = 0.3f;
+    protected static double decayingDistance = defaultCameraDistance;
 
-    private static boolean enableFullBodyFirstPerson = true;
+    protected static boolean fakeThird = false;
+
+    protected static boolean enableFullBodyFirstPerson = true;
 
     public static void setup()
     {
@@ -73,6 +83,11 @@ public class MultiLimbedRenderer
 
         // dimensions - aZ - f_19815_
         dimensions = ObfuscationReflectionHelper.findField(Entity.class,"f_19815_");
+
+        // layers - h - f_115291_
+        layers = ObfuscationReflectionHelper.findField(LivingEntityRenderer.class,"f_115291_");
+        // model - a - f_117290_
+        parrotModel = ObfuscationReflectionHelper.findField(ParrotOnShoulderLayer.class,"f_117290_");
 
         try {
             Field modifiers = Field.class.getDeclaredField("modifiers");
@@ -238,7 +253,6 @@ public class MultiLimbedRenderer
 
     public static void adjustEyeHeight(AbstractClientPlayer player, PlayerPoseHandler handler)
     {
-        // TODO - is this being done correctly?
         float eyeHeight = handler.getPlayerModel().calculateEyeHeight() * -1f;
 
         try
@@ -249,6 +263,34 @@ public class MultiLimbedRenderer
         {
             mlmanimator.LOGGER.error("Error adjusting player eye height");
         }
+    }
+
+    public static ParrotModel getParrotModel(PlayerRenderer render)
+    {
+        try
+        {
+            List<RenderLayer<LivingEntity, EntityModel<LivingEntity>>> layerList = (List<RenderLayer<LivingEntity, EntityModel<LivingEntity>>>)layers.get(render);
+
+            for (RenderLayer<LivingEntity, EntityModel<LivingEntity>> layer : layerList)
+                if (layer instanceof ParrotOnShoulderLayer)
+                    return (ParrotModel)parrotModel.get(layer);
+        }
+        catch(Exception e)
+        {
+            mlmanimator.LOGGER.error("Error acquiring player's parrot");
+            return null;
+        }
+
+        return null;
+    }
+
+    public static void handleLayers(AbstractClientPlayer player, PlayerRenderer renderer)
+    {
+        PlayerPoseHandler handler = PoseHandler.getPlayerPoseHandler(player.getUUID());
+        MultiLimbedModel model = handler.getPlayerModel();
+
+        if (model.getParrotModel() == null)
+            model.setParrotModel(getParrotModel(renderer));
     }
 
     public static boolean renderFirstPerson(AbstractClientPlayer entityIn, float partialTicks, PoseStack PoseStackIn, MultiBufferSource bufferIn, int packedLightIn)
@@ -280,7 +322,7 @@ public class MultiLimbedRenderer
         if (rendertype != null)
         {
             int i = LivingEntityRenderer.getOverlayCoords(entityIn, 0);
-            entityModel.renderFirstPerson(PoseStackIn, null, packedLightIn, i, 1.0F, 1.0F, 1.0F, 1.0F);
+            entityModel.renderFirstPerson(PoseStackIn, packedLightIn, i, 1.0F, 1.0F, 1.0F, 1.0F);
         }
 
         PoseStackIn.popPose();
@@ -381,10 +423,16 @@ public class MultiLimbedRenderer
             }
 
             int i = LivingEntityRenderer.getOverlayCoords(entityIn, 0);
-            entityModel.render(PoseStackIn, null, packedLightIn, i, 1.0F, 1.0F, 1.0F, 1.0F);
+
+            entityModel.lock();
+
+            entityModel.render(PoseStackIn, packedLightIn, i, 1.0F, 1.0F, 1.0F, 1.0F);
+            entityModel.renderShoulder(PoseStackIn, Minecraft.getInstance().renderBuffers().bufferSource(),packedLightIn,1.0F, 1.0F, 1.0F, 1.0F, entityIn.tickCount);
 
             entityModel.renderHandItem(false, 0, entityIn, entityIn.getMainHandItem(), PoseStackIn, Minecraft.getInstance().renderBuffers().bufferSource(), packedLightIn);
             entityModel.renderHandItem(true, 1, entityIn, entityIn.getOffhandItem(), PoseStackIn, Minecraft.getInstance().renderBuffers().bufferSource(), packedLightIn);
+
+            entityModel.unlock();
         }
 
         PoseStackIn.popPose();

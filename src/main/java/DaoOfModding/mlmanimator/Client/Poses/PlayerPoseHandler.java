@@ -32,27 +32,27 @@ public class PlayerPoseHandler
     PlayerPose animatingPose = new PlayerPose();
     boolean locked = false;
 
-    private boolean isJumping = false;
+    protected boolean isJumping = false;
     // Ticks before allowing jump to be set to False
-    private int jumpCooldown = 0;
+    protected int jumpCooldown = 0;
 
     public boolean disableJumpingAnimationThisTick = false;
 
-    private HashMap<String, Integer> frame = new HashMap<String, Integer>();
-    private HashMap<String, Float> animationTime = new HashMap<String, Float>();
-    private HashMap<Integer, Integer> aLockedFrame = new HashMap<Integer, Integer>();
+    protected HashMap<String, Integer> frame = new HashMap<String, Integer>();
+    protected HashMap<String, Float> animationTime = new HashMap<String, Float>();
+    protected HashMap<Integer, Integer> aLockedFrame = new HashMap<Integer, Integer>();
 
-    private HashMap<String, Float> animationResizeTime = new HashMap<String, Float>();
+    protected HashMap<String, Float> animationResizeTime = new HashMap<String, Float>();
 
     public float fov = 1;
 
 
-    private Vec3 oldPos = new Vec3(0, 0, 0);
-    private Vec3 delta = new Vec3(0, 0, 0);
+    protected Vec3 oldPos = new Vec3(0, 0, 0);
+    protected Vec3 delta = new Vec3(0, 0, 0);
 
-    private boolean slim = false;
+    protected boolean slim = false;
 
-    private ArrayList<Arm> arms = new ArrayList<Arm>();
+    protected ArrayList<Arm> arms = new ArrayList<Arm>();
 
     public PlayerPoseHandler(Player player, PlayerModel playerModel)
     {
@@ -269,7 +269,7 @@ public class PlayerPoseHandler
             model.rotateLimb(limb, animatingPose.getAngle(limb).add(animatingPose.getOffset(limb)));
     }
 
-    private void resizeLimbs(HashMap<String, Vec3> sizes)
+    protected void resizeLimbs(HashMap<String, Vec3> sizes)
     {
         for (Map.Entry<String, Vec3> set : sizes.entrySet())
         {
@@ -352,7 +352,7 @@ public class PlayerPoseHandler
         return modelFromLimb(limb);
     }
 
-    private Vec3 modelFromLimb(String limb)
+    protected Vec3 modelFromLimb(String limb)
     {
         ExtendableModelRenderer limbModel = model.getLimb(limb);
 
@@ -362,7 +362,7 @@ public class PlayerPoseHandler
         return new Vec3(limbModel.getModelPart().xRot, limbModel.getModelPart().yRot, limbModel.getModelPart().zRot);
     }
 
-    private Vec3 getLimbSize(String limb)
+    protected Vec3 getLimbSize(String limb)
     {
         ExtendableModelRenderer limbModel = model.getLimb(limb);
 
@@ -372,7 +372,7 @@ public class PlayerPoseHandler
         return limbModel.getSize();
     }
 
-    private void calculateAnimationLocks(String limb, Vec3 current, float partialTicks)
+    protected void calculateAnimationLocks(String limb, Vec3 current, float partialTicks)
     {
         // If frame doesn't exist for this limb yet, set it to 0
         if (!frame.containsKey(limb))
@@ -437,7 +437,7 @@ public class PlayerPoseHandler
     }
 
     // Return a vector moving the specified vector towards the renderPose
-    private Vec3 animateLimb(String limb, Vec3 current, float partialTicks)
+    protected Vec3 animateLimb(String limb, Vec3 current, float partialTicks)
     {
         // If frame doesn't exist for this limb yet, set it to 0
         if (!frame.containsKey(limb))
@@ -513,7 +513,7 @@ public class PlayerPoseHandler
     }
 
     // Return a vector moving the specified vector towards the 'moveTo' vector
-    private Vec3 animateLimb(Vec3 current, Vec3 moveTo, double aSpeed, float partialTicks)
+    protected Vec3 animateLimb(Vec3 current, Vec3 moveTo, double aSpeed, float partialTicks)
     {
         // Create a vector of the amount the limb has to move
         Vec3 toMove = new Vec3(current.x - moveTo.x, current.y - moveTo.y, current.z - moveTo.z);
@@ -534,16 +534,12 @@ public class PlayerPoseHandler
     }
 
     // movementDelta does not work for remote clients, so have to calculate it here instead
-    private void calculateDelta(Player player)
+    protected void calculateDelta(Player player)
     {
         if (player.isLocalPlayer())
             delta = player.getDeltaMovement();
         else
-        {
-            // TODO: Testing shit here, delete
-            System.out.println(player.getDisplayName().getString() + "'s delta is " + delta);
             delta = player.position().subtract(oldPos);
-        }
 
         oldPos = player.position();
     }
@@ -657,7 +653,7 @@ public class PlayerPoseHandler
 
     public void doArmPose(Player player, Arm arm)
     {
-        // TODO: setup these animations, adjust Arm to work better with custom arms
+        // TODO: Adjust Arm to work better with custom arms
         ItemStack itemstack = player.getItemInHand(arm.hand);
 
         if (itemstack.isEmpty())

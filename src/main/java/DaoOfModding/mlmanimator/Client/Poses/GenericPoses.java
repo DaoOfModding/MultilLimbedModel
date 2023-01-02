@@ -66,8 +66,6 @@ public class GenericPoses
         setupAction();
     }
 
-    // TODO: Arm poses (Look at PlayerRenderer.getArmPose)
-
     public static void setupSwimming()
     {
         Swimming.addAngle(GenericLimbNames.body, new Vec3(Math.toRadians(90), 0, 0), swimBodyPriority);

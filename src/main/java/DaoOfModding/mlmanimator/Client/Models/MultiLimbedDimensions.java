@@ -11,7 +11,7 @@ public class MultiLimbedDimensions extends EntityDimensions
     Vector3f minSize;
     Vector3f maxSize;
 
-    private final float clearance = 0.1f;
+    protected final float clearance = 0.1f;
 
     public MultiLimbedDimensions()
     {

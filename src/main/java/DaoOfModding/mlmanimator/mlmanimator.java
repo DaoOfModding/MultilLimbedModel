@@ -27,12 +27,12 @@ public class mlmanimator {
         modEventBus.addListener(this::clientInit);
     }
 
-    private void commonInit(final FMLCommonSetupEvent event)
+    protected void commonInit(final FMLCommonSetupEvent event)
     {
         GenericPoses.init();
     }
 
-    private void clientInit(final FMLClientSetupEvent event)
+    protected void clientInit(final FMLClientSetupEvent event)
     {
         MultiLimbedRenderer.setup();
     }

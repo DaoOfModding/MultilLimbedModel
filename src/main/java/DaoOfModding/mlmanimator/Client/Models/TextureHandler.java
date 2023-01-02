@@ -20,7 +20,7 @@ public class TextureHandler
     public static final String FOOT_ARMOR = "FOOTARMOR";
     public static final String ELYTRA = "ELYTRA";
 
-    private static final ResourceLocation ELYTRA_WINGS_LOCATION = new ResourceLocation("textures/entity/elytra.png");
+    protected static final ResourceLocation ELYTRA_WINGS_LOCATION = new ResourceLocation("textures/entity/elytra.png");
 
     HashMap<String, ResourceLocation> textures = new HashMap<String, ResourceLocation>();
     HashMap<String, Vec3> textureColor = new HashMap<String, Vec3>();
@@ -50,7 +50,7 @@ public class TextureHandler
         updateElytraTextures(player);
     }
 
-    private void updateElytraTextures(LocalPlayer player)
+    protected void updateElytraTextures(LocalPlayer player)
     {
         ResourceLocation elytraTexture;
 

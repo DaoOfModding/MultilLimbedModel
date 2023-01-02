@@ -92,6 +92,8 @@ public class ClientListeners
         // Update the players bounding box
         PoseHandler.getPlayerPoseHandler(event.getEntity().getUUID()).getPlayerModel().updateBoundingBox(event.getEntity());*/
 
+        MultiLimbedRenderer.handleLayers((AbstractClientPlayer)event.getEntity(), event.getRenderer());
+
         // If MultiLimbedRenderer renders the player, cancel the render event
         event.setCanceled(MultiLimbedRenderer.render((AbstractClientPlayer)event.getEntity(), event.getPartialTick(), event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight()));
     }

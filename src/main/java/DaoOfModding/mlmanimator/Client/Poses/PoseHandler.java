@@ -16,8 +16,8 @@ import java.util.UUID;
 
 public class PoseHandler
 {
-    private static List<PlayerPoseHandler> poses = new ArrayList<PlayerPoseHandler>();
-    private static boolean loaded = false;
+    protected static List<PlayerPoseHandler> poses = new ArrayList<PlayerPoseHandler>();
+    protected static boolean loaded = false;
 
     public static boolean setupPoseHandler(AbstractClientPlayer player)
     {
@@ -118,7 +118,7 @@ public class PoseHandler
         return entityIn.isPassenger() && entityIn.getVehicle().shouldRiderSit();
     }
 
-    private static float getFacingAngle(Direction facingIn)
+    protected static float getFacingAngle(Direction facingIn)
     {
         switch(facingIn) {
             case SOUTH:

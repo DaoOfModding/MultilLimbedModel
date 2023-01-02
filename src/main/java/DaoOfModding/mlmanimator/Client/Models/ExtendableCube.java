@@ -14,7 +14,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class ExtendableCube
 {
-    private final Polygon[] polygons;
+    protected final Polygon[] polygons;
     public final float minX;
     public final float minY;
     public final float minZ;
