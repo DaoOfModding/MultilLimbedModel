@@ -10,6 +10,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.ParrotModel;
+import net.minecraft.client.model.SkullModelBase;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.Camera;
@@ -18,6 +19,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.model.PlayerModel;
+import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
 import net.minecraft.client.renderer.entity.layers.ParrotOnShoulderLayer;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
@@ -27,6 +29,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.block.SkullBlock;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.ViewportEvent;
@@ -57,6 +60,7 @@ public class MultiLimbedRenderer
 
     protected static Field layers;
     protected static Field parrotModel;
+    protected static Field skullModels;
 
     protected static final double defaultCameraDistance = 0.3f;
     protected static double decayingDistance = defaultCameraDistance;
@@ -88,6 +92,9 @@ public class MultiLimbedRenderer
         layers = ObfuscationReflectionHelper.findField(LivingEntityRenderer.class,"f_115291_");
         // model - a - f_117290_
         parrotModel = ObfuscationReflectionHelper.findField(ParrotOnShoulderLayer.class,"f_117290_");
+
+        // skullModels - d - f_174473_
+        skullModels = ObfuscationReflectionHelper.findField(CustomHeadLayer.class,"f_174473_");
 
         try {
             Field modifiers = Field.class.getDeclaredField("modifiers");
@@ -284,6 +291,29 @@ public class MultiLimbedRenderer
         return null;
     }
 
+    public static SkullModelBase getSkullModel(PlayerRenderer render, SkullBlock.Type skullType)
+    {
+        try
+        {
+            List<RenderLayer<LivingEntity, EntityModel<LivingEntity>>> layerList = (List<RenderLayer<LivingEntity, EntityModel<LivingEntity>>>)layers.get(render);
+
+            for (RenderLayer<LivingEntity, EntityModel<LivingEntity>> layer : layerList)
+                if (layer instanceof CustomHeadLayer)
+                {
+                    Map<SkullBlock.Type, SkullModelBase> skullList = (Map<SkullBlock.Type, SkullModelBase>) skullModels.get(layer);
+
+                    return skullList.get(skullType);
+                }
+        }
+        catch(Exception e)
+        {
+            mlmanimator.LOGGER.error("Error acquiring custom head");
+            return null;
+        }
+
+        return null;
+    }
+
     public static void handleLayers(AbstractClientPlayer player, PlayerRenderer renderer)
     {
         PlayerPoseHandler handler = PoseHandler.getPlayerPoseHandler(player.getUUID());
@@ -291,6 +321,8 @@ public class MultiLimbedRenderer
 
         if (model.getParrotModel() == null)
             model.setParrotModel(getParrotModel(renderer));
+
+        model.updateSkull(player, renderer);
     }
 
     public static boolean renderFirstPerson(AbstractClientPlayer entityIn, float partialTicks, PoseStack PoseStackIn, MultiBufferSource bufferIn, int packedLightIn)
@@ -415,16 +447,22 @@ public class MultiLimbedRenderer
 
         if (rendertype != null)
         {
+            entityModel.lock();
+
             // Push the model back so it's not directly bellow the camera in first person
             if(MultiLimbedRenderer.isFakeThirdPerson() && entityIn.getUUID().compareTo(Minecraft.getInstance().player.getUUID()) == 0)
             {
                 // TODO, adjust this based on head position? - Maybe done, needs tests
                 PoseStackIn.translate(0, 0, getCameraDistance());
             }
+            else
+            {
+                // Don't render custom heads for the player in first person
+                entityModel.renderHead(PoseStackIn, Minecraft.getInstance().renderBuffers().bufferSource(),packedLightIn,1.0F, 1.0F, 1.0F, 1.0F, entityIn.tickCount);
+            }
 
             int i = LivingEntityRenderer.getOverlayCoords(entityIn, 0);
 
-            entityModel.lock();
 
             entityModel.render(PoseStackIn, packedLightIn, i, 1.0F, 1.0F, 1.0F, 1.0F);
             entityModel.renderShoulder(PoseStackIn, Minecraft.getInstance().renderBuffers().bufferSource(),packedLightIn,1.0F, 1.0F, 1.0F, 1.0F, entityIn.tickCount);

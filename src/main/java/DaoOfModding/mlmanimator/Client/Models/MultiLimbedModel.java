@@ -1,28 +1,37 @@
 package DaoOfModding.mlmanimator.Client.Models;
 
 import DaoOfModding.mlmanimator.Client.MultiLimbedRenderer;
+import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ParrotModel;
+import net.minecraft.client.model.SkullModelBase;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.blockentity.SkullBlockRenderer;
 import net.minecraft.client.renderer.entity.ParrotRenderer;
+import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.entity.EntityDimensions;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.level.block.AbstractSkullBlock;
+import net.minecraft.world.level.block.SkullBlock;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.*;
@@ -66,6 +75,9 @@ public class MultiLimbedModel
     ParrotModel parrot = null;
     RenderType leftShoulder = null;
     RenderType rightShoulder = null;
+
+    SkullModelBase skullmodelbase = null;
+    RenderType skullrendertype = null;
 
 
     public MultiLimbedModel(PlayerModel model)
@@ -248,6 +260,36 @@ public class MultiLimbedModel
     public void setParrotModel(ParrotModel parrotModel)
     {
         parrot = parrotModel;
+    }
+
+    public void updateSkull(AbstractClientPlayer player, PlayerRenderer renderer)
+    {
+        ItemStack itemstack = player.getItemBySlot(EquipmentSlot.HEAD);
+
+        SkullBlock.Type skullType = null;
+
+        if (!itemstack.isEmpty())
+            if (itemstack.getItem() instanceof BlockItem)
+                if (((BlockItem)itemstack.getItem()).getBlock() instanceof AbstractSkullBlock)
+                    skullType = ((AbstractSkullBlock)((BlockItem)itemstack.getItem()).getBlock()).getType();
+
+        if (skullType == null)
+        {
+            skullmodelbase = null;
+            skullrendertype = null;
+            return;
+        }
+
+        GameProfile gameprofile = null;
+        if (itemstack.hasTag()) {
+            CompoundTag compoundtag = itemstack.getTag();
+            if (compoundtag.contains("SkullOwner", 10)) {
+                gameprofile = NbtUtils.readGameProfile(compoundtag.getCompound("SkullOwner"));
+            }
+        }
+
+        skullmodelbase = MultiLimbedRenderer.getSkullModel(renderer, skullType);
+        skullrendertype = SkullBlockRenderer.getRenderType(skullType, gameprofile);
     }
 
     public ExtendableModelRenderer getViewPoint()
@@ -477,9 +519,40 @@ public class MultiLimbedModel
         PoseStackIn.popPose();
     }
 
+    public void renderHead(PoseStack PoseStackIn, MultiBufferSource renderTypeBuffer, int packedLightIn, float red, float green, float blue, float alpha, int ticks)
+    {
+        // If there is no custom skull, make the head visible and do nothing
+        if (skullmodelbase == null)
+        {
+            getViewPoint().mPart.visible = true;
+            return;
+        }
+
+        // Set the players head to be invisible
+        getViewPoint().mPart.visible = false;
+
+        PoseStackIn.pushPose();
+
+        // Move the PoseStack to the head's position
+        getViewPoint().translatePoseStackToThis(PoseStackIn);
+
+        Vec3 size = getViewPoint().getSize();
+        PoseStackIn.scale((float)size.x() + 0.1875F, ((float)size.y() + 0.1875F) * -1, ((float)size.z() + 0.1875F) * -1);
+        //PoseStackIn.scale(1F, -1F, -1F);
+
+        // TODO: Ensure this works properly with different head sizes/positions
+        Vec3 move = getViewPoint().translateRelativePosition(new Vec3(0, 1, 0)).scale(sizeScale/8f);
+        PoseStackIn.translate(move.x, move.y, move.z);
+
+
+        SkullBlockRenderer.renderSkull(null, 180.0F, red, PoseStackIn, renderTypeBuffer, packedLightIn, skullmodelbase, skullrendertype);
+
+        PoseStackIn.popPose();
+    }
+
     public void renderShoulder(PoseStack PoseStackIn, MultiBufferSource renderTypeBuffer, int packedLightIn, float red, float green, float blue, float alpha, int ticks)
     {
-        //TODO: This appears sorta janky when moving, but so does VANILLA minecraft, so...
+        //This appears sorta janky when moving, but so does VANILLA minecraft, so...
         if (leftShoulder != null && leftShoulderModel != null)
         {
             PoseStackIn.pushPose();
