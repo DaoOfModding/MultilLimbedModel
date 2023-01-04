@@ -17,4 +17,6 @@ public class GenericLimbNames
 
     public static final String leftWingElytra = "Left_Wing_Elytra";
     public static final String rightWingElytra = "Right_Wing_Elytra";
+
+    public static final String cloak = "Cloak";
 }

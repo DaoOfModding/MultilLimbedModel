@@ -35,4 +35,9 @@ public class GenericResizers
     {
         return new defaultResizeModule(new Vec3(10, 20, 2));
     }
+
+    public static resizeModule getCloakResizer()
+    {
+        return new defaultResizeModule(new Vec3(10, 16, 1));
+    }
 }

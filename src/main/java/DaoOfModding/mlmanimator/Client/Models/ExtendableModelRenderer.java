@@ -13,6 +13,7 @@ import com.mojang.math.Vector3f;
 import com.mojang.math.Vector4f;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.builders.UVPair;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -72,42 +73,17 @@ public class ExtendableModelRenderer
 
     protected Vec3 usedSize;
 
+    public ExtendableModelRenderer(String limbName)
+    {
+        name = limbName;
+
+        mPart = new ModelPart(new ArrayList<>(), new HashMap<String, ModelPart>());
+    }
+
     public ExtendableModelRenderer clone()
     {
         ExtendableModelRenderer copy = new ExtendableModelRenderer(name);
-        copy.setParent(parent);
-
-        copy.dimensions = dimensions;
-        copy.look = look;
-        copy.rotationOffset = rotationOffset;
-        copy.rotationPoint = rotationPoint;
-        copy.renderFirstPerson = renderFirstPerson;
-
-        copy.relativePosition = relativePosition;
-        copy.fixedPosition = fixedPosition;
-
-        copy.defaultSize = defaultSize;
-        copy.thisSize = thisSize;
-        copy.defaultResize = defaultResize;
-        copy.thisDelta = thisDelta;
-
-        copy.hasHitbox = hasHitbox;
-
-        copy.usedSize = usedSize;
-
-        for (ExtendableModelLayer layer : layers)
-            copy.layers.add(layer.clone());
-
-        copy.generateCube();
-
-        for (ExtendableModelRenderer children : child)
-            copy.addChild(children.clone());
-
-        for (Quad quad : quads)
-            copy.addQuad(quad);
-
-        for (QuadLinkage link : quadLinkage)
-            copy.addQuadLinkage(link);
+        copy(copy);
 
         return copy;
     }
@@ -145,11 +121,41 @@ public class ExtendableModelRenderer
         layers.add(layer);
     }
 
-    public ExtendableModelRenderer(String limbName)
+    public void copy(ExtendableModelRenderer copy)
     {
-        name = limbName;
+        copy.setParent(parent);
 
-        mPart = new ModelPart(new ArrayList<>(), new HashMap<String, ModelPart>());
+        copy.dimensions = dimensions;
+        copy.look = look;
+        copy.rotationOffset = rotationOffset;
+        copy.rotationPoint = rotationPoint;
+        copy.renderFirstPerson = renderFirstPerson;
+
+        copy.relativePosition = relativePosition;
+        copy.fixedPosition = fixedPosition;
+
+        copy.defaultSize = defaultSize;
+        copy.thisSize = thisSize;
+        copy.defaultResize = defaultResize;
+        copy.thisDelta = thisDelta;
+
+        copy.hasHitbox = hasHitbox;
+
+        copy.usedSize = usedSize;
+
+        for (ExtendableModelLayer layer : layers)
+            copy.layers.add(layer.clone());
+
+        copy.generateCube();
+
+        for (ExtendableModelRenderer children : child)
+            copy.addChild(children.clone());
+
+        for (Quad quad : quads)
+            copy.addQuad(quad);
+
+        for (QuadLinkage link : quadLinkage)
+            copy.addQuadLinkage(link);
     }
 
     public void setHitbox(boolean on)
@@ -719,7 +725,7 @@ public class ExtendableModelRenderer
         mPart.zRot -= rotationOffset.z;
     }
 
-    public void tick(Player player)
+    public void tick(AbstractClientPlayer player)
     {
         for (ExtendableModelRenderer thisChild : getChildren())
             thisChild.tick(player);

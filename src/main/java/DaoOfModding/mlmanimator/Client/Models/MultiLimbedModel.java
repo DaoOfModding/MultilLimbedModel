@@ -18,7 +18,6 @@ import net.minecraft.client.renderer.blockentity.SkullBlockRenderer;
 import net.minecraft.client.renderer.entity.ParrotRenderer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.entity.EntityDimensions;
@@ -28,7 +27,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.block.AbstractSkullBlock;
 import net.minecraft.world.level.block.SkullBlock;
@@ -181,16 +179,16 @@ public class MultiLimbedModel
         addLimbReference(GenericLimbNames.lowerRightLeg, rightLeg.getChildren().get(0));
 
 
-        ExtendableModelRenderer leftWing = new ExtendableModelRenderer(GenericLimbNames.leftWingElytra);
+        ExtendableElytraRenderer leftWing = new ExtendableElytraRenderer(GenericLimbNames.leftWingElytra);
         leftWing.addLayer(GenericTextureValues.elytra, GenericTextureValues.armor_Size, GenericTextureValues.innerExtention, TextureHandler.ELYTRA);
         leftWing.setRotationPoint(new Vec3(0, 1, 1));
         leftWing.setDefaultResize(new Vec3(1, 1, 2));
         leftWing.setPos(1F, 0, 1F);
-        leftWing.setFixedPosAdjustment(0, 0f, 0.01f);
+        leftWing.setFixedPosAdjustment(0, 0f, 0.01f);       // This is to ensure the elytra wings are drawn at SLIGHTLY different positions
         leftWing.extend(GenericResizers.getElytraResizer());
         leftWing.setHitbox(false);
 
-        ExtendableModelRenderer rightWing = new ExtendableModelRenderer(GenericLimbNames.rightWingElytra);
+        ExtendableElytraRenderer rightWing = new ExtendableElytraRenderer(GenericLimbNames.rightWingElytra);
         rightWing.addLayer(GenericTextureValues.elytra, GenericTextureValues.armor_Size, GenericTextureValues.innerExtention, TextureHandler.ELYTRA, true);
         rightWing.setRotationPoint(new Vec3(1, 1, 1));
         rightWing.setDefaultResize(new Vec3(1, 1, 2));
@@ -198,13 +196,21 @@ public class MultiLimbedModel
         rightWing.extend(GenericResizers.getElytraResizer());
         rightWing.setHitbox(false);
 
+        ExtendableCloakRenderer cloak = new ExtendableCloakRenderer(GenericLimbNames.cloak);
+        cloak.addLayer(GenericTextureValues.cloak, GenericTextureValues.armor_Size, GenericTextureValues.innerExtention, TextureHandler.CLOAK);
+        cloak.setRotationPoint(new Vec3(0.5, 1, 1));
+        cloak.setDefaultResize(new Vec3(1, 1, 1));
+        cloak.setPos(0.5F, 0, 1F);
+        cloak.extend(GenericResizers.getCloakResizer());
+        leftWing.setFixedPosAdjustment(0, 0f, 0.01f);
+        cloak.setHitbox(false);
+
         addLimb(GenericLimbNames.leftWingElytra, leftWing);
         addLimb(GenericLimbNames.rightWingElytra, rightWing);
+        addLimb(GenericLimbNames.cloak, cloak);
 
-        // TODO : Add cape, ears, ParrotOnShoulder?, BeeStinger?
         // BeeStinger/Arrows are things stuck in the player, may ignore for now
         // Ears are for ONE custom skin, screw that
-        // Need to do cape, custom head, parrot on shoulder
         // TODO: Animation for spin attack
 
         setViewPoint(head);
@@ -356,12 +362,11 @@ public class MultiLimbedModel
         unlock();
     }
 
-    public void tick(Player player)
+    public void tick(AbstractClientPlayer player)
     {
         lock();
 
         body.tick(player);
-        updateElytra(player);
         updateShoulder(player);
 
         unlock();
@@ -382,25 +387,6 @@ public class MultiLimbedModel
             rightShoulder = parrot.renderType(ParrotRenderer.PARROT_LOCATIONS[player.getShoulderEntityRight().getInt("Variant")]);
         else
             rightShoulder = null;
-    }
-
-    protected void updateElytra(Player player)
-    {
-        ItemStack chest = player.getItemBySlot(EquipmentSlot.CHEST);
-
-        // Set the elytra parts to be invisible if the eyltra is not equipped
-        if (chest.getItem() != Items.ELYTRA)
-        {
-            getLimb(GenericLimbNames.rightWingElytra).mPart.visible = false;
-            getLimb(GenericLimbNames.leftWingElytra).mPart.visible = false;
-
-            return;
-        }
-        else
-        {
-            getLimb(GenericLimbNames.rightWingElytra).mPart.visible = true;
-            getLimb(GenericLimbNames.leftWingElytra).mPart.visible = true;
-        }
     }
 
     // Adds specified limb onto the body

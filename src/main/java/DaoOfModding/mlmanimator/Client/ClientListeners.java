@@ -41,7 +41,7 @@ public class ClientListeners
                 return;
 
             handler.doDefaultPoses(event.player);
-            handler.getPlayerModel().tick(event.player);
+            handler.getPlayerModel().tick((AbstractClientPlayer)event.player);
         }
     }
 

@@ -19,6 +19,7 @@ public class TextureHandler
     public static final String LEG_ARMOR = "LEGARMOR";
     public static final String FOOT_ARMOR = "FOOTARMOR";
     public static final String ELYTRA = "ELYTRA";
+    public static final String CLOAK = "CLOAK";
 
     protected static final ResourceLocation ELYTRA_WINGS_LOCATION = new ResourceLocation("textures/entity/elytra.png");
 
@@ -47,6 +48,7 @@ public class TextureHandler
         addTexture(FOOT_ARMOR, (getArmorResource(player, EquipmentSlot.FEET)));
         addColor(FOOT_ARMOR, getArmorColor(player, EquipmentSlot.FEET));
 
+        updateCloakTextures(player);
         updateElytraTextures(player);
     }
 
@@ -62,6 +64,12 @@ public class TextureHandler
             elytraTexture = ELYTRA_WINGS_LOCATION;
 
         addTexture(TextureHandler.ELYTRA, elytraTexture);
+    }
+
+    protected void updateCloakTextures(LocalPlayer player)
+    {
+        if (player.getCloakTextureLocation() != null)
+            addTexture(TextureHandler.CLOAK, player.getCloakTextureLocation());
     }
 
     public void addColor(String name, Vec3 color)

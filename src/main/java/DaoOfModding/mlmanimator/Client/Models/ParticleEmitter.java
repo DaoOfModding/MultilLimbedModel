@@ -8,6 +8,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector4f;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.core.particles.ParticleOptions;
 import com.mojang.math.Matrix4f;
@@ -46,7 +47,7 @@ public class ParticleEmitter extends ExtendableModelRenderer
     protected void compile(PoseStack.Pose PoseStackIn, VertexConsumer bufferIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha) { }*/
 
     @Override
-    public void tick(Player player)
+    public void tick(AbstractClientPlayer player)
     {
         // Do nothing if this emitter is disabled
         if (!mPart.visible)
