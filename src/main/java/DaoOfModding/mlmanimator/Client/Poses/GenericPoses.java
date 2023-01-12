@@ -137,7 +137,7 @@ public class GenericPoses
     public static void setupHolding()
     {
         Holding.addAngle(ArmPose.upperArm, new Vec3(Math.toRadians(-30), Math.toRadians(-5), 0),armHoldPriority);
-        Holding.addAngle(ArmPose.lowerArm, new Vec3(Math.toRadians(-35), 0, 0), armHoldPriority);
+        Holding.addAngle(ArmPose.lowerArm, new Vec3(Math.toRadians(-35), 0, 0), armHoldPriority + 1);
         Holding.setHolding(true);
     }
 
@@ -148,33 +148,33 @@ public class GenericPoses
         slashing.addAngle(ArmPose.lowerArm, new Vec3(Math.toRadians(-40), 0, 0), armAttackPriority, 1f, -1);
 
         block.addAngle(ArmPose.upperArm, new Vec3(Math.toRadians(-45), Math.toRadians(-30), 0), armBlockPriority);
-        block.addAngle(ArmPose.lowerArm, new Vec3(0, 0, 0), armBlockPriority);
+        block.addAngle(ArmPose.lowerArm, new Vec3(0, 0, 0), armBlockPriority + 1);
 
         bow.addAngle(ArmPose.upperArm, new Vec3(Math.toRadians(-100), Math.toRadians(-10), 0), armHoldPriority);
-        bow.addAngle(ArmPose.lowerArm, new Vec3(0, 0, 0), armHoldPriority);
+        bow.addAngle(ArmPose.lowerArm, new Vec3(0, 0, 0), armHoldPriority + 1);
         bow.setHolding(true);
 
         bowOff.addAngle(ArmPose.upperArm, new Vec3(Math.toRadians(-100), Math.toRadians(-35), 0), armHoldPriority);
-        bowOff.addAngle(ArmPose.lowerArm, new Vec3(0, 0, 0), armHoldPriority);
+        bowOff.addAngle(ArmPose.lowerArm, new Vec3(0, 0, 0), armHoldPriority + 1);
         bowOff.setHolding(true);
 
         spear.addAngle(ArmPose.upperArm, new Vec3(Math.toRadians(-180), 0, 0), armHoldPriority);
-        spear.addAngle(ArmPose.lowerArm, new Vec3(0, 0, 0), armHoldPriority);
+        spear.addAngle(ArmPose.lowerArm, new Vec3(0, 0, 0), armHoldPriority + 1);
 
         spyglass.addAngle(ArmPose.upperArm, new Vec3(Math.toRadians(-90), 0, Math.toRadians(25)), armHoldPriority);
-        spyglass.addAngle(ArmPose.lowerArm, new Vec3(Math.toRadians(-55), 0, 0), armHoldPriority);
+        spyglass.addAngle(ArmPose.lowerArm, new Vec3(Math.toRadians(-55), 0, 0), armHoldPriority + 1);
         spyglass.setHolding(true);
 
         horn.addAngle(ArmPose.upperArm, new Vec3(Math.toRadians(-80), 0, Math.toRadians(25)), armHoldPriority);
-        horn.addAngle(ArmPose.lowerArm, new Vec3(Math.toRadians(-45), 0, 0), armHoldPriority);
+        horn.addAngle(ArmPose.lowerArm, new Vec3(Math.toRadians(-45), 0, 0), armHoldPriority + 1);
         horn.setHolding(true);
 
         crossbow.addAngle(ArmPose.upperArm, new Vec3(Math.toRadians(-20), 0, Math.toRadians(-20)), armHoldPriority);
-        crossbow.addAngle(ArmPose.lowerArm, new Vec3(Math.toRadians(0), 0, 0), armHoldPriority);
+        crossbow.addAngle(ArmPose.lowerArm, new Vec3(Math.toRadians(0), 0, 0), armHoldPriority + 1);
 
         crossbowOff.addAngle(ArmPose.upperArm, new Vec3(Math.toRadians(-30), 0, Math.toRadians(-40)), armHoldPriority, 5f, -1);
         crossbowOff.addAngle(ArmPose.upperArm, new Vec3(Math.toRadians(-30), 0, Math.toRadians(-50)), armHoldPriority, 70f, -1);
-        crossbowOff.addAngle(ArmPose.lowerArm, new Vec3(Math.toRadians(0), 0, 0), armHoldPriority);
+        crossbowOff.addAngle(ArmPose.lowerArm, new Vec3(Math.toRadians(0), 0, 0), armHoldPriority + 1);
     }
 
     public static void setupWalking()

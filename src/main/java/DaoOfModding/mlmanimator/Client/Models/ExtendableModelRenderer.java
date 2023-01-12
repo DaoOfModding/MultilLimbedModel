@@ -688,8 +688,10 @@ public class ExtendableModelRenderer
     {
         rotateAroundParents(PoseStackIn);
 
+        Vec3 resizeVec = getDefaultSize().multiply(getResize());
+
         // Move to the specified position on this model
-        PoseStackIn.translate((defaultSize.x / 16) * position.x, (defaultSize.y / 16) * position.y, (defaultSize.z / 16) * position.z);
+        PoseStackIn.translate((resizeVec.x / 16) * position.x, (resizeVec.y / 16) * position.y, (resizeVec.z / 16) * position.z);
     }
 
     public void rotateAroundParents(PoseStack PoseStackIn)

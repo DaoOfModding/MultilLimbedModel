@@ -240,6 +240,16 @@ public class MultiLimbedModel
         hands.add(slot, hand);
     }
 
+    public ExtendableModelRenderer getHand(int slot)
+    {
+        return hands.get(slot);
+    }
+
+    public ArrayList<ExtendableModelRenderer> getHands()
+    {
+        return hands;
+    }
+
     public void setViewPoint(ExtendableModelRenderer model)
     {
         viewPoint = model;
