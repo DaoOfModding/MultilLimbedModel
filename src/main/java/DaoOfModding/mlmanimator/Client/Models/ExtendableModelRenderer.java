@@ -7,20 +7,14 @@ import DaoOfModding.mlmanimator.Client.AnimationFramework.resizeModule;
 import DaoOfModding.mlmanimator.Common.PlayerUtils;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 import com.mojang.math.Vector4f;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.builders.UVPair;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.Direction;
-import net.minecraft.world.entity.EquipmentSlot;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 
@@ -192,13 +186,28 @@ public class ExtendableModelRenderer
 
     public void addQuadLinkage(QuadLinkage link)
     {
-        quadLinkage.add(link);
+        if (!hasQuadLinkage(link))
+            quadLinkage.add(link);
     }
 
     public void removeQuadLinkage(QuadLinkage link)
     {
-        if (quadLinkage.contains(link))
+        if (hasQuadLinkage(link))
             quadLinkage.remove(link);
+    }
+
+    public boolean hasQuadLinkage(QuadLinkage link)
+    {
+        if (quadLinkage.contains(link))
+            return true;
+
+        return false;
+    }
+
+    public void transferQuadLinkages(ExtendableModelRenderer model)
+    {
+        for (QuadLinkage link : quadLinkage)
+            model.addQuadLinkage(link);
     }
 
     public void setRotationPoint(Vec3 newRotation)
