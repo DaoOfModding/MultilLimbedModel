@@ -131,13 +131,10 @@ public class ClientListeners
 
         double newFov = event.getFOV();
 
-        // TODO: This value has changed, default is at 70 now
-        /*if (newFov < 0.95)
-            newFov = 0.95;
-        if (newFov > 1.15)
-            newFov = 1.15;*/
-
-        //System.out.println("FOV: " + newFov);
+        if (newFov < 65)
+            newFov = 65;
+        if (newFov > 75)
+            newFov = 75;
 
         event.setFOV(newFov);
     }
