@@ -123,19 +123,4 @@ public class ClientListeners
 
         event.getCamera().tick();
     }
-
-    @SubscribeEvent
-    public static void cameraFOV(ViewportEvent.ComputeFov event)
-    {
-        // Cap the min and max FOV change to stop ridiculous FOV changes at high/low speeds
-
-        double newFov = event.getFOV();
-
-        if (newFov < 65)
-            newFov = 65;
-        if (newFov > 75)
-            newFov = 75;
-
-        event.setFOV(newFov);
-    }
 }
