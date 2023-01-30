@@ -104,7 +104,12 @@ public class ExtendableModelRenderer
 
     public void addLayer(UVPair tex, UVPair texSize, float extend, String name, boolean mirror)
     {
-        layers.add(new ExtendableModelLayer(tex, texSize, extend, name, mirror));
+        layers.add(new ExtendableModelLayer(tex, texSize, extend, name, mirror, 1));
+    }
+
+    public void addLayer(UVPair tex, UVPair texSize, float extend, String name, boolean mirror, float textureResize)
+    {
+        layers.add(new ExtendableModelLayer(tex, texSize, extend, name, mirror, textureResize));
     }
 
     public void addLayer(UVPair tex, UVPair texSize, float extend, String name, Direction invisibleDirection)

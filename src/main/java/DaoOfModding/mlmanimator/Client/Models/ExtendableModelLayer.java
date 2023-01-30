@@ -22,23 +22,26 @@ public class ExtendableModelLayer
 
     protected HashMap<Direction, Boolean> visability = new HashMap<Direction, Boolean>();
 
+    protected float textureResize;
+
     public ExtendableModelLayer(UVPair texOffset, UVPair texSize, float extend, String newName)
     {
-        this(texOffset, texSize, extend, newName, false);
+        this(texOffset, texSize, extend, newName, false, 1);
     }
 
-    public ExtendableModelLayer(UVPair texOffset, UVPair texSize, float extend, String newName, boolean mirror)
+    public ExtendableModelLayer(UVPair texOffset, UVPair texSize, float extend, String newName, boolean mirror, float texResize)
     {
         textureOffset = new UVPair(texOffset.u(), texOffset.v());
         textureSize = new UVPair(texSize.u(), texSize.v());
         extended = extend;
         name = newName;
         mirr = mirror;
+        textureResize = texResize;
     }
 
     public void makeCube(float posX, float posY, float posZ, float width, float height, float depth, Vec3 fullSize)
     {
-        layerCube = new ExtendableCube((int)textureOffset.u(), (int)textureOffset.v(), posX, posY, posZ, width, height, depth, extended, extended, extended, mirr, textureSize.u(), textureSize.v(), fullSize);
+        layerCube = new ExtendableCube((int)textureOffset.u(), (int)textureOffset.v(), posX, posY, posZ, width, height, depth, extended, extended, extended, mirr, textureSize.u(), textureSize.v(), fullSize, textureResize);
 
         updateCubeVisability();
     }
@@ -59,6 +62,6 @@ public class ExtendableModelLayer
 
     public ExtendableModelLayer clone()
     {
-        return new ExtendableModelLayer(textureOffset, textureSize, extended, name);
+        return new ExtendableModelLayer(textureOffset, textureSize, extended, name, mirr, textureResize);
     }
 }

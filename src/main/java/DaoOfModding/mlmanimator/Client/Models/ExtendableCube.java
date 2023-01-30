@@ -29,7 +29,7 @@ public class ExtendableCube
     public boolean south = true;
     public boolean west = true;
 
-    public ExtendableCube(int textureOffsetX, int textureOffsetY, float posX, float posY, float posZ, float width, float height, float depth, float expansionX, float expansionY, float expansionZ, boolean mirror, float texSixeX, float texSixeY, Vec3 fullSize)
+    public ExtendableCube(int textureOffsetX, int textureOffsetY, float posX, float posY, float posZ, float width, float height, float depth, float expansionX, float expansionY, float expansionZ, boolean mirror, float texSixeX, float texSixeY, Vec3 fullSize, float textureResize)
     {
         this.minX = posX;
         this.minY = posY;
@@ -52,13 +52,13 @@ public class ExtendableCube
         }
 
         Vertex vertex7 = new Vertex(posX, posY, posZ, -expansionX, -expansionY, -expansionZ, 0.0F, 0.0F);
-        Vertex vertex = new Vertex(f, posY, posZ, expansionX, -expansionY, -expansionZ, 0.0F, 8.0F);
-        Vertex vertex1 = new Vertex(f, f1, posZ, expansionX, expansionY, -expansionZ, 8.0F, 8.0F);
-        Vertex vertex2 = new Vertex(posX, f1, posZ, -expansionX, expansionY, -expansionZ, 8.0F, 0.0F);
+        Vertex vertex = new Vertex(f, posY, posZ, expansionX, -expansionY, -expansionZ, 0.0F, 8.0F * textureResize);
+        Vertex vertex1 = new Vertex(f, f1, posZ, expansionX, expansionY, -expansionZ, 8.0F * textureResize, 8.0F * textureResize);
+        Vertex vertex2 = new Vertex(posX, f1, posZ, -expansionX, expansionY, -expansionZ, 8.0F * textureResize, 0.0F);
         Vertex vertex3 = new Vertex(posX, posY, f2, -expansionX, -expansionY, expansionZ, 0.0F, 0.0F);
-        Vertex vertex4 = new Vertex(f, posY, f2, expansionX, -expansionY, expansionZ, 0.0F, 8.0F);
-        Vertex vertex5 = new Vertex(f, f1, f2, expansionX, expansionY, expansionZ, 8.0F, 8.0F);
-        Vertex vertex6 = new Vertex(posX, f1, f2, -expansionX, expansionY, expansionZ, 8.0F, 0.0F);
+        Vertex vertex4 = new Vertex(f, posY, f2, expansionX, -expansionY, expansionZ, 0.0F, 8.0F * textureResize);
+        Vertex vertex5 = new Vertex(f, f1, f2, expansionX, expansionY, expansionZ, 8.0F * textureResize, 8.0F * textureResize);
+        Vertex vertex6 = new Vertex(posX, f1, f2, -expansionX, expansionY, expansionZ, 8.0F * textureResize, 0.0F);
         float f4 = (float)textureOffsetX;
         float f5 = (float)textureOffsetX + depth;
         float f6 = (float)textureOffsetX + depth + width;
@@ -70,8 +70,8 @@ public class ExtendableCube
         float f12 = (float)textureOffsetY + depth + height;
 
         // Fix to enable the bottom of model to render the correct texture when extended
-        float f10Full = (float)textureOffsetY - (float)fullSize.y;
-        float f11Full = (float)textureOffsetY - (float)fullSize.y + depth;
+        float f10Full = ((float)textureOffsetY - (float)fullSize.y);
+        float f11Full = ((float)textureOffsetY - (float)fullSize.y) + depth;
         
         this.polygons[2] = new Polygon(new Vertex[]{vertex4, vertex3, vertex7, vertex}, f5, f10, f6, f11, texSixeX, texSixeY, mirror, Direction.DOWN);
         this.polygons[3] = new Polygon(new Vertex[]{vertex1, vertex2, vertex6, vertex5}, f6, f11Full, f7, f10Full, texSixeX, texSixeY, mirror, Direction.UP);
