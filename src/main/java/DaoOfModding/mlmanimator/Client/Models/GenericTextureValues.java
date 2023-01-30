@@ -58,7 +58,6 @@ public class GenericTextureValues
 
     public static void addGenericHeadLayers(ExtendableModelRenderer head, int u, int v)
     {
-        GenericTextureValues.addGenericHeadLayers(head);
         head.addLayer(new UVPair(GenericTextureValues.head.u() + u, GenericTextureValues.head.v() + v), GenericTextureValues.skin_Size, GenericTextureValues.innerExtention, TextureHandler.PLAYER_SKIN);
         head.addLayer(new UVPair(GenericTextureValues.hat.u() + u, GenericTextureValues.hat.v() + v), GenericTextureValues.skin_Size, GenericTextureValues.outerExtention, TextureHandler.PLAYER_SKIN);
         head.addLayer(new UVPair(GenericTextureValues.head.u() + u, GenericTextureValues.head.v() + v), GenericTextureValues.armor_Size, GenericTextureValues.ArmorExtention, TextureHandler.HEAD_ARMOR);
