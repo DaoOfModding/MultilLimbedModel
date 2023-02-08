@@ -155,6 +155,23 @@ public class PlayerPose
         return speed.get(limb);
     }
 
+    public void adjustAllSpeeds(float amount)
+    {
+        HashMap<String, ArrayList<Float>> newSpeed = new HashMap<>();
+
+        for (String limb : speed.keySet())
+        {
+            ArrayList<Float> newSpeeds = new ArrayList<>();
+
+            for (Float oldSpeed : speed.get(limb))
+                newSpeeds.add(oldSpeed / amount);
+
+            newSpeed.put(limb, newSpeeds);
+        }
+
+        speed = newSpeed;
+    }
+
     // Adds angle to specified limb with the specified priority level
     public void addAngle(String limb, Vec3 angle, int priority)
     {

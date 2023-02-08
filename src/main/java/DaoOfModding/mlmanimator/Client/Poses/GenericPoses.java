@@ -3,6 +3,7 @@ package DaoOfModding.mlmanimator.Client.Poses;
 import DaoOfModding.mlmanimator.Client.AnimationFramework.AnimationBuilder;
 import DaoOfModding.mlmanimator.Client.AnimationFramework.AnimationSpeedCalculator;
 import DaoOfModding.mlmanimator.Client.Models.GenericLimbNames;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
 public class GenericPoses
@@ -64,6 +65,22 @@ public class GenericPoses
         setupSitting();
 
         setupAction();
+    }
+
+    public static PlayerPose getWalkingPose(Player player)
+    {
+        PlayerPose speedAdjustedWalkPose = Walking.clone();
+
+        double speed = player.getDeltaMovement().lengthSqr();
+        speed = speed / 0.02;
+        speed = speed * speed;
+
+        if (speed > 1)
+            speed = 1;
+
+        speedAdjustedWalkPose.adjustAllSpeeds((float)speed);
+
+        return speedAdjustedWalkPose;
     }
 
     public static void setupSwimming()
