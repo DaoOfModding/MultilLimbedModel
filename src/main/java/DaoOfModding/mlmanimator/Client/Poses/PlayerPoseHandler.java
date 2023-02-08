@@ -688,6 +688,10 @@ public class PlayerPoseHandler
                     addPose(convertArmPose(arm, GenericPoses.spyglass));
                 else if (useanim == UseAnim.TOOT_HORN)
                     addPose(convertArmPose(arm, GenericPoses.horn));
+                else if (useanim == UseAnim.EAT)
+                    addPose(convertArmPose(arm, GenericPoses.eat));
+                else if (useanim == UseAnim.DRINK)
+                    addPose(convertArmPose(arm, GenericPoses.drink));
             }
             else
             {

@@ -51,6 +51,8 @@ public class GenericPoses
     public static ArmPose crossbowOff = new ArmPose();
     public static ArmPose spyglass = new ArmPose();
     public static ArmPose horn = new ArmPose();
+    public static ArmPose eat = new ArmPose();
+    public static ArmPose drink = new ArmPose();
 
     public static void init()
     {
@@ -163,6 +165,7 @@ public class GenericPoses
         // TODO: Make this... not shit
         slashing.addAngle(ArmPose.lowerArm, new Vec3(Math.toRadians(-130), 0, 0), armAttackPriority, 5f, -1);
         slashing.addAngle(ArmPose.lowerArm, new Vec3(Math.toRadians(-40), 0, 0), armAttackPriority, 1f, -1);
+        slashing.addAngle(ArmPose.lowerArm, new Vec3(Math.toRadians(-41), 0, 0), armAttackPriority, 999f, -1);
 
         block.addAngle(ArmPose.upperArm, new Vec3(Math.toRadians(-45), Math.toRadians(-30), 0), armBlockPriority);
         block.addAngle(ArmPose.lowerArm, new Vec3(0, 0, 0), armBlockPriority + 1);
@@ -192,6 +195,13 @@ public class GenericPoses
         crossbowOff.addAngle(ArmPose.upperArm, new Vec3(Math.toRadians(-30), 0, Math.toRadians(-40)), armHoldPriority, 5f, -1);
         crossbowOff.addAngle(ArmPose.upperArm, new Vec3(Math.toRadians(-30), 0, Math.toRadians(-50)), armHoldPriority, 70f, -1);
         crossbowOff.addAngle(ArmPose.lowerArm, new Vec3(Math.toRadians(0), 0, 0), armHoldPriority + 1);
+
+        eat.addAngle(ArmPose.upperArm, new Vec3(Math.toRadians(-80), 0, Math.toRadians(40)), armHoldPriority);
+        eat.addAngle(ArmPose.lowerArm, new Vec3(Math.toRadians(-50), 0, 0), armHoldPriority + 1, 5f, -1);
+        eat.addAngle(ArmPose.lowerArm, new Vec3(Math.toRadians(-40), 0, 0), armHoldPriority + 1, 5f, -1);
+
+        drink.addAngle(ArmPose.upperArm, new Vec3(Math.toRadians(-80), 0, Math.toRadians(40)), armHoldPriority);
+        drink.addAngle(ArmPose.lowerArm, new Vec3(Math.toRadians(-40), 0, 0), armHoldPriority + 1);
     }
 
     public static void setupWalking()
