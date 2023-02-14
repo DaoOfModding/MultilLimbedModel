@@ -1,6 +1,6 @@
 package DaoOfModding.mlmanimator.Client.Models;
 
-import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
@@ -36,7 +36,7 @@ public class TextureHandler
         return textures.get(name);
     }
 
-    public void updateArmorTextures(LocalPlayer player)
+    public void updateArmorTextures(AbstractClientPlayer player)
     {
         addTexture(PLAYER_SKIN, player.getSkinTextureLocation());
         addTexture(HEAD_ARMOR, (getArmorResource(player, EquipmentSlot.HEAD)));
@@ -52,7 +52,7 @@ public class TextureHandler
         updateElytraTextures(player);
     }
 
-    protected void updateElytraTextures(LocalPlayer player)
+    protected void updateElytraTextures(AbstractClientPlayer player)
     {
         ResourceLocation elytraTexture;
 
@@ -66,7 +66,7 @@ public class TextureHandler
         addTexture(TextureHandler.ELYTRA, elytraTexture);
     }
 
-    protected void updateCloakTextures(LocalPlayer player)
+    protected void updateCloakTextures(AbstractClientPlayer player)
     {
         if (player.getCloakTextureLocation() != null)
             addTexture(TextureHandler.CLOAK, player.getCloakTextureLocation());
@@ -88,7 +88,7 @@ public class TextureHandler
         return null;
     }
 
-    public Vec3 getArmorColor(LocalPlayer player, EquipmentSlot slot)
+    public Vec3 getArmorColor(AbstractClientPlayer player, EquipmentSlot slot)
     {
         ItemStack stack = player.getItemBySlot(slot);
 

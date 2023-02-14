@@ -4,12 +4,14 @@ import DaoOfModding.mlmanimator.Client.MultiLimbedRenderer;
 import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
+import com.mojang.math.Vector4f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ParrotModel;
 import net.minecraft.client.model.SkullModelBase;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.model.PlayerModel;
@@ -40,8 +42,6 @@ public class MultiLimbedModel
     protected double defaultHeight = 1.5;
 
     protected static float defaultEyeHeight = 2;
-
-    protected float lowestModelHeight = 0;
 
     protected Vec3 lookVector = new Vec3(0, 0, 0);
 
@@ -118,6 +118,7 @@ public class MultiLimbedModel
         head.extend(GenericResizers.getHeadResizer());
         head.setLooking(true);
         head.setFirstPersonRender(false);
+        head.setHitbox(false);
 
         ExtendableModelRenderer rightArm = new ExtendableModelRenderer(GenericLimbNames.rightArm);
         GenericTextureValues.addGenericRightArmLayers(rightArm);
@@ -406,7 +407,7 @@ public class MultiLimbedModel
     }
 
     // Updates the armor textures for all player body parts
-    public void updateArmorsTextures(LocalPlayer player)
+    public void updateArmorsTextures(AbstractClientPlayer player)
     {
         textures.updateArmorTextures(player);
     }
@@ -540,7 +541,6 @@ public class MultiLimbedModel
         Vec3 move = getViewPoint().translateRelativePosition(new Vec3(0, 1, 0)).scale(sizeScale/8f);
         PoseStackIn.translate(move.x, move.y, move.z);
 
-
         SkullBlockRenderer.renderSkull(null, 180.0F, red, PoseStackIn, renderTypeBuffer, packedLightIn, skullmodelbase, skullrendertype);
 
         PoseStackIn.popPose();
@@ -621,29 +621,27 @@ public class MultiLimbedModel
 
     public float calculateEyeHeight()
     {
-        ExtendableModelRenderer viewModel = viewPoint;
-
-        LinkedList<ExtendableModelRenderer> parts = new LinkedList<ExtendableModelRenderer>();
-        parts.push(viewPoint);
-
-        // Cycle through the viewModel and add each parent element to the linked list
-        while(viewModel.getParent() != null)
-        {
-            viewModel = viewModel.getParent();
-            parts.push(viewModel);
-        }
-
         // Rotate the PoseStack around each parent part
         PoseStack stack = new PoseStack();
 
-        while(parts.size() > 0)
-        {
-            viewModel = parts.pop();
-            viewModel.rotateMatrix(stack);
-        }
+        getViewPoint().rotateAroundParents(stack);
+
+        Vec3 pos = getViewPoint().translateRelativePosition(new Vec3(0.5, 0.5, 0.5));
+        Vector4f vector4f = new Vector4f((float)pos.x, (float)pos.y, (float)pos.z, 1.0F);
+        vector4f.transform(stack.last().pose());
+
+        pos = new Vec3(vector4f.x(), vector4f.y(), vector4f.z()).scale(sizeScale / 16f);
+
+        // TODO: WORK OUT HOW TO GET THE HEADS ACTUAL POSITION HERE...
+
+        float eyeHeight = (float)(getHeight() + pos.y);
+
+        // Make sure eyeHeight doesn't go above the bounding box
+        if (eyeHeight < getHeight())
+            eyeHeight = getHeight();
 
         // Return the the height at the top of this model
-        return (viewModel.getTopPoint(stack) * sizeScale / 16) - getHeightAdjustment();
+        return eyeHeight;
     }
 
     // Calculate the height adjustment for each limb
@@ -665,9 +663,17 @@ public class MultiLimbedModel
         return size;
     }
 
-    public Vec3 getHeadPos()
+    public Vec3 getMidPos()
     {
-        return getViewPoint().getDimensions().getMidPoint().scale(sizeScale / 16f);
+        return getViewPoint().getDimensions().getMidPoint().scale(sizeScale / 8f);
+    }
+
+    public float getHeight()
+    {
+        if (size != null)
+            return size.maxSize.y() - size.minSize.y();
+
+        return 0;
     }
 
     // Find the limb at the lowest height and return it's height

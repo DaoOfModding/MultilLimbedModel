@@ -162,7 +162,6 @@ public class GenericPoses
 
     public static void setupAction()
     {
-        // TODO: Make this... not shit
         slashing.addAngle(ArmPose.lowerArm, new Vec3(Math.toRadians(-130), 0, 0), armAttackPriority, 5f, -1);
         slashing.addAngle(ArmPose.lowerArm, new Vec3(Math.toRadians(-40), 0, 0), armAttackPriority, 1f, -1);
         slashing.addAngle(ArmPose.lowerArm, new Vec3(Math.toRadians(-41), 0, 0), armAttackPriority, 999f, -1);

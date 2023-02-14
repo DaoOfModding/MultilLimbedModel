@@ -1,7 +1,6 @@
 package DaoOfModding.mlmanimator.Client;
 
 import DaoOfModding.mlmanimator.Client.Models.MultiLimbedModel;
-import DaoOfModding.mlmanimator.Client.Models.RendererGrabber;
 import DaoOfModding.mlmanimator.Client.Poses.PlayerPoseHandler;
 import DaoOfModding.mlmanimator.Client.Poses.PoseHandler;
 import DaoOfModding.mlmanimator.mlmanimator;
@@ -28,10 +27,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.block.SkullBlock;
-import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.ViewportEvent;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
@@ -332,9 +328,9 @@ public class MultiLimbedRenderer
         if(!enableFullBodyFirstPerson)
             doModelCalculations(entityIn, PoseStackIn, partialTicks, handler);
 
-        adjustEyeHeight(entityIn, handler);
-
         render2FirstPerson(handler.getPlayerModel(), entityIn, partialTicks, PoseStackIn, bufferIn, packedLightIn);
+
+        adjustEyeHeight(entityIn, handler);
 
         return enableFullBodyFirstPerson;
     }
@@ -369,9 +365,9 @@ public class MultiLimbedRenderer
 
         PlayerPoseHandler handler = PoseHandler.getPlayerPoseHandler(entityIn.getUUID());
 
-        adjustEyeHeight(entityIn, handler);
-
         render2(handler, entityIn, partialTicks, PoseStackIn, bufferIn, packedLightIn);
+
+        adjustEyeHeight(entityIn, handler);
 
         // Toggle fake third person back on if necessary
         if (rememberingFake)
@@ -443,7 +439,7 @@ public class MultiLimbedRenderer
 
         RenderType rendertype = getRenderType(getSkin(currentEntity));
 
-        entityModel.updateArmorsTextures((LocalPlayer) entityIn);
+        entityModel.updateArmorsTextures((AbstractClientPlayer) entityIn);
 
         if (rendertype != null)
         {
@@ -478,8 +474,8 @@ public class MultiLimbedRenderer
 
     public static double getCameraDistance()
     {
-        // System.out.println((currentModel.getSize().getDepth() + currentModel.getHeadPos().z) / 2);
-        return (currentModel.getSize().getDepth()  / 2) + currentModel.getHeadPos().z;
+        //System.out.println((currentModel.getSize().getDepth() + currentModel.getHeadPos().z) / 2);
+        return (currentModel.getSize().getDepth()  / 2) + currentModel.getMidPos().z / 2;
     }
 
     // Returns the vertex builder for the current entity

@@ -607,10 +607,7 @@ public class ExtendableModelRenderer
         PoseStackIn.pushPose();
 
         // Don't rotate the model if it's looking in the direction of the camera - seems to exaggerate positions for some reason
-        if (!isLooking())
-            rotateMatrix(PoseStackIn);
-        else
-            PoseStackIn.translate(mPart.x, mPart.y, mPart.z);
+        rotateMatrix(PoseStackIn);
 
         Matrix4f rotator = PoseStackIn.last().pose();
 
@@ -682,10 +679,10 @@ public class ExtendableModelRenderer
 
             Vec3 position = translateRelativePosition(relativePos);
 
-            Vector4f positon4f = new Vector4f((float)position.x, (float)position.y, (float)position.z, 1);
-            positon4f.transform(rotator);
+            Vector4f position4f = new Vector4f((float)position.x, (float)position.y, (float)position.z, 1);
+            position4f.transform(rotator);
 
-            link.updatePos(new Vec3(positon4f.x(), positon4f.y(), positon4f.z()));
+            link.updatePos(new Vec3(position4f.x(), position4f.y(), position4f.z()));
         }
     }
 

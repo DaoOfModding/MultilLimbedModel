@@ -52,6 +52,8 @@ public class PlayerPoseHandler
 
     protected ArrayList<Arm> arms = new ArrayList<Arm>();
 
+    protected boolean attackCancel = false;
+
     public PlayerPoseHandler(Player player, PlayerModel playerModel)
     {
         playerID = player.getUUID();
@@ -139,6 +141,11 @@ public class PlayerPoseHandler
         currentPose.disableHeadLook(pose.isHeadLookDisabled(), pose.getDisableHeadLookPriority());
 
         unlock();
+    }
+
+    public void cancelNextAttackAnimation()
+    {
+        attackCancel = true;
     }
 
     public boolean isHeadLookDisabled()
@@ -649,6 +656,17 @@ public class PlayerPoseHandler
         return newPose;
     }
 
+    public void tryAttackPose(Player player, Arm arm)
+    {
+        if (attackCancel)
+        {
+            attackCancel = false;
+            player.swinging = false;
+        }
+        else
+            addPose(convertArmPose(arm, GenericPoses.slashing));
+    }
+
     public void doArmPose(Player player, Arm arm)
     {
         // TODO: Adjust Arm to work better with custom arms
@@ -657,7 +675,7 @@ public class PlayerPoseHandler
         if (itemstack.isEmpty())
         {
             if (player.swinging && arm.hand == player.getUsedItemHand())
-                addPose(convertArmPose(arm, GenericPoses.slashing));
+                tryAttackPose(player, arm);
         }
         else
         {
@@ -696,7 +714,7 @@ public class PlayerPoseHandler
             else
             {
                 if (player.swinging && arm.hand == player.getUsedItemHand())
-                    addPose(convertArmPose(arm, GenericPoses.slashing));
+                    tryAttackPose(player, arm);
                 else if (itemstack.getItem() instanceof CrossbowItem && CrossbowItem.isCharged(itemstack))
                 {
                     addPose(convertArmPose(arm, GenericPoses.bow));
