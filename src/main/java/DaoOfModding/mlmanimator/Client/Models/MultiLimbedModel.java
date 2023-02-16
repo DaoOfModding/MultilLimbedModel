@@ -595,7 +595,6 @@ public class MultiLimbedModel
 
         //TODO: FIX THIS
 
-
         // Transform the camera based depending on which hand is holding the item
         ItemTransforms.TransformType cameraTransform = ItemTransforms.TransformType.THIRD_PERSON_RIGHT_HAND;
         if (left)

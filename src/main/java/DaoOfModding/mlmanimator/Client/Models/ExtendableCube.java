@@ -99,9 +99,9 @@ public class ExtendableCube
                 float f1 = normals.y();
                 float f2 = normals.z();
 
-
                 Vertex[] vertices = texturedquad.vertices;
-                for (int i = 0; i < 4; ++i) {
+                for (int i = 0; i < 4; ++i)
+                {
                     Vector3f vertex = vertices[i].pos;
 
                     float f3 = vertex.x() / 16.0F * (float) resize.x + vertices[i].repos.x() / 16.0f;

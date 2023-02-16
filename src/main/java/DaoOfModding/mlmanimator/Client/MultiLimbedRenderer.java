@@ -439,35 +439,34 @@ public class MultiLimbedRenderer
 
         RenderType rendertype = getRenderType(getSkin(currentEntity));
 
-        entityModel.updateArmorsTextures((AbstractClientPlayer) entityIn);
+        entityModel.updateArmorsTextures(entityIn);
+
+        entityModel.lock();
 
         if (rendertype != null)
         {
-            entityModel.lock();
-
             // Push the model back so it's not directly bellow the camera in first person
-            if(MultiLimbedRenderer.isFakeThirdPerson() && entityIn.getUUID().compareTo(Minecraft.getInstance().player.getUUID()) == 0)
-            {
+            if (MultiLimbedRenderer.isFakeThirdPerson() && entityIn.getUUID().compareTo(Minecraft.getInstance().player.getUUID()) == 0) {
                 // TODO, adjust this based on head position? - Maybe done, needs tests
                 PoseStackIn.translate(0, 0, getCameraDistance());
-            }
-            else
-            {
+            } else {
                 // Don't render custom heads for the player in first person
-                entityModel.renderHead(PoseStackIn, Minecraft.getInstance().renderBuffers().bufferSource(),packedLightIn,1.0F, 1.0F, 1.0F, 1.0F, entityIn.tickCount);
+                entityModel.renderHead(PoseStackIn, Minecraft.getInstance().renderBuffers().bufferSource(), packedLightIn, 1.0F, 1.0F, 1.0F, 1.0F, entityIn.tickCount);
             }
 
             int i = LivingEntityRenderer.getOverlayCoords(entityIn, 0);
 
-
             entityModel.render(PoseStackIn, packedLightIn, i, 1.0F, 1.0F, 1.0F, 1.0F);
-            entityModel.renderShoulder(PoseStackIn, Minecraft.getInstance().renderBuffers().bufferSource(),packedLightIn,1.0F, 1.0F, 1.0F, 1.0F, entityIn.tickCount);
-
-            entityModel.renderHandItem(false, 0, entityIn, entityIn.getMainHandItem(), PoseStackIn, Minecraft.getInstance().renderBuffers().bufferSource(), packedLightIn);
-            entityModel.renderHandItem(true, 1, entityIn, entityIn.getOffhandItem(), PoseStackIn, Minecraft.getInstance().renderBuffers().bufferSource(), packedLightIn);
-
-            entityModel.unlock();
         }
+
+        MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
+
+        entityModel.renderShoulder(PoseStackIn, bufferSource, packedLightIn,1.0F, 1.0F, 1.0F, 1.0F, entityIn.tickCount);
+
+        entityModel.renderHandItem(false, 0, entityIn, entityIn.getMainHandItem(), PoseStackIn, bufferSource, packedLightIn);
+        entityModel.renderHandItem(true, 1, entityIn, entityIn.getOffhandItem(), PoseStackIn, bufferSource, packedLightIn);
+
+        entityModel.unlock();
 
         PoseStackIn.popPose();
     }
@@ -499,11 +498,7 @@ public class MultiLimbedRenderer
         boolean invis = currentEntity.isInvisible();
         boolean visible = !invis && !currentEntity.isInvisibleTo(Minecraft.getInstance().player);
 
-        if (invis)
-        {
-            return RenderType.itemEntityTranslucentCull(resourcelocation);
-        }
-        else if (visible)
+        if (visible)
         {
             return currentModel.renderType(resourcelocation);
         }
