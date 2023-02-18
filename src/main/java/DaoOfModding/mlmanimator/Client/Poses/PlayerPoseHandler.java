@@ -54,6 +54,8 @@ public class PlayerPoseHandler
 
     protected boolean attackCancel = false;
 
+    protected Vec3 size = new Vec3(0, 0, 0);
+
     public PlayerPoseHandler(Player player, PlayerModel playerModel)
     {
         playerID = player.getUUID();
@@ -77,6 +79,11 @@ public class PlayerPoseHandler
 
         arms.add(Main);
         arms.add(Off);
+    }
+
+    public void resize(Vec3 resize)
+    {
+        size = resize;
     }
 
     public void addArm(Arm newArm)
@@ -276,6 +283,8 @@ public class PlayerPoseHandler
 
     protected void resizeLimbs(HashMap<String, Vec3> sizes)
     {
+        model.getBody().resetResize();
+
         for (Map.Entry<String, Vec3> set : sizes.entrySet())
         {
             ExtendableModelRenderer limb = model.getLimb(set.getKey());
@@ -283,6 +292,8 @@ public class PlayerPoseHandler
             if (limb != null)
                 limb.resize(set.getValue());
         }
+
+        model.getBody().addToResizeForThisAndChildren(size);
     }
 
     // Move each limb towards the currentPose by the animation speed
@@ -318,12 +329,12 @@ public class PlayerPoseHandler
             newRender.addAngle(limb, angles, 1);
             newRender.addOffset(limb, renderPose.getOffset(limb));
 
-            newRender.addSize(limb, animateResize(getLimbSize(limb), new Vec3(1, 1, 1), AnimationSpeedCalculator.defaultSpeedPerTick), 0, 1);
+            newRender.addSize(limb, animateResize(getLimbSize(limb).subtract(size), new Vec3(1, 1, 1), AnimationSpeedCalculator.defaultSpeedPerTick), 0, 1);
         }
 
         // Add any size changes in the animating pose to renderPose
         for (String limb: renderPose.getSizes().keySet())
-            newRender.addSize(limb, animateResize(getLimbSize(limb), renderPose.getSize(limb), renderPose.getSizeSpeed(limb)), 1, renderPose.getSizeSpeed(limb));
+            newRender.addSize(limb, animateResize(getLimbSize(limb).subtract(size), renderPose.getSize(limb), renderPose.getSizeSpeed(limb)), 1, renderPose.getSizeSpeed(limb));
 
         // Add the ticks that have passed into the animationTime map
         for (String limb : limbs)

@@ -384,9 +384,17 @@ public class ExtendableModelRenderer
         defaultResize = newSize;
     }
 
+    public void resetResize()
+    {
+        resize(new Vec3(0, 0, 0));
+
+        for (ExtendableModelRenderer children : child)
+            children.resetResize();
+    }
+
     public void addToResizeForThisAndChildren(Vec3 addTo)
     {
-        setDefaultResize(defaultResize.add(addTo));
+        resize(thisSize.add(addTo));
 
         for (ExtendableModelRenderer children : child)
             children.addToResizeForThisAndChildren(addTo);
