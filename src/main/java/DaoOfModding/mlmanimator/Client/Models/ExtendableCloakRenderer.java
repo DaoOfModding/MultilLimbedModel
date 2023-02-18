@@ -14,7 +14,7 @@ public class ExtendableCloakRenderer extends ExtendableModelRenderer
     public ExtendableCloakRenderer clone()
     {
         ExtendableCloakRenderer copy = new ExtendableCloakRenderer(name);
-        copy(copy);
+        copy(copy, "");
 
         return copy;
     }

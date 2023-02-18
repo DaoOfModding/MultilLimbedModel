@@ -329,12 +329,12 @@ public class PlayerPoseHandler
             newRender.addAngle(limb, angles, 1);
             newRender.addOffset(limb, renderPose.getOffset(limb));
 
-            newRender.addSize(limb, animateResize(getLimbSize(limb).subtract(size), new Vec3(1, 1, 1), AnimationSpeedCalculator.defaultSpeedPerTick), 0, 1);
+            newRender.addSize(limb, animateResize(getLimbSize(limb), new Vec3(1, 1, 1), AnimationSpeedCalculator.defaultSpeedPerTick), 0, 1);
         }
 
         // Add any size changes in the animating pose to renderPose
         for (String limb: renderPose.getSizes().keySet())
-            newRender.addSize(limb, animateResize(getLimbSize(limb).subtract(size), renderPose.getSize(limb), renderPose.getSizeSpeed(limb)), 1, renderPose.getSizeSpeed(limb));
+            newRender.addSize(limb, animateResize(getLimbSize(limb), renderPose.getSize(limb), renderPose.getSizeSpeed(limb)), 1, renderPose.getSizeSpeed(limb));
 
         // Add the ticks that have passed into the animationTime map
         for (String limb : limbs)
@@ -385,7 +385,7 @@ public class PlayerPoseHandler
         if (limbModel == null)
             limbModel = model.getFirstPersonLimb(limb);
 
-        return limbModel.getSize();
+        return limbModel.getSize().subtract(size);
     }
 
     protected void calculateAnimationLocks(String limb, Vec3 current, float partialTicks)

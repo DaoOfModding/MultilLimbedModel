@@ -76,8 +76,13 @@ public class ExtendableModelRenderer
 
     public ExtendableModelRenderer clone()
     {
-        ExtendableModelRenderer copy = new ExtendableModelRenderer(name);
-        copy(copy);
+        return clone("");
+    }
+
+    public ExtendableModelRenderer clone(String nameAddition)
+    {
+        ExtendableModelRenderer copy = new ExtendableModelRenderer(name.concat(nameAddition));
+        copy(copy, nameAddition);
 
         return copy;
     }
@@ -128,7 +133,7 @@ public class ExtendableModelRenderer
         layers.add(layer);
     }
 
-    public void copy(ExtendableModelRenderer copy)
+    public void copy(ExtendableModelRenderer copy, String nameAddition)
     {
         copy.setParent(parent);
 
@@ -156,7 +161,7 @@ public class ExtendableModelRenderer
         copy.generateCube();
 
         for (ExtendableModelRenderer children : child)
-            copy.addChild(children.clone());
+            copy.addChild(children.clone(nameAddition));
 
         for (Quad quad : quads)
             copy.addQuad(quad);
@@ -386,7 +391,7 @@ public class ExtendableModelRenderer
 
     public void resetResize()
     {
-        resize(new Vec3(0, 0, 0));
+        resize(new Vec3(1, 1, 1));
 
         for (ExtendableModelRenderer children : child)
             children.resetResize();

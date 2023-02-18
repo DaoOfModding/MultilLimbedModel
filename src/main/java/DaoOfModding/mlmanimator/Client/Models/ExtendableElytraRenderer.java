@@ -10,7 +10,7 @@ public class ExtendableElytraRenderer extends ExtendableModelRenderer
     public ExtendableElytraRenderer clone()
     {
         ExtendableElytraRenderer copy = new ExtendableElytraRenderer(name);
-        copy(copy);
+        copy(copy, "");
 
         return copy;
     }
