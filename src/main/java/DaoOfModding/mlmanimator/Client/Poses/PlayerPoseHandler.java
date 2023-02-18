@@ -285,6 +285,9 @@ public class PlayerPoseHandler
     {
         model.getBody().resetResize();
 
+        for (ExtendableModelRenderer fp : model.getFirstPersonLimbs().values())
+            fp.resetResize();
+
         for (Map.Entry<String, Vec3> set : sizes.entrySet())
         {
             ExtendableModelRenderer limb = model.getLimb(set.getKey());

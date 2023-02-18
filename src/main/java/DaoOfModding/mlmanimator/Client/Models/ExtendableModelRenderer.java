@@ -57,6 +57,8 @@ public class ExtendableModelRenderer
     protected Vec3 relativePosition = new Vec3(0, 0, 0);
     protected Vec3 fixedPosition = new Vec3(0, 0, 0);
 
+    protected boolean dontResize = false;
+
     protected int rotationDepth = 0;
 
     protected String name;
@@ -397,6 +399,19 @@ public class ExtendableModelRenderer
             children.resetResize();
     }
 
+    public void setNoResize(Boolean on)
+    {
+        dontResize = on;
+    }
+
+    public void setNoResizeForSelfAndChildren(Boolean on)
+    {
+        dontResize = on;
+
+        for (ExtendableModelRenderer children : child)
+            children.setNoResizeForSelfAndChildren(on);
+    }
+
     public void addToResizeForThisAndChildren(Vec3 addTo)
     {
         resize(thisSize.add(addTo));
@@ -407,7 +422,8 @@ public class ExtendableModelRenderer
 
     public void resize(Vec3 newSize)
     {
-        thisSize = newSize;
+        if (!dontResize)
+            thisSize = newSize;
     }
 
     public void addChild(ExtendableModelRenderer c)

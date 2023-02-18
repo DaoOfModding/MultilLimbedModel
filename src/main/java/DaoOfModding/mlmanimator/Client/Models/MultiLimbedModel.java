@@ -452,6 +452,11 @@ public class MultiLimbedModel
         return firstPersonLimbs.get(limb);
     }
 
+    public HashMap<String, ExtendableModelRenderer> getFirstPersonLimbs()
+    {
+        return firstPersonLimbs;
+    }
+
 
     // Add a limb for reference purposes
     // Usually used for referencing child limbs
