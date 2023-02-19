@@ -73,7 +73,7 @@ public class GenericPoses
     {
         PlayerPose speedAdjustedWalkPose = Walking.clone();
 
-        double speed = player.getDeltaMovement().lengthSqr();
+        double speed = player.getDeltaMovement().multiply(1, 0, 1).lengthSqr();
         speed = speed / 0.02;
         speed = speed * speed;
 
