@@ -598,7 +598,7 @@ public class PlayerPoseHandler
 
             addPose(sleeping);
         }
-        else if (player.isInWater())
+        else if (player.isSwimming())
         {
             // If player is moving in the water apply swimming pose
             if (getDeltaMovement().length() > 0)

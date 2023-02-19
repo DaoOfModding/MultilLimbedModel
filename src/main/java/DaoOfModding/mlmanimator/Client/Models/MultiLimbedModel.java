@@ -109,7 +109,7 @@ public class MultiLimbedModel
         body.setRotationPoint(new Vec3(0.5, 0.5, 0.5));
         body.extend(GenericResizers.getBodyResizer());
 
-        ExtendableModelRenderer head = new ExtendableModelRenderer( GenericLimbNames.head);
+        ExtendableModelRenderer head = new ExtendableModelRenderer(GenericLimbNames.head);
         GenericTextureValues.addGenericHeadLayers(head);
         head.setRotationPoint(new Vec3(0.5, 0, 0.5));
         head.setPos(0.5F, 0, 0.5F);
