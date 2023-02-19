@@ -38,7 +38,7 @@ public class MultiLimbedDimensions extends EntityDimensions
 
         return new AABB(maxiSize.x() + position.x, position.y, maxiSize.z() + position.z, miniSize.x() + position.x, position.y + getHeight(), miniSize.z() + position.z);
 */
-        float size = getBiggestWidth() / 2f;
+        float size = getSmallestWidth() / 2f;
         return new AABB(position.x + size, position.y, size + position.z, position.x - size, position.y + getHeight(), position.z - size);
     }
 
@@ -65,6 +65,27 @@ public class MultiLimbedDimensions extends EntityDimensions
         return test;*/
 
         if (width2 > depth)
+            return width2;
+
+        return depth;
+    }
+
+    public float getSmallestWidth()
+    {
+        float width2 = getWidth();
+        float depth = getDepth();
+
+        /*float test = width + depth;
+        test *= 5;
+        test = (int) test;
+        test = test / 10f;
+
+        if (test < 0.6)
+            test = 0.6f;
+
+        return test;*/
+
+        if (width2 < depth)
             return width2;
 
         return depth;
