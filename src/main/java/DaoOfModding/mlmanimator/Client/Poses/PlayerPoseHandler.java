@@ -636,7 +636,7 @@ public class PlayerPoseHandler
                 addPose(GenericPoses.Crouching);
         }
         // If player is moving add the walking pose to the PoseHandler
-        else if (player.isOnGround() || player.isInWater() && (getDeltaMovement().x != 0 || getDeltaMovement().z != 0))
+        else if ((player.isOnGround() || player.isInWater()) && (getDeltaMovement().x != 0 || getDeltaMovement().z != 0))
             addPose(GenericPoses.getWalkingPose(player));
 
         for (Arm arm : arms)
@@ -753,12 +753,18 @@ public class PlayerPoseHandler
 
         Vec3 vec3 = player.getLookAngle();
         Vec3 vec31 = player.getDeltaMovement();
+
         double d0 = vec31.horizontalDistanceSqr();
         double d1 = vec3.horizontalDistanceSqr();
         if (d0 > 0.0D && d1 > 0.0D)
         {
             double d2 = (vec31.x * vec3.x + vec31.z * vec3.z) / Math.sqrt(d0 * d1);
             double d3 = vec31.x * vec3.z - vec31.z * vec3.x;
+
+            // Stop random freezing by D2 being SLIGHTLY higher than 1
+            if (d2 > 1)
+                d2 = 1;
+
             xLook = Math.signum(d3) * Math.acos(d2);
         }
 
