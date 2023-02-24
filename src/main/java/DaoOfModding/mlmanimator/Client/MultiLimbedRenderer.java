@@ -49,7 +49,6 @@ public class MultiLimbedRenderer
     protected static Field eyeHeightField;
     protected static Field thirdPersonField;
     protected static Field slimField;
-    protected static Field childField;
     protected static Field dimensions;
     protected static Method moveTowardsClosestSpaceFunction;
     protected static Method cameraMoveFunction;
@@ -75,8 +74,6 @@ public class MultiLimbedRenderer
         cameraMoveFunction = ObfuscationReflectionHelper.findMethod(Camera.class, "m_90584_", double.class, double.class, double.class);
         // slim - H - f_103380_
         slimField = ObfuscationReflectionHelper.findField(PlayerModel.class, "f_103380_");
-        // children - f_104213_
-        childField = ObfuscationReflectionHelper.findField(ModelPart.class, "f_104213_");
 
         // moveTowardsClosestSpace  - b - m_108704_
         moveTowardsClosestSpaceFunction = ObfuscationReflectionHelper.findMethod(LocalPlayer.class, "m_108704_", double.class, double.class);
@@ -91,12 +88,6 @@ public class MultiLimbedRenderer
 
         // skullModels - d - f_174473_
         skullModels = ObfuscationReflectionHelper.findField(CustomHeadLayer.class,"f_174473_");
-
-        try {
-            Field modifiers = Field.class.getDeclaredField("modifiers");
-            modifiers.setInt(childField, childField.getModifiers() & ~Modifier.FINAL);
-        }
-        catch (Exception e) { mlmanimator.LOGGER.error("Error clearing final modifier: " + e); }
     }
 
     public static void setDimensions(Player entity, EntityDimensions value)
@@ -220,38 +211,6 @@ public class MultiLimbedRenderer
         PoseHandler.doPose(entityIn.getUUID(), partialTicks);
 
         handler.getPlayerModel().calculateHeightAdjustment(entityIn);
-    }
-
-    public static void addChild(ModelPart child, String limbName, ModelPart parent)
-    {
-        try
-        {
-            Map<String, ModelPart> children = (Map<String, ModelPart>)childField.get(parent);
-
-            children.put(limbName, child);
-
-            childField.set(parent, children);
-        }
-        catch(Exception e)
-        {
-            mlmanimator.LOGGER.error("Error adding child");
-        }
-    }
-
-    public static void removeChild(String limbName, ModelPart parent)
-    {
-        try
-        {
-            Map<String, ModelPart> children = (Map<String, ModelPart>)childField.get(parent);
-
-            children.remove(limbName);
-
-            childField.set(parent, children);
-        }
-        catch(Exception e)
-        {
-            mlmanimator.LOGGER.error("Error removing child");
-        }
     }
 
     public static void adjustEyeHeight(AbstractClientPlayer player, PlayerPoseHandler handler)

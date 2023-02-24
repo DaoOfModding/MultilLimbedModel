@@ -137,8 +137,6 @@ public class ExtendableModelRenderer
 
     public void copy(ExtendableModelRenderer copy, String nameAddition)
     {
-        copy.setParent(parent);
-
         copy.dimensions = dimensions;
         copy.look = look;
         copy.rotationOffset = rotationOffset;
@@ -271,7 +269,7 @@ public class ExtendableModelRenderer
     // Move all children from this model to another
     public void fosterChildren(ExtendableModelRenderer toMove)
     {
-        for (ExtendableModelRenderer fosterChild : child)
+        for (ExtendableModelRenderer fosterChild : (ArrayList<ExtendableModelRenderer>) child.clone())
             toMove.addChild(fosterChild);
 
         for (Quad fosterQuad : quads)
@@ -298,6 +296,12 @@ public class ExtendableModelRenderer
 
     public void setParent(ExtendableModelRenderer parent)
     {
+        if (this.parent == parent)
+            return;
+
+        if (this.parent != null)
+            this.parent.removeChild(this);
+
         this.parent = parent;
     }
 
@@ -369,8 +373,6 @@ public class ExtendableModelRenderer
         for (ExtendableModelLayer layer : layers)
             newModel.addLayer(new UVPair(layer.textureOffset.u() + (int)texModifier.x, layer.textureOffset.v() + (int)texModifier.y), layer.textureSize, layer.extended + resizer.getDelta(), layer.name);
 
-        newModel.setParent(this);
-
         addChild(newModel);
 
         // Continue the extension
@@ -428,18 +430,13 @@ public class ExtendableModelRenderer
 
     public void addChild(ExtendableModelRenderer c)
     {
-        MultiLimbedRenderer.addChild(c.mPart, c.name, mPart);
-
         child.add(c);
         c.setParent(this);
     }
 
     public void removeChild(ExtendableModelRenderer toRemove)
     {
-        MultiLimbedRenderer.removeChild(toRemove.name, mPart);
-
         child.remove(toRemove);
-        toRemove.setParent(null);
     }
 
     // Generate the cube for this model
