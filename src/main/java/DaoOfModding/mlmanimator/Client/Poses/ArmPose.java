@@ -41,7 +41,13 @@ public class ArmPose extends PlayerPose
     protected String limbConvert(String limb)
     {
         if (limb.compareTo(upperArmLimb) == 0)
+        {
+
+            if (upperArmLimb.compareTo(lowerArmLimb) == 0 && !super.angles.containsKey(upperArm))
+                return lowerArm;
+
             return upperArm;
+        }
         else if (limb.compareTo(lowerArmLimb) == 0)
             return lowerArm;
 
