@@ -4,6 +4,7 @@ import DaoOfModding.mlmanimator.Client.Models.MultiLimbedModel;
 import DaoOfModding.mlmanimator.Client.Poses.PlayerPoseHandler;
 import DaoOfModding.mlmanimator.Client.Poses.PoseHandler;
 import DaoOfModding.mlmanimator.mlmanimator;
+import com.google.common.collect.ImmutableMap;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
@@ -49,7 +50,6 @@ public class MultiLimbedRenderer
     protected static Field eyeHeightField;
     protected static Field thirdPersonField;
     protected static Field slimField;
-    protected static Field dimensions;
     protected static Method moveTowardsClosestSpaceFunction;
     protected static Method cameraMoveFunction;
 
@@ -78,8 +78,6 @@ public class MultiLimbedRenderer
         // moveTowardsClosestSpace  - b - m_108704_
         moveTowardsClosestSpaceFunction = ObfuscationReflectionHelper.findMethod(LocalPlayer.class, "m_108704_", double.class, double.class);
 
-        // dimensions - aZ - f_19815_
-        dimensions = ObfuscationReflectionHelper.findField(Entity.class,"f_19815_");
 
         // layers - h - f_115291_
         layers = ObfuscationReflectionHelper.findField(LivingEntityRenderer.class,"f_115291_");
@@ -88,18 +86,6 @@ public class MultiLimbedRenderer
 
         // skullModels - d - f_174473_
         skullModels = ObfuscationReflectionHelper.findField(CustomHeadLayer.class,"f_174473_");
-    }
-
-    public static void setDimensions(Player entity, EntityDimensions value)
-    {
-        try
-        {
-            dimensions.set(entity, value);
-        }
-        catch (Exception e)
-        {
-            mlmanimator.LOGGER.error("Error setting dimensions at field " + dimensions.getName() + " in " + dimensions.toString() + ": " + e);
-        }
     }
 
     public static void rotateCamera(ViewportEvent.ComputeCameraAngles event)

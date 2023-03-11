@@ -1,5 +1,6 @@
 package DaoOfModding.mlmanimator.Client.Models;
 
+import DaoOfModding.mlmanimator.Client.MultiLimbedRenderer;
 import DaoOfModding.mlmanimator.Common.PlayerUtils;
 import com.mojang.math.Vector3f;
 import net.minecraft.world.entity.EntityDimensions;
@@ -21,9 +22,17 @@ public class MultiLimbedDimensions extends EntityDimensions
         reset();
     }
 
+    public MultiLimbedDimensions(Vector3f min, Vector3f max)
+    {
+        super(0, 0, true);
+
+        minSize = min;
+        maxSize = max;
+    }
+
     public MultiLimbedDimensions(MultiLimbedDimensions copy)
     {
-        super(copy.getBiggestWidth(), copy.getHeight(), true);
+        super(copy.getSmallestWidth(), copy.getHeight(), true);
 
         minSize = copy.minSize.copy();
         maxSize = copy.maxSize.copy();

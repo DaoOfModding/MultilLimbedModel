@@ -2,6 +2,8 @@ package DaoOfModding.mlmanimator;
 
 import DaoOfModding.mlmanimator.Client.Poses.GenericPoses;
 import DaoOfModding.mlmanimator.Client.MultiLimbedRenderer;
+import DaoOfModding.mlmanimator.Common.Reflection;
+import DaoOfModding.mlmanimator.Network.PacketHandler;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -30,6 +32,8 @@ public class mlmanimator {
     protected void commonInit(final FMLCommonSetupEvent event)
     {
         GenericPoses.init();
+        Reflection.setup();
+        PacketHandler.init();
     }
 
     protected void clientInit(final FMLClientSetupEvent event)

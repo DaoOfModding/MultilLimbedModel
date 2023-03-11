@@ -1,6 +1,8 @@
 package DaoOfModding.mlmanimator.Client.Models;
 
 import DaoOfModding.mlmanimator.Client.MultiLimbedRenderer;
+import DaoOfModding.mlmanimator.Common.Reflection;
+import DaoOfModding.mlmanimator.Network.PacketHandler;
 import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -656,8 +658,15 @@ public class MultiLimbedModel
         for (ExtendableModelRenderer model : firstPersonLimbs.values())
             model.calculateMinHeight(new PoseStack(), 0);
 
-        MultiLimbedRenderer.setDimensions(player, new EntityDimensions(size.getBiggestWidth(), size.getHeight(), false));
+        float oldWidth = player.getBbWidth();
+        float oldHeight = player.getBbHeight();
+
+        Reflection.setDimensions(player, new EntityDimensions(size.getBiggestWidth(), size.getHeight(), false));
         player.setBoundingBox(size.makeBoundingBox(player.position()));
+
+        // Send the updated bounding box to the server if it has changed size
+        if (player.isLocalPlayer() && (oldWidth != player.getBbWidth() || oldHeight != player.getBbHeight()))
+            PacketHandler.sendBoundingBoxToServer(size.minSize, size.maxSize);
     }
 
     public MultiLimbedDimensions getSize()
