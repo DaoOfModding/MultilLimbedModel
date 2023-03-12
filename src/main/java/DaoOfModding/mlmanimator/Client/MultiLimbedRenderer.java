@@ -3,6 +3,8 @@ package DaoOfModding.mlmanimator.Client;
 import DaoOfModding.mlmanimator.Client.Models.MultiLimbedModel;
 import DaoOfModding.mlmanimator.Client.Poses.PlayerPoseHandler;
 import DaoOfModding.mlmanimator.Client.Poses.PoseHandler;
+import DaoOfModding.mlmanimator.Common.Reflection;
+import DaoOfModding.mlmanimator.Network.PacketHandler;
 import DaoOfModding.mlmanimator.mlmanimator;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -47,7 +49,6 @@ public class MultiLimbedRenderer
     protected static AbstractClientPlayer currentEntity;
     protected static VertexConsumer currentVertexBuilder;
 
-    protected static Field eyeHeightField;
     protected static Field thirdPersonField;
     protected static Field slimField;
     protected static Method moveTowardsClosestSpaceFunction;
@@ -66,8 +67,6 @@ public class MultiLimbedRenderer
 
     public static void setup()
     {
-        // eyeHeight    - ba - f_19816_
-        eyeHeightField = ObfuscationReflectionHelper.findField(Entity.class,"f_19816_");
         // thirdPerson / detached   - m - f_90560_
         thirdPersonField = ObfuscationReflectionHelper.findField(Camera.class, "f_90560_");
         // setPosition  - b - m_90584_
@@ -199,20 +198,6 @@ public class MultiLimbedRenderer
         handler.getPlayerModel().calculateHeightAdjustment(entityIn);
     }
 
-    public static void adjustEyeHeight(AbstractClientPlayer player, PlayerPoseHandler handler)
-    {
-        float eyeHeight = handler.getPlayerModel().calculateEyeHeight() * -1f;
-
-        try
-        {
-            eyeHeightField.setFloat(player, eyeHeight);
-        }
-        catch(Exception e)
-        {
-            mlmanimator.LOGGER.error("Error adjusting player eye height");
-        }
-    }
-
     public static ParrotModel getParrotModel(PlayerRenderer render)
     {
         try
@@ -278,6 +263,18 @@ public class MultiLimbedRenderer
         adjustEyeHeight(entityIn, handler);
 
         return enableFullBodyFirstPerson;
+    }
+
+    public static void adjustEyeHeight(AbstractClientPlayer player, PlayerPoseHandler handler)
+    {
+        float oldHeight = player.getEyeHeight();
+
+        float eyeHeight = handler.getPlayerModel().calculateEyeHeight() * -1f;
+
+        Reflection.adjustEyeHeight(player, eyeHeight);
+
+        if (oldHeight != player.getEyeHeight())
+            PacketHandler.sendEyeHeightToServer(eyeHeight);
     }
 
     public static void render2FirstPerson(MultiLimbedModel entityModel, AbstractClientPlayer entityIn, float partialTicks, PoseStack PoseStackIn, MultiBufferSource bufferIn, int packedLightIn)

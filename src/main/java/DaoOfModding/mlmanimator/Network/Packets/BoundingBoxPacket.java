@@ -10,7 +10,6 @@ import net.minecraft.world.entity.EntityDimensions;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
 
-import java.util.UUID;
 import java.util.function.Supplier;
 
     public class BoundingBoxPacket extends Packet
@@ -81,8 +80,6 @@ import java.util.function.Supplier;
         // Process received packet on the Server
         protected void processPacket(ServerPlayer sender)
         {
-            System.out.println("Processing BB on server for sizes " + minSize + " - " + maxSize);
-            // Send the key press to the technique used
             MultiLimbedDimensions dimensions = new MultiLimbedDimensions(minSize, maxSize);
 
             Reflection.setDimensions(sender, new EntityDimensions(dimensions.getBiggestWidth(), dimensions.getHeight(), false));

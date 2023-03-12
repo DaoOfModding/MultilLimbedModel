@@ -4,24 +4,35 @@ import DaoOfModding.mlmanimator.Client.Models.MultiLimbedModel;
 import DaoOfModding.mlmanimator.Client.Poses.GenericPoses;
 import DaoOfModding.mlmanimator.Client.Poses.PlayerPoseHandler;
 import DaoOfModding.mlmanimator.Client.Poses.PoseHandler;
+import DaoOfModding.mlmanimator.Common.Reflection;
 import DaoOfModding.mlmanimator.mlmanimator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ArmorStandArmorModel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.*;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.EntityEvent;
+import net.minecraftforge.event.entity.living.LivingDamageEvent;
+import net.minecraftforge.event.entity.living.LivingEvent;
+import net.minecraftforge.event.entity.living.LivingHurtEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+
+import java.util.Locale;
 
 @Mod.EventBusSubscriber(value = Dist.CLIENT)
 public class ClientListeners
@@ -42,6 +53,38 @@ public class ClientListeners
 
             handler.doDefaultPoses(event.player);
             handler.getPlayerModel().tick((AbstractClientPlayer)event.player);
+        }
+
+        if (event.phase == TickEvent.Phase.END)
+        {
+            // If player is crawling
+            if (event.player.hasPose(Pose.SWIMMING) && !event.player.isSwimming())
+            {
+                // If player doesn't NEED to crawl then cancel the crawl
+                if (event.player.level.noCollision(event.player, event.player.getBoundingBox()))
+                {
+                    event.player.setPose(Pose.STANDING);
+                }
+                else
+                {
+                    PlayerPoseHandler handler = PoseHandler.getPlayerPoseHandler(event.player.getUUID());
+
+                    // TODO: Set player crawling pose
+                    //handler.addPose();
+                }
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public static void resize(EntityEvent.Size event)
+    {
+        if (event.getEntity() instanceof Player)
+        {
+            // Cancel out the vanilla minecraft changes to dimensions/eye height when the "pose" changes
+
+            event.setNewSize(event.getOldSize());
+            event.setNewEyeHeight(event.getOldEyeHeight());
         }
     }
 

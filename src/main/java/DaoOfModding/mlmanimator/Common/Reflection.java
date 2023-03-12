@@ -1,6 +1,8 @@
 package DaoOfModding.mlmanimator.Common;
 
+import DaoOfModding.mlmanimator.Client.Poses.PlayerPoseHandler;
 import DaoOfModding.mlmanimator.mlmanimator;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.player.Player;
@@ -11,11 +13,14 @@ import java.lang.reflect.Modifier;
 
 public class Reflection
 {
+    protected static Field eyeHeightField;
     protected static Field dimensions;
     protected static Field dimensionsHeight;
 
     public static void setup()
     {
+        // eyeHeight    - ba - f_19816_
+        eyeHeightField = ObfuscationReflectionHelper.findField(Entity.class,"f_19816_");
         // dimensions - aZ - f_19815_
         dimensions = ObfuscationReflectionHelper.findField(Entity.class,"f_19815_");
         // dimensions.height - b - f_20378_
@@ -54,6 +59,18 @@ public class Reflection
         catch (Exception e)
         {
             mlmanimator.LOGGER.error("Error setting height for dimensions at " + dimensionsHeight.toString() + ": " + e);
+        }
+    }
+
+    public static void adjustEyeHeight(Entity entity, float height)
+    {
+        try
+        {
+            eyeHeightField.setFloat(entity, height);
+        }
+        catch(Exception e)
+        {
+            mlmanimator.LOGGER.error("Error adjusting entity eye height");
         }
     }
 }
