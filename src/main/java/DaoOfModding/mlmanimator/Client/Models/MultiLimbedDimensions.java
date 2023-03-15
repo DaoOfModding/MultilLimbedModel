@@ -58,27 +58,6 @@ public class MultiLimbedDimensions extends EntityDimensions
         maxSize = new Vector3f(4.8f, 0, 4.8f);
     }
 
-    public float getBiggestWidth()
-    {
-        float width2 = getWidth();
-        float depth = getDepth();
-
-        /*float test = width + depth;
-        test *= 5;
-        test = (int) test;
-        test = test / 10f;
-
-        if (test < 0.6)
-            test = 0.6f;
-
-        return test;*/
-
-        if (width2 > depth)
-            return width2;
-
-        return depth;
-    }
-
     public float getSmallestWidth()
     {
         float width2 = getWidth();

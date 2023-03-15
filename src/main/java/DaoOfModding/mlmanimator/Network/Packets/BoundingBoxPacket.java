@@ -82,7 +82,7 @@ import java.util.function.Supplier;
         {
             MultiLimbedDimensions dimensions = new MultiLimbedDimensions(minSize, maxSize);
 
-            Reflection.setDimensions(sender, new EntityDimensions(dimensions.getBiggestWidth(), dimensions.getHeight(), false));
+            Reflection.setDimensions(sender, new EntityDimensions(dimensions.getSmallestWidth(), dimensions.getHeight(), false));
             sender.setBoundingBox(dimensions.makeBoundingBox(sender.position()));
         }
     }

@@ -651,7 +651,10 @@ public class MultiLimbedModel
     // Calculate the height adjustment for each limb
     public void calculateHeightAdjustment(Player player)
     {
-        size = body.calculateMinHeight(new PoseStack(), 360 - player.yBodyRot);
+        // Only calculate sizes at 90 degree angles
+        float rotation = (int)((player.yBodyRot + 45) / 90) * 90;
+
+        size = body.calculateMinHeight(new PoseStack(), 360 - rotation);
         size.scaleValues(sizeScale / 16f);
         size = new MultiLimbedDimensions(size);
 
@@ -661,7 +664,7 @@ public class MultiLimbedModel
         float oldWidth = player.getBbWidth();
         float oldHeight = player.getBbHeight();
 
-        Reflection.setDimensions(player, new EntityDimensions(size.getBiggestWidth(), size.getHeight(), false));
+        Reflection.setDimensions(player, new EntityDimensions(size.getSmallestWidth(), size.getHeight(), false));
         player.setBoundingBox(size.makeBoundingBox(player.position()));
 
         // Send the updated bounding box to the server if it has changed size

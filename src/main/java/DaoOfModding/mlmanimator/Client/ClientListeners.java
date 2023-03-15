@@ -44,35 +44,31 @@ public class ClientListeners
         if (event.side == LogicalSide.SERVER)
             return;
 
+        PlayerPoseHandler handler = PoseHandler.getPlayerPoseHandler(event.player.getUUID());
+
+        if (handler == null)
+            return;
+
         if (event.phase == TickEvent.Phase.START)
         {
-            PlayerPoseHandler handler = PoseHandler.getPlayerPoseHandler(event.player.getUUID());
-
-            if (handler == null)
-                return;
-
             handler.doDefaultPoses(event.player);
             handler.getPlayerModel().tick((AbstractClientPlayer)event.player);
         }
-
-        if (event.phase == TickEvent.Phase.END)
+        else if (event.phase == TickEvent.Phase.END)
         {
             // If player is crawling
             if (event.player.hasPose(Pose.SWIMMING) && !event.player.isSwimming())
             {
                 // If player doesn't NEED to crawl then cancel the crawl
-                if (event.player.level.noCollision(event.player, event.player.getBoundingBox()))
-                {
+                if (event.player.level.noCollision(event.player, event.player.getBoundingBox()) && !handler.isCrawling())
                     event.player.setPose(Pose.STANDING);
-                }
                 else
-                {
-                    PlayerPoseHandler handler = PoseHandler.getPlayerPoseHandler(event.player.getUUID());
-
-                    // TODO: Set player crawling pose
-                    //handler.addPose();
-                }
+                    handler.setCrawling(true);
             }
+            else
+                handler.setCrawling(false);
+
+            // TODO : Hitboxes not working properly when crawling
         }
     }
 

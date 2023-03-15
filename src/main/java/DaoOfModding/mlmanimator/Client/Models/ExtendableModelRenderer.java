@@ -632,7 +632,6 @@ public class ExtendableModelRenderer
 
         PoseStackIn.pushPose();
 
-        // Don't rotate the model if it's looking in the direction of the camera - seems to exaggerate positions for some reason
         rotateMatrix(PoseStackIn);
 
         Matrix4f rotator = PoseStackIn.last().pose();

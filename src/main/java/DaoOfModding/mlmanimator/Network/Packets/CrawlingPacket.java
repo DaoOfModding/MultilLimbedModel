@@ -1,6 +1,7 @@
 package DaoOfModding.mlmanimator.Network.Packets;
 
 import DaoOfModding.mlmanimator.Common.Reflection;
+import DaoOfModding.mlmanimator.Server.ServerListeners;
 import DaoOfModding.mlmanimator.mlmanimator;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -9,36 +10,36 @@ import net.minecraftforge.network.NetworkEvent;
 
 import java.util.function.Supplier;
 
-public class EyeHeightPacket extends Packet
+public class CrawlingPacket extends Packet
 {
-    float eyeHeight;
+    boolean crawling;
 
-    public EyeHeightPacket(float height)
+    public CrawlingPacket(boolean on)
     {
-        eyeHeight = height;
+        crawling = on;
     }
 
     @Override
     public void encode(FriendlyByteBuf buffer)
     {
-        buffer.writeFloat(eyeHeight);
+        buffer.writeBoolean(crawling);
     }
 
-    public static EyeHeightPacket decode(FriendlyByteBuf buffer)
+    public static CrawlingPacket decode(FriendlyByteBuf buffer)
     {
-        EyeHeightPacket returnValue = new EyeHeightPacket(0);
+        CrawlingPacket returnValue = new CrawlingPacket(false);
 
         try
         {
             // Read in the sent values
-            float height = buffer.readFloat();
+            boolean crawl = buffer.readBoolean();
 
-            return new EyeHeightPacket(height);
+            return new CrawlingPacket(crawl);
 
         }
         catch (IllegalArgumentException | IndexOutOfBoundsException e)
         {
-            mlmanimator.LOGGER.warn("Exception while reading EyeHeight message: " + e);
+            mlmanimator.LOGGER.warn("Exception while reading Crawling message: " + e);
             return returnValue;
         }
     }
@@ -52,7 +53,7 @@ public class EyeHeightPacket extends Packet
 
         if (sideReceived.isClient())
         {
-            mlmanimator.LOGGER.warn("EyeHeightPacket was received by client - This should not happen");
+            mlmanimator.LOGGER.warn("CrawlingPacket was received by client - This should not happen");
             return;
         }
 
@@ -62,6 +63,6 @@ public class EyeHeightPacket extends Packet
     // Process received packet on the Server
     protected void processPacket(ServerPlayer sender)
     {
-        Reflection.adjustEyeHeight(sender, eyeHeight);
+        ServerListeners.setCrawling(sender.getUUID(), crawling);
     }
 }

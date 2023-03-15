@@ -5,6 +5,7 @@ import DaoOfModding.mlmanimator.Client.Models.ExtendableModelRenderer;
 import DaoOfModding.mlmanimator.Client.Models.GenericLimbNames;
 import DaoOfModding.mlmanimator.Client.Models.MultiLimbedModel;
 import DaoOfModding.mlmanimator.Client.MultiLimbedRenderer;
+import DaoOfModding.mlmanimator.Network.PacketHandler;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
@@ -29,6 +30,7 @@ public class PlayerPoseHandler
     PlayerPose oldRenderPose = new PlayerPose();
     PlayerPose animatingPose = new PlayerPose();
     boolean locked = false;
+    boolean crawling = false;
 
     protected boolean isJumping = false;
     // Ticks before allowing jump to be set to False
@@ -84,6 +86,20 @@ public class PlayerPoseHandler
     public void resize(Vec3 resize)
     {
         size = resize;
+    }
+
+    public void setCrawling(boolean on)
+    {
+        if (on == crawling)
+            return;
+
+        PacketHandler.sendCrawlingToServer(on);
+        crawling = on;
+    }
+
+    public boolean isCrawling()
+    {
+        return crawling;
     }
 
     public void addArm(Arm newArm)
@@ -579,12 +595,12 @@ public class PlayerPoseHandler
             if (player.getDeltaMovement().y > 0)
                 setJumping(true);
         }
-
         if (player.isPassenger())
         {
             // TODO: Account for horses rearing up - Is this needed? Seems to instantly kick you off the horse
             addPose(GenericPoses.Sitting);
         }
+
         if (player.isSleeping())
         {
             PlayerPose sleeping = GenericPoses.Sleeping.clone();
@@ -597,6 +613,15 @@ public class PlayerPoseHandler
             }
 
             addPose(sleeping);
+        }
+        else if (isCrawling())
+        {
+            if (getDeltaMovement().x != 0 || getDeltaMovement().z != 0)
+            {
+                addPose(GenericPoses.CrawlingWalk);
+            }
+            else
+                addPose(GenericPoses.Crawling);
         }
         else if (player.isSwimming())
         {

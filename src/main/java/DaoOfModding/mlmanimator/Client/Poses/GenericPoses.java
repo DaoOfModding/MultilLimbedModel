@@ -30,6 +30,8 @@ public class GenericPoses
 
     public static final int sitPriority = 250;
 
+    public static final int crawlPriority = 300;
+
     public static PlayerPose Idle = new PlayerPose();
     public static PlayerPose Walking = new PlayerPose();
     public static PlayerPose Jumping = new PlayerPose();
@@ -40,6 +42,8 @@ public class GenericPoses
     public static PlayerPose FlyFalling = new PlayerPose();
     public static PlayerPose Sleeping = new PlayerPose();
     public static PlayerPose Sitting = new PlayerPose();
+    public static PlayerPose Crawling = new PlayerPose();
+    public static PlayerPose CrawlingWalk = new PlayerPose();
 
     public static ArmPose Holding = new ArmPose();
     public static ArmPose slashing = new ArmPose();
@@ -65,6 +69,7 @@ public class GenericPoses
         setupCrouchingWalk();
         setupSwimming();
         setupSitting();
+        setupCrawling();
 
         setupAction();
     }
@@ -116,6 +121,13 @@ public class GenericPoses
 
         Crouching.addAngle(GenericLimbNames.leftWingElytra, new Vec3(0, 0, Math.toRadians(-30)), crouchPriority);
         Crouching.addAngle(GenericLimbNames.rightWingElytra, new Vec3(0, 0, Math.toRadians(30)), crouchPriority);
+    }
+
+    public static void setupCrawling()
+    {
+        Crawling.addAngle(GenericLimbNames.body, new Vec3(Math.toRadians(90), 0, 0), crawlPriority);
+
+        CrawlingWalk.addAngle(GenericLimbNames.body, new Vec3(Math.toRadians(90), 0, 0), crawlPriority);
     }
 
     public static void setupIdle()
