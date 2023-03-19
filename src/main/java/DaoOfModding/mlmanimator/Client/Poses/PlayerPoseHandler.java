@@ -614,6 +614,10 @@ public class PlayerPoseHandler
 
             addPose(sleeping);
         }
+        else if (player.isAutoSpinAttack())
+        {
+            addPose(GenericPoses.SpinAttack);
+        }
         else if (isCrawling())
         {
             if (getDeltaMovement().x != 0 || getDeltaMovement().z != 0)

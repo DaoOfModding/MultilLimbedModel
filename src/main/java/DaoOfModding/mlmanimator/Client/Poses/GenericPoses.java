@@ -32,6 +32,8 @@ public class GenericPoses
 
     public static final int crawlPriority = 300;
 
+    public static final int spinPriority = 999;
+
     public static PlayerPose Idle = new PlayerPose();
     public static PlayerPose Walking = new PlayerPose();
     public static PlayerPose Jumping = new PlayerPose();
@@ -44,6 +46,7 @@ public class GenericPoses
     public static PlayerPose Sitting = new PlayerPose();
     public static PlayerPose Crawling = new PlayerPose();
     public static PlayerPose CrawlingWalk = new PlayerPose();
+    public static PlayerPose SpinAttack = new PlayerPose();
 
     public static ArmPose Holding = new ArmPose();
     public static ArmPose slashing = new ArmPose();
@@ -70,6 +73,7 @@ public class GenericPoses
         setupSwimming();
         setupSitting();
         setupCrawling();
+        setupSpin();
 
         setupAction();
     }
@@ -170,6 +174,12 @@ public class GenericPoses
         Holding.addAngle(ArmPose.upperArm, new Vec3(Math.toRadians(-30), Math.toRadians(-5), 0),armHoldPriority);
         Holding.addAngle(ArmPose.lowerArm, new Vec3(Math.toRadians(-35), 0, 0), armHoldPriority + 1);
         Holding.setHolding(true);
+    }
+
+    public static void setupSpin()
+    {
+        SpinAttack.addAngle(GenericLimbNames.body, new Vec3(Math.toRadians(90), 0, Math.toRadians(-180)), spinPriority, 4f, -1);
+        SpinAttack.addAngle(GenericLimbNames.body, new Vec3(Math.toRadians(90), 0, Math.toRadians(180)), spinPriority, 4f, -1);
     }
 
     public static void setupAction()
