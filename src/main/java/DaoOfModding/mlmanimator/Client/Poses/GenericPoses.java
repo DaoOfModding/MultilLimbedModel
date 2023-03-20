@@ -178,8 +178,10 @@ public class GenericPoses
 
     public static void setupSpin()
     {
-        SpinAttack.addAngle(GenericLimbNames.body, new Vec3(Math.toRadians(90), 0, Math.toRadians(-180)), spinPriority, 4f, -1);
-        SpinAttack.addAngle(GenericLimbNames.body, new Vec3(Math.toRadians(90), 0, Math.toRadians(180)), spinPriority, 4f, -1);
+        SpinAttack.addAngle(GenericLimbNames.body, new Vec3(Math.toRadians(90), 0, 0), spinPriority, 2f, -1);
+        SpinAttack.addAngle(GenericLimbNames.body, new Vec3(Math.toRadians(90), 0, Math.toRadians(90)), spinPriority, 2f, -1);
+        SpinAttack.addAngle(GenericLimbNames.body, new Vec3(Math.toRadians(90), 0, Math.toRadians(180)), spinPriority, 2f, -1);
+        SpinAttack.addAngle(GenericLimbNames.body, new Vec3(Math.toRadians(90), 0, Math.toRadians(270)), spinPriority, 2f, -1);
     }
 
     public static void setupAction()

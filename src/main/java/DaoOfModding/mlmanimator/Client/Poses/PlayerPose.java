@@ -27,6 +27,9 @@ public class PlayerPose
     protected boolean disableHeadLook = false;
     protected int disableHeadLookPriority = 0;
 
+    public static final double oneEighty = Math.toRadians(180);
+    public static final double threeSixty = Math.toRadians(360);
+
     public PlayerPose()
     {
     }

@@ -58,6 +58,10 @@ public class PlayerPoseHandler
 
     protected Vec3 size = new Vec3(0, 0, 0);
 
+    public static double oneEighty = Math.toRadians(180);
+    public static double threeSixty = Math.toRadians(360);
+
+
     public PlayerPoseHandler(Player player, PlayerModel playerModel)
     {
         playerID = player.getUUID();
@@ -471,6 +475,46 @@ public class PlayerPoseHandler
             aLockedFrame.put(aLock, currentFrame);
     }
 
+    protected Vec3 calculateMovement(Vec3 from, Vec3 to)
+    {
+        // Flatten the from vector so all angles are between -180 - 180
+        from = flattenVector(from);
+
+        // Flatten the to vector based on the angles in the from vector
+        to = new Vec3(conditionalFlatten(from.x, to.x), conditionalFlatten(from.y, to.y),conditionalFlatten(from.z, to.z));
+
+        // Flatten the resulting vector so that all angles are between -180 - 180
+        return flattenVector(from.subtract(to));
+    }
+
+    // Flattens to the 'to' angle if it is too far away from the from angle
+    protected double conditionalFlatten(double from, double to)
+    {
+        if (from > 0 && to < -oneEighty)
+            return to + threeSixty;
+        else if (from < 0 && to > oneEighty)
+            return to - threeSixty;
+
+        return to;
+    }
+
+    // Flatten the  vector so that all angles are between -180 - 180
+    protected Vec3 flattenVector(Vec3 vec)
+    {
+        return new Vec3(flattenAngle(vec.x), flattenAngle(vec.y), flattenAngle(vec.z));
+    }
+
+    // Flatten the supplied angle so that it is between -180 - 180
+    protected double flattenAngle(double angle)
+    {
+        if (angle > oneEighty)
+            return angle - threeSixty;
+        else if (angle < -oneEighty)
+            return angle + threeSixty;
+
+        return angle;
+    }
+
     // Return a vector moving the specified vector towards the renderPose
     protected Vec3 animateLimb(String limb, Vec3 current, float partialTicks)
     {
@@ -497,7 +541,7 @@ public class PlayerPoseHandler
         Vec3 moveTo = renderPose.getAngle(limb, currentFrame);
 
         // Create a vector of the amount the limb has to move
-        Vec3 toMove = current.subtract(moveTo);
+        Vec3 toMove = calculateMovement(current, moveTo);
         double moveAmount = toMove.length();
 
         // If the limbs don't need to move and the renderPose has only one frame do nothing more, otherwise advance the frame and try again
@@ -565,7 +609,7 @@ public class PlayerPoseHandler
             toMove = toMove.normalize().scale(aSpeed);
 
         // Return a vector of the current position moved towards moveTo by the animation speed
-        return current.subtract(toMove);
+        return calculateMovement(current, moveTo);
     }
 
     // movementDelta does not work for remote clients, so have to calculate it here instead
