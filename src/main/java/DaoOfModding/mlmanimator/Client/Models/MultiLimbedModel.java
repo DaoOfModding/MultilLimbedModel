@@ -77,6 +77,9 @@ public class MultiLimbedModel
     SkullModelBase skullmodelbase = null;
     RenderType skullrendertype = null;
 
+    float eyeHeight = 0;
+    float eyePushBack = 0;
+
 
     public MultiLimbedModel(PlayerModel model)
     {
@@ -625,27 +628,26 @@ public class MultiLimbedModel
 
     public float calculateEyeHeight()
     {
-        // Rotate the PoseStack around each parent part
-        PoseStack stack = new PoseStack();
+        // TODO: WORK OUT HOW TO GET THE HEADS ACTUAL POSITION HERE... MAYBE FIXED!?
 
-        getViewPoint().rotateAroundParents(stack);
+        PoseStack stack2 = new PoseStack();
+        getViewPoint().translatePoseStackToThis(stack2);
 
-        Vec3 pos = getViewPoint().translateRelativePosition(new Vec3(0.5, 0.5, 0.5));
-        Vector4f vector4f = new Vector4f((float)pos.x, (float)pos.y, (float)pos.z, 1.0F);
-        vector4f.transform(stack.last().pose());
+        Vec3 move = getViewPoint().translateRelativePosition(new Vec3(0.5, 1, 0.5)).scale(sizeScale/8f);
+        stack2.translate(move.x, move.y, move.z);
 
-        pos = new Vec3(vector4f.x(), vector4f.y(), vector4f.z()).scale(sizeScale / 16f);
+        Vector4f testVec = new Vector4f(0f, 0f, 0f, 2f);
+        testVec.transform(stack2.last().pose());
 
-        // TODO: WORK OUT HOW TO GET THE HEADS ACTUAL POSITION HERE...
+        eyeHeight = (testVec.y() / 2f) - getHeightAdjustment();
+        eyePushBack = testVec.z();
 
-        float eyeHeight = (float)(getHeight() + pos.y);
-
-        // Make sure eyeHeight doesn't go above the bounding box
-        if (eyeHeight < getHeight())
-            eyeHeight = getHeight();
-
-        // Return the the height at the top of this model
         return eyeHeight;
+    }
+
+    public float getEyePushBack()
+    {
+        return eyePushBack;
     }
 
     // Calculate the height adjustment for each limb

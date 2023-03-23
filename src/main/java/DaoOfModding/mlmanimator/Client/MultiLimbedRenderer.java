@@ -387,8 +387,9 @@ public class MultiLimbedRenderer
 
         if (rendertype != null)
         {
-            // Push the model back so it's not directly bellow the camera in first person
-            if (MultiLimbedRenderer.isFakeThirdPerson() && entityIn.getUUID().compareTo(Minecraft.getInstance().player.getUUID()) == 0) {
+            // Push the model back so it's not directly below the camera in first person
+            if (MultiLimbedRenderer.isFakeThirdPerson() && entityIn.getUUID().compareTo(Minecraft.getInstance().player.getUUID()) == 0)
+            {
                 // TODO, adjust this based on head position? - Maybe done, needs tests
                 PoseStackIn.translate(0, 0, getCameraDistance());
             } else {
@@ -415,8 +416,7 @@ public class MultiLimbedRenderer
 
     public static double getCameraDistance()
     {
-        //System.out.println((currentModel.getSize().getDepth() + currentModel.getHeadPos().z) / 2);
-        return (currentModel.getSize().getDepth()  / 2) + currentModel.getMidPos().z / 2;
+        return ((currentModel.getSize().getDepth()  / 2) + currentModel.getMidPos().z / 2) - currentModel.getEyePushBack();
     }
 
     // Returns the vertex builder for the current entity
