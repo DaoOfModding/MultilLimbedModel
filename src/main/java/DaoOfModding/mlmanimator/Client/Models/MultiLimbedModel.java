@@ -628,12 +628,10 @@ public class MultiLimbedModel
 
     public float calculateEyeHeight()
     {
-        // TODO: WORK OUT HOW TO GET THE HEADS ACTUAL POSITION HERE... MAYBE FIXED!?
-
         PoseStack stack2 = new PoseStack();
         getViewPoint().translatePoseStackToThis(stack2);
 
-        Vec3 move = getViewPoint().translateRelativePosition(new Vec3(0.5, 1, 0.5)).scale(sizeScale/8f);
+        Vec3 move = getViewPoint().translateRelativePosition(getViewPoint().getRotationPoint()).scale(sizeScale/8f);
         stack2.translate(move.x, move.y, move.z);
 
         Vector4f testVec = new Vector4f(0f, 0f, 0f, 2f);
