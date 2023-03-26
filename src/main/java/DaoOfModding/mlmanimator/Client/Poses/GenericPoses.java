@@ -92,8 +92,6 @@ public class GenericPoses
         speed = speed / 0.175;
         speed = speed * speed;
 
-        System.out.println(speed);
-
         if (speed > 1)
             speed = 1;
         else if (speed <= 0.1)

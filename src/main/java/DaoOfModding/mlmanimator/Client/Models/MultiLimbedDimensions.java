@@ -38,6 +38,11 @@ public class MultiLimbedDimensions extends EntityDimensions
         maxSize = copy.maxSize.copy();
     }
 
+    public void increaseHeight(float amount)
+    {
+        maxSize = new Vector3f(maxSize.x(), maxSize.y() - amount, maxSize.z());
+    }
+
     @Override
     public AABB makeBoundingBox(Vec3 position)
     {

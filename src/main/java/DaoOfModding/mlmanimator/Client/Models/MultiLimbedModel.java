@@ -655,6 +655,10 @@ public class MultiLimbedModel
         float rotation = (int)((player.yBodyRot + 45) / 90) * 90;
 
         size = body.calculateMinHeight(new PoseStack(), 360 - rotation);
+
+        // Add a small amount of additional padding at the top of the bounding box
+        size.increaseHeight(1);
+
         size.scaleValues(sizeScale / 16f);
         size = new MultiLimbedDimensions(size);
 
