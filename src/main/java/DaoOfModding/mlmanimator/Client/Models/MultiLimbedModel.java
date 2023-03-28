@@ -191,6 +191,7 @@ public class MultiLimbedModel
         leftWing.setFixedPosAdjustment(0, 0f, 0.01f);       // This is to ensure the elytra wings are drawn at SLIGHTLY different positions
         leftWing.extend(GenericResizers.getElytraResizer());
         leftWing.setHitbox(false);
+        leftWing.mPart.visible = false;
 
         ExtendableElytraRenderer rightWing = new ExtendableElytraRenderer(GenericLimbNames.rightWingElytra);
         rightWing.addLayer(GenericTextureValues.elytra, GenericTextureValues.armor_Size, GenericTextureValues.innerExtention, TextureHandler.ELYTRA, true);
@@ -199,6 +200,7 @@ public class MultiLimbedModel
         rightWing.setPos(0F, 0, 1F);
         rightWing.extend(GenericResizers.getElytraResizer());
         rightWing.setHitbox(false);
+        rightWing.mPart.visible = false;
 
         ExtendableCloakRenderer cloak = new ExtendableCloakRenderer(GenericLimbNames.cloak);
         cloak.addLayer(GenericTextureValues.cloak, GenericTextureValues.armor_Size, GenericTextureValues.innerExtention, TextureHandler.CLOAK);
@@ -208,6 +210,7 @@ public class MultiLimbedModel
         cloak.extend(GenericResizers.getCloakResizer());
         leftWing.setFixedPosAdjustment(0, 0f, 0.01f);
         cloak.setHitbox(false);
+        cloak.mPart.visible = false;
 
         addLimb(GenericLimbNames.leftWingElytra, leftWing);
         addLimb(GenericLimbNames.rightWingElytra, rightWing);
@@ -215,7 +218,6 @@ public class MultiLimbedModel
 
         // BeeStinger/Arrows are things stuck in the player, may ignore for now
         // Ears are for ONE custom skin, screw that
-        // TODO: Animation for spin attack
 
         setViewPoint(head);
         setHand(0, rightArm.getChildren().get(0));

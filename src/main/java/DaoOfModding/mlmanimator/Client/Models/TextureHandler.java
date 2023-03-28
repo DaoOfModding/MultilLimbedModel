@@ -36,6 +36,12 @@ public class TextureHandler
         return textures.get(name);
     }
 
+    public void clearTextures()
+    {
+        textures.clear();
+        textureColor.clear();
+    }
+
     public void updateArmorTextures(AbstractClientPlayer player)
     {
         addTexture(PLAYER_SKIN, player.getSkinTextureLocation());

@@ -94,7 +94,7 @@ public class GenericPoses
 
         if (speed > 1)
             speed = 1;
-        else if (speed <= 0.1)
+        else if (speed <= 0.05)
             return Idle;
 
         speedAdjustedWalkPose.adjustAllSpeeds((float)speed);
