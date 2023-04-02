@@ -89,8 +89,10 @@ public class GenericPoses
 
         double speed  = player.getDeltaMovement().multiply(1, 0, 1).length();
 
-        speed = speed / 0.175;
-        speed = speed * speed;
+        /*speed = speed / 0.175;
+        speed = speed * speed;*/
+
+        speed = speed / 0.25f;
 
         if (speed > 1)
             speed = 1;

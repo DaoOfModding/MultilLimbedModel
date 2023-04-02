@@ -639,6 +639,7 @@ public class PlayerPoseHandler
             if (player.getDeltaMovement().y > 0)
                 setJumping(true);
         }
+
         if (player.isPassenger())
         {
             // TODO: Account for horses rearing up - Is this needed? Seems to instantly kick you off the horse
@@ -691,7 +692,7 @@ public class PlayerPoseHandler
 
             addPose(flyFalling);
         }
-        else if (PoseHandler.isJumping(player.getUUID()))
+        else if (isJumping())
         {
             if (disableJumpingAnimationThisTick)
                 disableJumpingAnimationThisTick = false;
