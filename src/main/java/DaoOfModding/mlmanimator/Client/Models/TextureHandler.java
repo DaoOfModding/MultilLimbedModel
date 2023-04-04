@@ -38,12 +38,15 @@ public class TextureHandler
 
     public ResourceLocation getTexture(String name)
     {
-        return textures.get(name);
+        if (textures.containsKey(name))
+            return textures.get(name);
+
+        return BLANK_LOCATION;
     }
 
     public ResourceLocation getSmallTexture(String name)
     {
-        ResourceLocation bigTex = textures.get(name);
+        ResourceLocation bigTex = getTexture(name);
 
         // Append the word small to the start of the file name
         String location = bigTex.getPath();
