@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class ExtendableModelLayer
 {
-    String name;
+    protected String name;
 
     protected UVPair textureOffset;
     protected UVPair textureSize;
@@ -37,6 +37,11 @@ public class ExtendableModelLayer
         name = newName;
         mirr = mirror;
         textureResize = texResize;
+    }
+
+    public String getName()
+    {
+        return name;
     }
 
     public void makeCube(float posX, float posY, float posZ, float width, float height, float depth, Vec3 fullSize)

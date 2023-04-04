@@ -1,5 +1,6 @@
 package DaoOfModding.mlmanimator.Client.Models;
 
+import DaoOfModding.mlmanimator.mlmanimator;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -20,8 +21,12 @@ public class TextureHandler
     public static final String FOOT_ARMOR = "FOOTARMOR";
     public static final String ELYTRA = "ELYTRA";
     public static final String CLOAK = "CLOAK";
+    public static final String BLANK = "BLANK";
 
     protected static final ResourceLocation ELYTRA_WINGS_LOCATION = new ResourceLocation("textures/entity/elytra.png");
+    protected static final ResourceLocation BLANK_LOCATION = new ResourceLocation(mlmanimator.MODID, "textures/blank.png");
+
+    protected static final Vec3 blankColor = new Vec3(1, 1, 1);
 
     HashMap<String, ResourceLocation> textures = new HashMap<String, ResourceLocation>();
     HashMap<String, Vec3> textureColor = new HashMap<String, Vec3>();
@@ -36,10 +41,24 @@ public class TextureHandler
         return textures.get(name);
     }
 
+    public ResourceLocation getSmallTexture(String name)
+    {
+        ResourceLocation bigTex = textures.get(name);
+
+        // Append the word small to the start of the file name
+        String location = bigTex.getPath();
+        int slash = location.lastIndexOf('/') + 1;
+        location = location.substring(0, slash) + "small" + location.substring(slash);
+
+        return new ResourceLocation(bigTex.getNamespace(), location);
+    }
+
     public void clearTextures()
     {
         textures.clear();
         textureColor.clear();
+
+        addTexture(BLANK, BLANK_LOCATION);
     }
 
     public void updateArmorTextures(AbstractClientPlayer player)
@@ -91,7 +110,7 @@ public class TextureHandler
         if (textureColor.containsKey(name))
             return textureColor.get(name);
 
-        return null;
+        return blankColor;
     }
 
     public Vec3 getArmorColor(AbstractClientPlayer player, EquipmentSlot slot)

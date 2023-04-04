@@ -515,7 +515,7 @@ public class ExtendableModelRenderer
             if (MultiLimbedRenderer.isFakeThirdPerson())
                 toggleFirstPersonVisability(false);
 
-            renderQuads(PoseStackIn, packedLightIn, packedOverlayIn);
+            renderQuads(PoseStackIn, packedLightIn, packedOverlayIn, textures);
         }
 
         mPart.xRot -= rotationOffset.x;
@@ -523,10 +523,10 @@ public class ExtendableModelRenderer
         mPart.zRot -= rotationOffset.z;
     }
 
-    public void renderQuads(PoseStack PoseStackIn, int packedLightIn, int packedOverlayIn)
+    public void renderQuads(PoseStack PoseStackIn, int packedLightIn, int packedOverlayIn, TextureHandler textures)
     {
         for (Quad quad : quads)
-            quad.render(PoseStackIn, packedLightIn, packedOverlayIn);
+            quad.render(PoseStackIn, packedLightIn, packedOverlayIn, textures);
     }
 
     public void renderCube(PoseStack PoseStackIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha, TextureHandler textures)

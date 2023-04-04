@@ -1,16 +1,22 @@
 package DaoOfModding.mlmanimator.Client.Models.Quads;
 
+import DaoOfModding.mlmanimator.Client.Models.ExtendableModelLayer;
+import DaoOfModding.mlmanimator.Client.Models.TextureHandler;
 import DaoOfModding.mlmanimator.Client.MultiLimbedRenderer;
 import DaoOfModding.mlmanimator.mlmanimator;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Vector3f;
 import com.mojang.math.Vector4f;
+import net.minecraft.client.model.geom.builders.UVPair;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.Vec2;
 import com.mojang.math.Matrix3f;
 import com.mojang.math.Matrix4f;
+
+import java.util.ArrayList;
 
 
 public class Quad
@@ -21,8 +27,8 @@ public class Quad
 
     protected Vec3 quadPos[] = new Vec3[4];
     protected Vec3 normal[] = new Vec3[4];
-    protected Vector4f color = new Vector4f(1, 1, 1, 1);
-    protected ResourceLocation customTexture = new ResourceLocation(mlmanimator.MODID, "textures/blank.png");
+    protected ArrayList<ExtendableModelLayer> layers = new ArrayList<ExtendableModelLayer>();
+    protected float alpha = 1;
 
     public Quad(Vec3 topLeft, Vec3 topRight, Vec3 bottomRight, Vec3 bottomLeft)
     {
@@ -39,6 +45,11 @@ public class Quad
         calculateNormals();
     }
 
+    public void setAlpha(float value)
+    {
+        alpha = value;
+    }
+
     public Vec3 getPos(Quad.QuadVertex vertex)
     {
         return quadPos[vertex.ordinal()];
@@ -50,9 +61,27 @@ public class Quad
         calculateNormals();
     }
 
-    public void setTexture(ResourceLocation texture)
+    public void addLayer(UVPair tex, UVPair texSize, float extend, String name)
     {
-        customTexture = texture;
+        layers.add(new ExtendableModelLayer(tex, texSize, extend, name));
+    }
+
+    public void addLayer(UVPair tex, UVPair texSize, float extend, String name, boolean mirror)
+    {
+        layers.add(new ExtendableModelLayer(tex, texSize, extend, name, mirror, 1));
+    }
+
+    public void addLayer(UVPair tex, UVPair texSize, float extend, String name, boolean mirror, float textureResize)
+    {
+        layers.add(new ExtendableModelLayer(tex, texSize, extend, name, mirror, textureResize));
+    }
+
+    public void addLayer(UVPair tex, UVPair texSize, float extend, String name, boolean mirror, float textureResize, Direction invisibleDirection)
+    {
+        ExtendableModelLayer layer = new ExtendableModelLayer(tex, texSize, extend, name, mirror, textureResize);
+        layer.setVisable(invisibleDirection, false);
+
+        layers.add(layer);
     }
 
     protected void calculateNormals()
@@ -68,28 +97,29 @@ public class Quad
         return (leftPoint.subtract(point)).cross(rightPoint.subtract(point)).normalize();
     }
 
-    public void setColor(Vector4f newColor)
+    public void render(PoseStack PoseStackIn, int packedLightIn, int packedOverlayIn, TextureHandler textures)
     {
-        color = newColor;
-    }
-
-    public void render(PoseStack PoseStackIn, int packedLightIn, int packedOverlayIn)
-    {
-        VertexConsumer vertexBuilder = MultiLimbedRenderer.getVertexBuilder(customTexture);
-
-        Matrix4f stackPose = PoseStackIn.last().pose();
-        Matrix3f stackNormal = PoseStackIn.last().normal();
-
-        // Loop through each vertex
-        for (int i = 0; i < 4; i++)
+        // Draw each model layer
+        for (ExtendableModelLayer layer : layers)
         {
-            Vector3f floatingNormal = new Vector3f((float)normal[i].x, (float)normal[i].y, (float)normal[i].z);
-            floatingNormal.transform(stackNormal);
+            ResourceLocation tex = textures.getSmallTexture(layer.getName());
+            VertexConsumer vertexBuilder = MultiLimbedRenderer.getVertexBuilder(tex);
 
-            Vector4f floatingPos = new Vector4f((float)quadPos[i].x / 16, (float)quadPos[i].y / 16, (float)quadPos[i].z / 16, 1f);
-            floatingPos.transform(stackPose);
+            Vec3 color = textures.getColor(layer.getName());
 
-            vertexBuilder.vertex(floatingPos.x(), floatingPos.y(), floatingPos.z(), color.x(), color.y(), color.z(), color.w(), texUV[i].x, texUV[i].y, packedOverlayIn, packedLightIn, floatingNormal.x(), floatingNormal.y(), floatingNormal.z());
+            Matrix4f stackPose = PoseStackIn.last().pose();
+            Matrix3f stackNormal = PoseStackIn.last().normal();
+
+            // Loop through each vertex
+            for (int i = 0; i < 4; i++) {
+                Vector3f floatingNormal = new Vector3f((float) normal[i].x, (float) normal[i].y, (float) normal[i].z);
+                floatingNormal.transform(stackNormal);
+
+                Vector4f floatingPos = new Vector4f((float) quadPos[i].x / 16, (float) quadPos[i].y / 16, (float) quadPos[i].z / 16, 1f);
+                floatingPos.transform(stackPose);
+
+                vertexBuilder.vertex(floatingPos.x(), floatingPos.y(), floatingPos.z(), (float) color.x(), (float) color.y(), (float) color.z(), alpha, texUV[i].x, texUV[i].y, packedOverlayIn, packedLightIn, floatingNormal.x(), floatingNormal.y(), floatingNormal.z());
+            }
         }
     }
 }
