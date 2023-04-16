@@ -41,7 +41,7 @@ public class TextureHandler
         if (textures.containsKey(name))
             return textures.get(name);
 
-        return BLANK_LOCATION;
+        return null;
     }
 
     public ResourceLocation getSmallTexture(String name)
