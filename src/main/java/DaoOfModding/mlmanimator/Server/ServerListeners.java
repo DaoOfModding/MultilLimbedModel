@@ -1,5 +1,6 @@
 package DaoOfModding.mlmanimator.Server;
 
+import DaoOfModding.mlmanimator.mlmanimator;
 import net.minecraft.world.entity.Pose;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -14,12 +15,17 @@ public class ServerListeners
 {
     protected static HashMap<UUID, Boolean> crawling = new HashMap<UUID, Boolean>();
 
+    public static double test = 0;
+
     @SubscribeEvent
     public static void playerTick(TickEvent.PlayerTickEvent event)
     {
         // Do nothing on the client
         if (event.side == LogicalSide.CLIENT)
             return;
+
+        // Update the bounding box in case it's been modified to use pose dimensions
+        event.player.setBoundingBox(event.player.getDimensions(null).makeBoundingBox(event.player.position()));
 
         if (event.phase == TickEvent.Phase.END)
         {
@@ -29,6 +35,9 @@ public class ServerListeners
                 if (event.player.level.noCollision(event.player, event.player.getBoundingBox()) && !isCrawling(event.player.getUUID()))
                 {
                     event.player.setPose(Pose.STANDING);
+
+                    // Maybe pointless?
+                    event.player.getEntityData().clearDirty();
                 }
             }
         }
