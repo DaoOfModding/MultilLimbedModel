@@ -24,9 +24,20 @@ public class ExtendableModelLayer
 
     protected float textureResize;
 
+    protected UVPair UVlock = null;
+
+    protected boolean useSmall = false;
+
     public ExtendableModelLayer(UVPair texOffset, UVPair texSize, float extend, String newName)
     {
         this(texOffset, texSize, extend, newName, false, 1);
+    }
+
+    public ExtendableModelLayer(UVPair texOffset, UVPair texSize, float extend, String newName, UVPair lockedUV)
+    {
+        this(texOffset, texSize, extend, newName, false, 1);
+
+        lockUV(lockedUV);
     }
 
     public ExtendableModelLayer(UVPair texOffset, UVPair texSize, float extend, String newName, boolean mirror, float texResize)
@@ -37,6 +48,38 @@ public class ExtendableModelLayer
         name = newName;
         mirr = mirror;
         textureResize = texResize;
+    }
+
+    public ExtendableModelLayer(UVPair texOffset, UVPair texSize, float extend, String newName, boolean mirror, float texResize, UVPair lockedUV)
+    {
+        this(texOffset, texSize, extend, newName, mirror, texResize);
+
+        lockUV(lockedUV);
+    }
+
+    public void setSmall()
+    {
+        useSmall = true;
+    }
+
+    public boolean useSmall()
+    {
+        return useSmall;
+    }
+
+    public void lockUV(UVPair lock)
+    {
+        UVlock = lock;
+    }
+
+    public UVPair getUVlock()
+    {
+        return UVlock;
+    }
+
+    public UVPair getTextureOffset()
+    {
+        return textureOffset;
     }
 
     public String getName()
