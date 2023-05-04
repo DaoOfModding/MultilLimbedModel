@@ -675,7 +675,9 @@ public class MultiLimbedModel
 
         // Send the updated bounding box to the server if it has changed size
         if (player.isLocalPlayer() && (oldWidth != player.getBbWidth() || oldHeight != player.getBbHeight()))
+        {
             PacketHandler.sendBoundingBoxToServer(size.minSize, size.maxSize);
+        }
     }
 
     public MultiLimbedDimensions getSize()

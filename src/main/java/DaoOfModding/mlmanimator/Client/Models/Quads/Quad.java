@@ -162,30 +162,33 @@ public class Quad
             else
                 tex = textures.getTexture(layer.getName());
 
-            VertexConsumer vertexBuilder = MultiLimbedRenderer.getVertexBuilder(tex);
-
-            Vec3 color = textures.getColor(layer.getName());
-
-            Matrix4f stackPose = PoseStackIn.last().pose();
-            Matrix3f stackNormal = PoseStackIn.last().normal();
-
-            // Loop through each vertex
-            for (int i = 0; i < 4; i++)
+            if (tex != null)
             {
-                UVPair UV = layer.getUVlock();
+                VertexConsumer vertexBuilder = MultiLimbedRenderer.getVertexBuilder(tex);
 
-                if (UV == null)
-                    UV = texUV[i];
-                else
-                    UV = new UVPair(UV.u() + texUV[i].u() * 0.001f, UV.v() + texUV[i].v() * 0.001f);
+                Vec3 color = textures.getColor(layer.getName());
 
-                Vector3f floatingNormal = new Vector3f((float) normal[i].x, (float) normal[i].y, (float) normal[i].z);
-                floatingNormal.transform(stackNormal);
+                Matrix4f stackPose = PoseStackIn.last().pose();
+                Matrix3f stackNormal = PoseStackIn.last().normal();
 
-                Vector4f floatingPos = new Vector4f((float) quadPos[i].x / 16, (float) quadPos[i].y / 16, (float) quadPos[i].z / 16, 1f);
-                floatingPos.transform(stackPose);
+                // Loop through each vertex
+                for (int i = 0; i < 4; i++)
+                {
+                    UVPair UV = layer.getUVlock();
 
-                vertexBuilder.vertex(floatingPos.x(), floatingPos.y(), floatingPos.z(), (float) color.x(), (float) color.y(), (float) color.z(), alpha, UV.u(), UV.v(), packedOverlayIn, packedLightIn, floatingNormal.x(), floatingNormal.y(), floatingNormal.z());
+                    if (UV == null)
+                        UV = texUV[i];
+                    else
+                        UV = new UVPair(UV.u() + texUV[i].u() * 0.001f, UV.v() + texUV[i].v() * 0.001f);
+
+                    Vector3f floatingNormal = new Vector3f((float) normal[i].x, (float) normal[i].y, (float) normal[i].z);
+                    floatingNormal.transform(stackNormal);
+
+                    Vector4f floatingPos = new Vector4f((float) quadPos[i].x / 16, (float) quadPos[i].y / 16, (float) quadPos[i].z / 16, 1f);
+                    floatingPos.transform(stackPose);
+
+                    vertexBuilder.vertex(floatingPos.x(), floatingPos.y(), floatingPos.z(), (float) color.x(), (float) color.y(), (float) color.z(), alpha, UV.u(), UV.v(), packedOverlayIn, packedLightIn, floatingNormal.x(), floatingNormal.y(), floatingNormal.z());
+                }
             }
         }
     }

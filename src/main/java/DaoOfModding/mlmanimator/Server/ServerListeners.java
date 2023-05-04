@@ -1,21 +1,21 @@
 package DaoOfModding.mlmanimator.Server;
 
-import DaoOfModding.mlmanimator.mlmanimator;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
 
-import java.util.HashMap;
+import java.util.HashMap;;
 import java.util.UUID;
 
 @Mod.EventBusSubscriber
 public class ServerListeners
 {
     protected static HashMap<UUID, Boolean> crawling = new HashMap<UUID, Boolean>();
-
-    public static double test = 0;
 
     @SubscribeEvent
     public static void playerTick(TickEvent.PlayerTickEvent event)
@@ -41,6 +41,18 @@ public class ServerListeners
                 }
             }
         }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerHurtInitial(LivingAttackEvent event)
+    {
+        if (event.getEntity() instanceof Player && !event.getEntity().level.isClientSide)
+            if (event.getSource() == DamageSource.IN_WALL)
+            {
+                // Cancel random instances of damage caused by hitbox changes
+                if (!event.getEntity().horizontalCollision && !event.getEntity().verticalCollision)
+                    event.setCanceled(true);
+            }
     }
 
     public static void setCrawling(UUID player, boolean crawl)
