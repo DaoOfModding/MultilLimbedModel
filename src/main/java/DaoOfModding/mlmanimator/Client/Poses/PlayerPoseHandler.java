@@ -763,7 +763,7 @@ public class PlayerPoseHandler
 
         if (itemstack.isEmpty())
         {
-            if (player.swinging && arm.hand == player.getUsedItemHand())
+            if (player.swinging && arm.hand == player.swingingArm)
                 tryAttackPose(player, arm);
         }
         else
@@ -802,7 +802,7 @@ public class PlayerPoseHandler
             }
             else
             {
-                if (player.swinging && arm.hand == player.getUsedItemHand())
+                if (player.swinging && arm.hand == player.swingingArm)
                     tryAttackPose(player, arm);
                 else if (itemstack.getItem() instanceof CrossbowItem && CrossbowItem.isCharged(itemstack))
                 {
