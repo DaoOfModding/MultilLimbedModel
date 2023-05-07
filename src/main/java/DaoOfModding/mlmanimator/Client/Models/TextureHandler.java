@@ -49,6 +49,9 @@ public class TextureHandler
     {
         ResourceLocation bigTex = getTexture(name);
 
+        if (bigTex == null)
+            return null;
+
         // Append the word small to the start of the file name
         String location = bigTex.getPath();
         int slash = location.lastIndexOf('/') + 1;
