@@ -655,7 +655,7 @@ public class PlayerPoseHandler
             {
                 float f4 = player.getEyeHeight(Pose.STANDING) - 0.1F;
                 //sleeping.addAngle(GenericLimbNames.body, new Vec3((direction.getStepX()) * Math.toRadians(-90), 0.0D, (direction.getStepZ()) * Math.toRadians(-90)), GenericPoses.sleepBodyPriority);
-                sleeping.addAngle(GenericLimbNames.body, new Vec3(Math.toRadians(-90), 0.0D, 0), GenericPoses.sleepBodyPriority);
+                sleeping.addAngle(GenericLimbNames.body, new Vec3(Math.toRadians(-180), 0.0D, 0), GenericPoses.sleepBodyPriority);
             }
 
             addPose(sleeping);

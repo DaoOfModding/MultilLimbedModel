@@ -3,6 +3,7 @@ package DaoOfModding.mlmanimator.Client.Models;
 import DaoOfModding.mlmanimator.Client.MultiLimbedRenderer;
 import DaoOfModding.mlmanimator.Common.Reflection;
 import DaoOfModding.mlmanimator.Network.PacketHandler;
+import DaoOfModding.mlmanimator.mlmanimator;
 import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -634,6 +635,7 @@ public class MultiLimbedModel
         getViewPoint().translatePoseStackToThis(stack2);
 
         Vec3 move = getViewPoint().translateRelativePosition(getViewPoint().getRotationPoint()).scale(sizeScale/8f);
+        move = move.subtract(getViewPoint().fixedPosition.scale(sizeScale/16f));
         stack2.translate(move.x, move.y, move.z);
 
         Vector4f testVec = new Vector4f(0f, 0f, 0f, 2f);
@@ -641,6 +643,12 @@ public class MultiLimbedModel
 
         eyeHeight = (testVec.y() / 2f) - getHeightAdjustment();
         eyePushBack = testVec.z();
+
+        // Check to make sure the eye height is not higher than the hitbox
+        float height = getHeight();
+
+        if (eyeHeight < height)
+            return height;
 
         return eyeHeight;
     }
