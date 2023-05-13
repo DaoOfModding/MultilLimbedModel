@@ -37,6 +37,8 @@ import java.util.Locale;
 @Mod.EventBusSubscriber(value = Dist.CLIENT)
 public class ClientListeners
 {
+    protected static int tickSinceStart = 0;
+
     @SubscribeEvent
     public static void playerTick(TickEvent.PlayerTickEvent event)
     {
@@ -56,19 +58,26 @@ public class ClientListeners
         }
         else if (event.phase == TickEvent.Phase.END)
         {
+            // Delay crawl calculations slightly on game load
+            if (event.player.getUUID().compareTo(Minecraft.getInstance().player.getUUID()) == 0)
+            tickSinceStart++;
+
+            if (tickSinceStart < 60)
+                return;
+
             // If player is crawling
             if (event.player.hasPose(Pose.SWIMMING) && !event.player.isSwimming())
             {
                 // If player doesn't NEED to crawl then cancel the crawl
                 if (event.player.level.noCollision(event.player, event.player.getBoundingBox()) && !handler.isCrawling())
+                {
                     event.player.setPose(Pose.STANDING);
+                }
                 else
                     handler.setCrawling(true);
             }
             else
                 handler.setCrawling(false);
-
-            // TODO : Hitboxes not working properly when crawling
         }
     }
 
@@ -161,5 +170,15 @@ public class ClientListeners
         MultiLimbedRenderer.rotateCamera(event);
 
         event.getCamera().tick();
+    }
+
+    @SubscribeEvent
+    public static void playerDisconnects(PlayerEvent.PlayerLoggedOutEvent event)
+    {
+        if (event.getEntity().getUUID().compareTo(Minecraft.getInstance().player.getUUID()) == 0)
+        {
+            tickSinceStart = 0;
+            PoseHandler.clear();
+        }
     }
 }

@@ -1,5 +1,6 @@
 package DaoOfModding.mlmanimator.Server;
 
+import DaoOfModding.mlmanimator.mlmanimator;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
@@ -9,7 +10,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
 
-import java.util.HashMap;;
+import java.util.HashMap;
 import java.util.UUID;
 
 @Mod.EventBusSubscriber

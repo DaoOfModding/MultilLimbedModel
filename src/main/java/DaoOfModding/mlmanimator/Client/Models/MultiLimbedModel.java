@@ -650,6 +650,9 @@ public class MultiLimbedModel
         if (eyeHeight < height)
             return height;
 
+        if (eyeHeight > -0.1f)
+            return -0.1f;
+
         return eyeHeight;
     }
 

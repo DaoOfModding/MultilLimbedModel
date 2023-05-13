@@ -39,6 +39,12 @@ public class PoseHandler
         return true;
     }
 
+    public static void clear()
+    {
+        poses = new ArrayList<>();
+        loaded = false;
+    }
+
     public static boolean hasLoaded()
     {
         return loaded;
