@@ -684,6 +684,8 @@ public class MultiLimbedModel
         Reflection.setDimensions(player, new EntityDimensions(size.getSmallestWidth(), size.getHeight(), false));
         player.setBoundingBox(size.makeBoundingBox(player.position()));
 
+
+
         // Send the updated bounding box to the server if it has changed size
         if (player.isLocalPlayer() && (oldWidth != player.getBbWidth() || oldHeight != player.getBbHeight()))
         {

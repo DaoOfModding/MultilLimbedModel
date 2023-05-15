@@ -2,6 +2,7 @@ package DaoOfModding.mlmanimator.Client.Models;
 
 import DaoOfModding.mlmanimator.Client.MultiLimbedRenderer;
 import DaoOfModding.mlmanimator.Common.PlayerUtils;
+import DaoOfModding.mlmanimator.mlmanimator;
 import com.mojang.math.Vector3f;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.phys.AABB;
@@ -9,6 +10,8 @@ import net.minecraft.world.phys.Vec3;
 
 public class MultiLimbedDimensions extends EntityDimensions
 {
+    static final float sizeIncrement = 0.1f;
+
     Vector3f minSize;
     Vector3f maxSize;
 
@@ -86,7 +89,7 @@ public class MultiLimbedDimensions extends EntityDimensions
 
     public float getWidth()
     {
-        return (int)((maxSize.x() - minSize.x()) / 0.6f) * 0.6f;
+        return (int)((maxSize.x() - minSize.x()) / sizeIncrement) * sizeIncrement;
     }
 
     public float getHeight()
@@ -96,7 +99,7 @@ public class MultiLimbedDimensions extends EntityDimensions
 
     public float getDepth()
     {
-        return (int)((maxSize.z() - minSize.z()) / 0.6f) * 0.6f;
+        return (int)((maxSize.z() - minSize.z()) / sizeIncrement) * sizeIncrement;
     }
 
     public void updateSize(Vector3f point)
