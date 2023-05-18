@@ -3,7 +3,6 @@ package DaoOfModding.mlmanimator.Client.Models;
 import DaoOfModding.mlmanimator.Client.MultiLimbedRenderer;
 import DaoOfModding.mlmanimator.Common.Reflection;
 import DaoOfModding.mlmanimator.Network.PacketHandler;
-import DaoOfModding.mlmanimator.mlmanimator;
 import com.mojang.authlib.GameProfile;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;

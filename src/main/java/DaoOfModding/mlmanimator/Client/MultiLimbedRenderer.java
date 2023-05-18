@@ -31,6 +31,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.SkullBlock;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.ViewportEvent;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
@@ -390,7 +391,6 @@ public class MultiLimbedRenderer
             // Push the model back so it's not directly below the camera in first person
             if (MultiLimbedRenderer.isFakeThirdPerson() && entityIn.getUUID().compareTo(Minecraft.getInstance().player.getUUID()) == 0)
             {
-                // TODO, adjust this based on head position? - Maybe done, needs tests
                 PoseStackIn.translate(0, 0, getCameraDistance());
             } else {
                 // Don't render custom heads for the player in first person
@@ -416,7 +416,27 @@ public class MultiLimbedRenderer
 
     public static double getCameraDistance()
     {
-        return ((currentModel.getSize().getDepth()  / 2) + currentModel.getMidPos().z / 2) - currentModel.getEyePushBack();
+        // TODO: This only works if the head is attached directly to the body
+        double xlocation = currentModel.getViewPoint().getRotationPoint().x;
+        double zlocation = currentModel.getViewPoint().getRotationPoint().z;
+
+
+        double zDistance = currentModel.getSize().getDepth() * zlocation;
+        double xDistance = currentModel.getSize().getWidth() * xlocation;
+
+        // Get the angle the head is looking at compared to the body's angle
+        double xzMixer = Math.toDegrees(currentModel.getLookVector().y);
+
+        // If the head is looking entirely to the side (90 degrees) then push back based on the xDistance
+        // If it's looking straight ahead push back based on the zDistance
+        xzMixer = xzMixer / 90.0;
+
+        if (xzMixer < 0)
+            xzMixer = xzMixer * -1;
+
+        double distance = zDistance * (1-xzMixer) + xDistance * xzMixer;
+
+        return distance - currentModel.getEyePushBack();
     }
 
     // Returns the vertex builder for the current entity
