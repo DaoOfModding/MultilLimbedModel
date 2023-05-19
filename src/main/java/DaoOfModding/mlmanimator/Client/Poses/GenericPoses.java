@@ -6,6 +6,8 @@ import DaoOfModding.mlmanimator.Client.Models.GenericLimbNames;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.ArrayList;
+
 public class GenericPoses
 {
     public static final int walkLegPriority = 100;
@@ -61,6 +63,8 @@ public class GenericPoses
     public static ArmPose eat = new ArmPose();
     public static ArmPose drink = new ArmPose();
 
+    protected static ArrayList<String> legs = new ArrayList<String>();
+
     public static void init()
     {
         setupIdle();
@@ -76,6 +80,21 @@ public class GenericPoses
         setupSpin();
 
         setupAction();
+
+        addLeg(GenericLimbNames.leftLeg);
+        addLeg(GenericLimbNames.lowerLeftLeg);
+        addLeg(GenericLimbNames.rightLeg);
+        addLeg(GenericLimbNames.lowerRightLeg);
+    }
+
+    public static void addLeg(String legname)
+    {
+        legs.add(legname);
+    }
+
+    public static ArrayList<String> getLegs()
+    {
+        return legs;
     }
 
     public static PlayerPose getWalkingPose(Player player)
@@ -128,13 +147,13 @@ public class GenericPoses
 
     public static void setupCrouching()
     {
-        Crouching.addAngle(GenericLimbNames.leftLeg, new Vec3(Math.toRadians(-40), 0, 0), crouchPriority);
-        Crouching.addAngle(GenericLimbNames.rightLeg, new Vec3(Math.toRadians(-40), 0, 0), crouchPriority);
-        Crouching.addAngle(GenericLimbNames.lowerLeftLeg, new Vec3(Math.toRadians(40), 0, 0), crouchPriority);
-        Crouching.addAngle(GenericLimbNames.lowerRightLeg, new Vec3(Math.toRadians(40), 0, 0), crouchPriority);
+        Crouching.addAngle(GenericLimbNames.leftLeg, new Vec3(Math.toRadians(-70), 0, 0), crouchPriority);
+        Crouching.addAngle(GenericLimbNames.rightLeg, new Vec3(Math.toRadians(-70), 0, 0), crouchPriority);
+        Crouching.addAngle(GenericLimbNames.lowerLeftLeg, new Vec3(Math.toRadians(70), 0, 0), crouchPriority);
+        Crouching.addAngle(GenericLimbNames.lowerRightLeg, new Vec3(Math.toRadians(70), 0, 0), crouchPriority);
 
-        Crouching.addAngle(GenericLimbNames.leftWingElytra, new Vec3(0, 0, Math.toRadians(-30)), crouchPriority);
-        Crouching.addAngle(GenericLimbNames.rightWingElytra, new Vec3(0, 0, Math.toRadians(30)), crouchPriority);
+        Crouching.addAngle(GenericLimbNames.leftWingElytra, new Vec3(0, 0, Math.toRadians(-40)), crouchPriority);
+        Crouching.addAngle(GenericLimbNames.rightWingElytra, new Vec3(0, 0, Math.toRadians(40)), crouchPriority);
     }
 
     public static void setupCrawling()
@@ -271,21 +290,21 @@ public class GenericPoses
     {
         Vec3[] walkAngle = new Vec3[5];
 
-        walkAngle[0] = new Vec3(Math.toRadians(-85), Math.toRadians(0), Math.toRadians(0));
-        walkAngle[1] = new Vec3(Math.toRadians(-85), Math.toRadians(0), Math.toRadians(0));
-        walkAngle[2] = new Vec3(Math.toRadians(-40), Math.toRadians(0), Math.toRadians(0));
-        walkAngle[3] = new Vec3(Math.toRadians(-10), Math.toRadians(0), Math.toRadians(0));
-        walkAngle[4] = new Vec3(Math.toRadians(-10), Math.toRadians(0), Math.toRadians(0));
+        walkAngle[0] = new Vec3(Math.toRadians(-95), Math.toRadians(0), Math.toRadians(0));
+        walkAngle[1] = new Vec3(Math.toRadians(-95), Math.toRadians(0), Math.toRadians(0));
+        walkAngle[2] = new Vec3(Math.toRadians(-70), Math.toRadians(0), Math.toRadians(0));
+        walkAngle[3] = new Vec3(Math.toRadians(-30), Math.toRadians(0), Math.toRadians(0));
+        walkAngle[4] = new Vec3(Math.toRadians(-30), Math.toRadians(0), Math.toRadians(0));
 
         CrouchingWalk = AnimationBuilder.generateRepeatingMirroredLimbs(GenericLimbNames.leftLeg, GenericLimbNames.rightLeg, walkAngle, crouchPriority, AnimationSpeedCalculator.defaultSpeedInTicks / 2, 1);
 
 
         Vec3[] lowerWalkAngle = new Vec3[5];
-        lowerWalkAngle[0] = new Vec3(Math.toRadians(85), Math.toRadians(0), Math.toRadians(0));
-        lowerWalkAngle[1] = new Vec3(Math.toRadians(40), Math.toRadians(0), Math.toRadians(0));
-        lowerWalkAngle[2] = new Vec3(Math.toRadians(40), Math.toRadians(0), Math.toRadians(0));
-        lowerWalkAngle[3] = new Vec3(Math.toRadians(40), Math.toRadians(0), Math.toRadians(0));
-        lowerWalkAngle[4] = new Vec3(Math.toRadians(55), Math.toRadians(0), Math.toRadians(0));
+        lowerWalkAngle[0] = new Vec3(Math.toRadians(95), Math.toRadians(0), Math.toRadians(0));
+        lowerWalkAngle[1] = new Vec3(Math.toRadians(70), Math.toRadians(0), Math.toRadians(0));
+        lowerWalkAngle[2] = new Vec3(Math.toRadians(70), Math.toRadians(0), Math.toRadians(0));
+        lowerWalkAngle[3] = new Vec3(Math.toRadians(70), Math.toRadians(0), Math.toRadians(0));
+        lowerWalkAngle[4] = new Vec3(Math.toRadians(85), Math.toRadians(0), Math.toRadians(0));
 
         CrouchingWalk = CrouchingWalk.combine(AnimationBuilder.generateRepeatingMirroredLimbs(GenericLimbNames.lowerLeftLeg, GenericLimbNames.lowerRightLeg, lowerWalkAngle, crouchPriority, AnimationSpeedCalculator.defaultSpeedInTicks / 2, 1));
 

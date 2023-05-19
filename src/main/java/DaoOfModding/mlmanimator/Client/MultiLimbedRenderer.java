@@ -270,7 +270,7 @@ public class MultiLimbedRenderer
     {
         float oldHeight = player.getEyeHeight();
 
-        float eyeHeight = handler.getPlayerModel().calculateEyeHeight() * -1f;
+        float eyeHeight = handler.getPlayerModel().getEyeHeight() * -1;
 
         Reflection.adjustEyeHeight(player, eyeHeight);
 

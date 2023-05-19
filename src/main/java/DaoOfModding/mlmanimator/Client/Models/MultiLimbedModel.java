@@ -41,7 +41,7 @@ public class MultiLimbedModel
     protected float sizeScale = 1;
     protected double defaultHeight = 1.5;
 
-    protected static float defaultEyeHeight = 2;
+    protected float eyeHeightAdjustment = 0.15f;
 
     protected Vec3 lookVector = new Vec3(0, 0, 0);
 
@@ -77,9 +77,8 @@ public class MultiLimbedModel
     SkullModelBase skullmodelbase = null;
     RenderType skullrendertype = null;
 
-    float eyeHeight = 0;
     float eyePushBack = 0;
-
+    float eyeHeight = 0;
 
     public MultiLimbedModel(PlayerModel model)
     {
@@ -628,7 +627,7 @@ public class MultiLimbedModel
         PoseStackIn.popPose();
     }
 
-    public float calculateEyeHeight()
+    public void calculateEyeHeight()
     {
         PoseStack stack2 = new PoseStack();
         getViewPoint().translatePoseStackToThis(stack2);
@@ -647,12 +646,23 @@ public class MultiLimbedModel
         float height = getHeight();
 
         if (eyeHeight < height)
-            return height;
+            eyeHeight = height;
 
         if (eyeHeight > -0.1f)
-            return -0.1f;
+            eyeHeight = -0.1f;
 
+        // Increase the eyeHeight by the eyeHeightAdjustment, ignoring height limits
+        eyeHeight -= eyeHeightAdjustment;
+    }
+
+    public float getEyeHeight()
+    {
         return eyeHeight;
+    }
+
+    public void setEyeHeightAdjustment(float value)
+    {
+        eyeHeightAdjustment = value;
     }
 
     public float getEyePushBack()
@@ -668,9 +678,6 @@ public class MultiLimbedModel
 
         size = body.calculateMinHeight(new PoseStack(), 360 - rotation);
 
-        // Add a small amount of additional padding at the top of the bounding box
-        size.increaseHeight(1);
-
         size.scaleValues(sizeScale / 16f);
         size = new MultiLimbedDimensions(size);
 
@@ -680,10 +687,14 @@ public class MultiLimbedModel
         float oldWidth = player.getBbWidth();
         float oldHeight = player.getBbHeight();
 
+        // Calculate the eye height and increase the bounding box height if needed
+        calculateEyeHeight();
+
+        if (getEyeHeight() < getHeight())
+            size.increaseHeight((eyeHeight - getHeight()) * -1 + 1.0f/16.0f);
+
         Reflection.setDimensions(player, new EntityDimensions(size.getSmallestWidth(), size.getHeight(), false));
         player.setBoundingBox(size.makeBoundingBox(player.position()));
-
-
 
         // Send the updated bounding box to the server if it has changed size
         if (player.isLocalPlayer() && (oldWidth != player.getBbWidth() || oldHeight != player.getBbHeight()))

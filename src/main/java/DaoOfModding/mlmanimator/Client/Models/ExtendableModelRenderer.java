@@ -69,6 +69,9 @@ public class ExtendableModelRenderer
 
     protected Vec3 usedSize;
 
+    protected boolean lockBBAnimation = false;
+    protected Vec3 lockedAnimation = new Vec3(0, 0, 0);
+
     public ExtendableModelRenderer(String limbName)
     {
         name = limbName;
@@ -168,6 +171,20 @@ public class ExtendableModelRenderer
 
         for (QuadLinkage link : quadLinkage)
             copy.addQuadLinkage(link);
+    }
+
+    public void lockHitboxAnimation(Vec3 animation)
+    {
+        if (animation == null)
+        {
+            lockBBAnimation = false;
+        }
+        else
+        {
+            lockBBAnimation = true;
+            lockedAnimation = animation;
+        }
+
     }
 
     public void setHitbox(boolean on)
@@ -632,7 +649,10 @@ public class ExtendableModelRenderer
 
         PoseStackIn.pushPose();
 
-        rotateMatrix(PoseStackIn);
+        if (lockBBAnimation)
+            rotateMatrixToValue(PoseStackIn, lockedAnimation);
+        else
+            rotateMatrix(PoseStackIn);
 
         Matrix4f rotator = PoseStackIn.last().pose();
 
@@ -653,8 +673,8 @@ public class ExtendableModelRenderer
 
             dimensions.updateSize(point);
 
-            if (vector4f.y() > min)
-                min = vector4f.y();
+            if (point.y() > min)
+                min = point.y();
         }
 
         // Update any quad linkages now so it doesn't have to run through the same loop again
@@ -772,6 +792,30 @@ public class ExtendableModelRenderer
 
         if (mPart.xRot != 0.0F) {
             PoseStackIn.mulPose(Vector3f.XP.rotation(mPart.xRot));
+        }
+
+        mPart.xRot -= rotationOffset.x;
+        mPart.yRot -= rotationOffset.y;
+        mPart.zRot -= rotationOffset.z;
+    }
+
+    public void rotateMatrixToValue(PoseStack PoseStackIn, Vec3 rotation)
+    {
+        mPart.xRot += rotationOffset.x;
+        mPart.yRot += rotationOffset.y;
+        mPart.zRot += rotationOffset.z;
+
+        PoseStackIn.translate(mPart.x, mPart.y, mPart.z);
+        if (rotation.z != 0.0F) {
+            PoseStackIn.mulPose(Vector3f.ZP.rotation((float)rotation.z));
+        }
+
+        if (rotation.y != 0.0F) {
+            PoseStackIn.mulPose(Vector3f.YP.rotation((float)rotation.y));
+        }
+
+        if (rotation.x != 0.0F) {
+            PoseStackIn.mulPose(Vector3f.XP.rotation((float)rotation.x));
         }
 
         mPart.xRot -= rotationOffset.x;

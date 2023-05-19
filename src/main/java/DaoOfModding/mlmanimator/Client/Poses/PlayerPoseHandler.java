@@ -629,6 +629,8 @@ public class PlayerPoseHandler
 
         addPose(GenericPoses.Idle);
 
+        lockLegPose(GenericPoses.Idle);
+
         // Tell the PoseHandler that the player is not jumping if they are on the ground or in water
         if (player.isOnGround() || player.isInWater())
             setJumping(false);
@@ -644,6 +646,7 @@ public class PlayerPoseHandler
         {
             // TODO: Account for horses rearing up - Is this needed? Seems to instantly kick you off the horse
             addPose(GenericPoses.Sitting);
+            lockLegPose(GenericPoses.Sitting);
         }
 
         if (player.isSleeping())
@@ -702,6 +705,8 @@ public class PlayerPoseHandler
         }
         else if (player.isCrouching() && player.isOnGround())
         {
+            lockLegPose(GenericPoses.Crouching);
+
             if (getDeltaMovement().x != 0 || getDeltaMovement().z != 0)
             {
                 addPose(GenericPoses.getWalkingPose(player));
@@ -719,6 +724,15 @@ public class PlayerPoseHandler
 
         // Update the PoseHandler
         updateRenderPose();
+    }
+
+    public void lockLegPose(PlayerPose pose)
+    {
+        for (String leg : GenericPoses.getLegs())
+        {
+            if (model.hasLimb(leg) && pose.hasAngle(leg))
+                model.getLimb(leg).lockHitboxAnimation(pose.getAngles(leg).get(0));
+        }
     }
 
     public ArmPose convertArmPose(Arm arm, ArmPose pose)
