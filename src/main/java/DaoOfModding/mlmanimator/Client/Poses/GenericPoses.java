@@ -76,6 +76,7 @@ public class GenericPoses
         setupCrouchingWalk();
         setupSwimming();
         setupSitting();
+        setupSleeping();
         setupCrawling();
         setupSpin();
 
@@ -131,6 +132,11 @@ public class GenericPoses
         SwimmingMoving.addAngle(GenericLimbNames.leftLeg, new Vec3(Math.toRadians(30), 0, 0), swimLegPriority, 15f, 1);
         SwimmingMoving.addAngle(GenericLimbNames.rightLeg, new Vec3(Math.toRadians(30), 0, 0), swimLegPriority, 15f, 1);
         SwimmingMoving.addAngle(GenericLimbNames.rightLeg, new Vec3(Math.toRadians(-30), 0, 0), swimLegPriority, 15f, 1);
+    }
+
+    public static void setupSleeping()
+    {
+        Sleeping.addAngle(GenericLimbNames.body, new Vec3(0, 0, 0), GenericPoses.sleepBodyPriority);
     }
 
     public static void setupSitting()
