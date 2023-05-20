@@ -22,6 +22,7 @@ import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
@@ -667,9 +668,9 @@ public class MultiLimbedModel
     public void calculateHeightAdjustment(Player player)
     {
         // Only calculate sizes at 90 degree angles
-        float rotation = (int)((player.yBodyRot + 45) / 90) * 90;
+        float rotation = (int)((Mth.wrapDegrees(player.yBodyRot) + 45) / 90) * 90;
 
-        size = body.calculateMinHeight(new PoseStack(), 360 - rotation);
+        size = body.calculateMinHeight(new PoseStack(), rotation * -1);
 
         size.scaleValues(sizeScale / 16f);
         size = new MultiLimbedDimensions(size);

@@ -422,16 +422,15 @@ public class MultiLimbedRenderer
         double zlocation = currentModel.getViewPoint().getRotationPoint().z;
 
         // Convert the yBody rotation to a value between 0-360
-        float angle = (Minecraft.getInstance().player.yBodyRot) % 360;
-        if (angle < 0)
-            angle *= -1;
+        float angle = Mth.wrapDegrees(Minecraft.getInstance().player.yBodyRot);
 
 
         // Flip the depth and width around if the body is facing to the left or right
         double zDistance = currentModel.getSize().getDepth();
         double xDistance = currentModel.getSize().getWidth();
 
-        if ((angle > 45 && angle < 135) || (angle > 225 && angle < 315))
+        // TODO: ...these angles seem wrong, but it's what is necessary for it to work properly. Perhaps something is borked somewhere else...
+        if ((angle > 45 && angle < 135) || (angle > -180 && angle < -135))
         {
             zDistance = currentModel.getSize().getWidth();
             xDistance = currentModel.getSize().getDepth();
