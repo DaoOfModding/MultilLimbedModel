@@ -391,7 +391,8 @@ public class MultiLimbedRenderer
             // Push the model back so it's not directly below the camera in first person
             if (MultiLimbedRenderer.isFakeThirdPerson() && entityIn.getUUID().compareTo(Minecraft.getInstance().player.getUUID()) == 0)
             {
-                PoseStackIn.translate(0, 0, getCameraDistance());
+                Vec3 pushBack = getCameraDistance();
+                PoseStackIn.translate(pushBack.x, pushBack.y, pushBack.z);
             } else {
                 // Don't render custom heads for the player in first person
                 entityModel.renderHead(PoseStackIn, Minecraft.getInstance().renderBuffers().bufferSource(), packedLightIn, 1.0F, 1.0F, 1.0F, 1.0F, entityIn.tickCount);
@@ -414,15 +415,46 @@ public class MultiLimbedRenderer
         PoseStackIn.popPose();
     }
 
-    public static double getCameraDistance()
+    public static Vec3 getCameraDistance()
     {
         // TODO: This only works if the head is attached directly to the body
+        double xlocation = currentModel.getViewPoint().getRotationPoint().x;
         double zlocation = currentModel.getViewPoint().getRotationPoint().z;
 
+        // Convert the yBody rotation to a value between 0-360
+        float angle = (Minecraft.getInstance().player.yBodyRot) % 360;
+        if (angle < 0)
+            angle *= -1;
 
-        double zDistance = currentModel.getSize().getDepth() * zlocation;
 
-        return zDistance;
+        // Flip the depth and width around if the body is facing to the left or right
+        double zDistance = currentModel.getSize().getDepth();
+        double xDistance = currentModel.getSize().getWidth();
+
+        if ((angle > 45 && angle < 135) || (angle > 225 && angle < 315))
+        {
+            zDistance = currentModel.getSize().getWidth();
+            xDistance = currentModel.getSize().getDepth();
+        }
+
+        zDistance *= zlocation;
+        xDistance *= xlocation;
+
+        // Get the angle the head is looking at compared to the body's angle
+        double xzMixer = Math.toDegrees(currentModel.getLookVector().y);
+
+        // If the head is looking entirely to the side (90 degrees) then push back based on the xDistance
+        // If it's looking straight ahead push back based on the zDistance
+        xzMixer = xzMixer / 90.0;
+
+        double negxDistance = xDistance * xzMixer;
+
+        if (xzMixer < 0)
+            xzMixer = xzMixer * -1;
+
+        double distance = zDistance * (1-xzMixer);
+
+        return new Vec3(negxDistance, 0, distance);
     }
 
     // Returns the vertex builder for the current entity
