@@ -417,26 +417,12 @@ public class MultiLimbedRenderer
     public static double getCameraDistance()
     {
         // TODO: This only works if the head is attached directly to the body
-        double xlocation = currentModel.getViewPoint().getRotationPoint().x;
         double zlocation = currentModel.getViewPoint().getRotationPoint().z;
 
 
         double zDistance = currentModel.getSize().getDepth() * zlocation;
-        double xDistance = currentModel.getSize().getWidth() * xlocation;
 
-        // Get the angle the head is looking at compared to the body's angle
-        double xzMixer = Math.toDegrees(currentModel.getLookVector().y);
-
-        // If the head is looking entirely to the side (90 degrees) then push back based on the xDistance
-        // If it's looking straight ahead push back based on the zDistance
-        xzMixer = xzMixer / 90.0;
-
-        if (xzMixer < 0)
-            xzMixer = xzMixer * -1;
-
-        double distance = zDistance * (1-xzMixer) + xDistance * xzMixer;
-
-        return distance - currentModel.getEyePushBack();
+        return zDistance;
     }
 
     // Returns the vertex builder for the current entity

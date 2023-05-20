@@ -77,7 +77,6 @@ public class MultiLimbedModel
     SkullModelBase skullmodelbase = null;
     RenderType skullrendertype = null;
 
-    float eyePushBack = 0;
     float eyeHeight = 0;
 
     public MultiLimbedModel(PlayerModel model)
@@ -640,7 +639,6 @@ public class MultiLimbedModel
         testVec.transform(stack2.last().pose());
 
         eyeHeight = (testVec.y() / 2f) - getHeightAdjustment();
-        eyePushBack = testVec.z();
 
         // Check to make sure the eye height is not higher than the hitbox
         float height = getHeight();
@@ -663,11 +661,6 @@ public class MultiLimbedModel
     public void setEyeHeightAdjustment(float value)
     {
         eyeHeightAdjustment = value;
-    }
-
-    public float getEyePushBack()
-    {
-        return eyePushBack;
     }
 
     // Calculate the height adjustment for each limb

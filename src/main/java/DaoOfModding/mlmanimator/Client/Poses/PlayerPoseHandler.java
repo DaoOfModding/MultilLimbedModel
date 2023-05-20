@@ -730,8 +730,13 @@ public class PlayerPoseHandler
     {
         for (String leg : GenericPoses.getLegs())
         {
-            if (model.hasLimb(leg) && pose.hasAngle(leg))
-                model.getLimb(leg).lockHitboxAnimation(pose.getAngles(leg).get(0));
+            if (model.hasLimb(leg))
+            {
+                if (pose == null)
+                    model.getLimb(leg).lockHitboxAnimation(null);
+                else if (pose.hasAngle(leg))
+                    model.getLimb(leg).lockHitboxAnimation(pose.getAngles(leg).get(0));
+            }
         }
     }
 
