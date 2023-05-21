@@ -439,6 +439,9 @@ public class MultiLimbedRenderer
         zDistance *= zlocation;
         xDistance *= xlocation;
 
+
+        // This would be nice if this was moving the camera, but causes to much obvious movement when moving the model
+        /*
         // Get the angle the head is looking at compared to the body's angle
         double xzMixer = Math.toDegrees(currentModel.getLookVector().y);
 
@@ -453,7 +456,9 @@ public class MultiLimbedRenderer
 
         double distance = zDistance * (1-xzMixer);
 
-        return new Vec3(negxDistance, 0, distance);
+        return new Vec3(negxDistance, 0, distance);*/
+
+        return new Vec3(0, 0, zDistance);
     }
 
     // Returns the vertex builder for the current entity
