@@ -1,6 +1,7 @@
 package DaoOfModding.mlmanimator.Network.Packets;
 
 import DaoOfModding.mlmanimator.Common.Reflection;
+import DaoOfModding.mlmanimator.Server.ServerBoundingBoxHandler;
 import DaoOfModding.mlmanimator.mlmanimator;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
@@ -62,6 +63,6 @@ public class EyeHeightPacket extends Packet
     // Process received packet on the Server
     protected void processPacket(ServerPlayer sender)
     {
-        Reflection.adjustEyeHeight(sender, eyeHeight);
+        ServerBoundingBoxHandler.setEyeHeight(sender.getUUID(), eyeHeight);
     }
 }

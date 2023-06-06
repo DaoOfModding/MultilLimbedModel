@@ -2,6 +2,7 @@ package DaoOfModding.mlmanimator.Network.Packets;
 
 import DaoOfModding.mlmanimator.Client.Models.MultiLimbedDimensions;
 import DaoOfModding.mlmanimator.Common.Reflection;
+import DaoOfModding.mlmanimator.Server.ServerBoundingBoxHandler;
 import DaoOfModding.mlmanimator.mlmanimator;
 import com.mojang.math.Vector3f;
 import net.minecraft.network.FriendlyByteBuf;
@@ -81,8 +82,6 @@ import java.util.function.Supplier;
         protected void processPacket(ServerPlayer sender)
         {
             MultiLimbedDimensions dimensions = new MultiLimbedDimensions(minSize, maxSize);
-
-            Reflection.setDimensions(sender, new EntityDimensions(dimensions.getSmallestWidth(), dimensions.getHeight(), false));
-            sender.setBoundingBox(dimensions.makeBoundingBox(sender.position()));
+            ServerBoundingBoxHandler.setDimensions(sender.getUUID(), dimensions);
         }
     }

@@ -33,6 +33,20 @@ public class Reflection
         }
     }
 
+    public static EntityDimensions getDimensions(Player entity)
+    {
+        try
+        {
+            return (EntityDimensions) dimensions.get(entity);
+        }
+        catch (Exception e)
+        {
+            mlmanimator.LOGGER.error("Error get dimensions: " + e);
+        }
+
+        return null;
+    }
+
     public static void adjustEyeHeight(Entity entity, float height)
     {
         try

@@ -1,11 +1,11 @@
 package DaoOfModding.mlmanimator.Server;
 
-import DaoOfModding.mlmanimator.mlmanimator;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
@@ -26,7 +26,9 @@ public class ServerListeners
             return;
 
         // Update the bounding box in case it's been modified to use pose dimensions
-        event.player.setBoundingBox(event.player.getDimensions(null).makeBoundingBox(event.player.position()));
+        //event.player.setBoundingBox(Reflection.getDimensions(event.player).makeBoundingBox(event.player.position()));
+
+        ServerBoundingBoxHandler.updateDimensions(event.player);
 
         if (event.phase == TickEvent.Phase.END)
         {
@@ -39,6 +41,8 @@ public class ServerListeners
 
                     // Maybe pointless?
                     event.player.getEntityData().clearDirty();
+
+                    ServerBoundingBoxHandler.updateDimensions(event.player);
                 }
             }
         }
@@ -67,5 +71,11 @@ public class ServerListeners
             return false;
 
         return crawling.get(player);
+    }
+
+    @SubscribeEvent
+    public static void playerDisconnects(PlayerEvent.PlayerLoggedOutEvent event)
+    {
+        ServerBoundingBoxHandler.removePlayer(event.getEntity().getUUID());
     }
 }
