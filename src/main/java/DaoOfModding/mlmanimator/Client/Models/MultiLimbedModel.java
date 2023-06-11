@@ -685,7 +685,7 @@ public class MultiLimbedModel
         calculateEyeHeight();
 
         if (getEyeHeight() < getHeight())
-            size.increaseHeight((eyeHeight - getHeight()) * -1 + 1.0f/16.0f);
+            size.increaseHeight((eyeHeight - getHeight()) * -1 + 1.5f/16.0f);
 
         Reflection.setDimensions(player, new EntityDimensions(size.getSmallestWidth(), size.getHeight(), false));
         player.setBoundingBox(size.makeBoundingBox(player.position()));
