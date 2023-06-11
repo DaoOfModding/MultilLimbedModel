@@ -3,6 +3,8 @@ package DaoOfModding.mlmanimator.Client.Poses;
 import DaoOfModding.mlmanimator.Client.AnimationFramework.AnimationBuilder;
 import DaoOfModding.mlmanimator.Client.AnimationFramework.AnimationSpeedCalculator;
 import DaoOfModding.mlmanimator.Client.Models.GenericLimbNames;
+import DaoOfModding.mlmanimator.Common.PlayerUtils;
+import DaoOfModding.mlmanimator.mlmanimator;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
@@ -107,7 +109,7 @@ public class GenericPoses
         speed = speed / 0.02;
         speed = speed * speed;*/
 
-        double speed  = player.getDeltaMovement().multiply(1, 0, 1).length();
+        double speed  = PlayerUtils.getDelta(player).multiply(1, 0, 1).length();
 
         /*speed = speed / 0.175;
         speed = speed * speed;*/

@@ -1,5 +1,6 @@
 package DaoOfModding.mlmanimator.Common;
 
+import DaoOfModding.mlmanimator.Client.Poses.PoseHandler;
 import com.mojang.math.Vector3f;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Player;
@@ -15,6 +16,17 @@ public class PlayerUtils
     public static boolean lookingDown(Player player)
     {
         return player.getLookAngle().y < -0.75;
+    }
+
+    // PoseHandlers as client only
+    public static Vec3 getDelta(Player player)
+    {
+        Vec3 currentMotion = player.getDeltaMovement();
+
+        if (player.level.isClientSide)
+            currentMotion = PoseHandler.getPlayerPoseHandler(player.getUUID()).getDeltaMovement();
+
+        return currentMotion;
     }
 
     public static Direction movementDirection(Player player)

@@ -638,7 +638,7 @@ public class PlayerPoseHandler
         else if (!isJumping())
         {
             // Check if there is any upwards movement and set jumping to true if so
-            if (player.getDeltaMovement().y > 0)
+            if (getDeltaMovement().y > 0)
                 setJumping(true);
         }
 
@@ -836,7 +836,7 @@ public class PlayerPoseHandler
             yLook = 1.1;
 
         Vec3 vec3 = player.getLookAngle();
-        Vec3 vec31 = player.getDeltaMovement();
+        Vec3 vec31 = getDeltaMovement();
 
         double d0 = vec31.horizontalDistanceSqr();
         double d1 = vec3.horizontalDistanceSqr();
