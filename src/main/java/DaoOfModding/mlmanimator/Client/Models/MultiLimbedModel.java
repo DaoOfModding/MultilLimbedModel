@@ -78,6 +78,8 @@ public class MultiLimbedModel
     SkullModelBase skullmodelbase = null;
     RenderType skullrendertype = null;
 
+    protected boolean bbchange = false;
+
     float eyeHeight = 0;
 
     public MultiLimbedModel(PlayerModel model)
@@ -490,6 +492,18 @@ public class MultiLimbedModel
         return new Vec3(getLookVector().x() / 1.5, getLookVector().y(), getLookVector().z());
     }
 
+    public void handleBBChange(Player player)
+    {
+        if (!bbchange)
+            return;
+
+        //System.out.println(size.minSize + " - " + size.maxSize);
+        System.out.println("CHANGED - " + player.level.noCollision(player, player.getBoundingBox()));
+
+        PacketHandler.sendBoundingBoxToServer(size.minSize, size.maxSize);
+        bbchange = false;
+    }
+
     public RenderType renderType(ResourceLocation resourcelocation)
     {
         return baseModel.renderType(resourcelocation);
@@ -543,12 +557,14 @@ public class MultiLimbedModel
         getViewPoint().translatePoseStackToThis(PoseStackIn);
 
         Vec3 size = getViewPoint().getSize();
-        PoseStackIn.scale((float)size.x() + 0.1875F, ((float)size.y() + 0.1875F) * -1, ((float)size.z() + 0.1875F) * -1);
-        //PoseStackIn.scale(1F, -1F, -1F);
+        PoseStackIn.scale((float)size.x() + 0.1875F, (float)size.y() + 0.1875F, (float)size.z() + 0.1875F);
 
-        // TODO: Ensure this works properly with different head sizes/positions
-        Vec3 move = getViewPoint().translateRelativePosition(new Vec3(0, 1, 0)).scale(sizeScale/8f);
-        PoseStackIn.translate(move.x, move.y, move.z);
+        Vec3 pos = getViewPoint().translateRelativePosition(new Vec3(-0.5f, 1.5f, 1.5f));
+        PoseStackIn.translate((double)(pos.x / 16.0F), (double)(pos.y / 16.0F), (double)(pos.z / 16.0F));
+
+        PoseStackIn.mulPose(Vector3f.ZP.rotation((float)Math.toRadians(180f)));
+        PoseStackIn.mulPose(Vector3f.YP.rotation((float)Math.toRadians(180f)));
+
 
         SkullBlockRenderer.renderSkull(null, 180.0F, red, PoseStackIn, renderTypeBuffer, packedLightIn, skullmodelbase, skullrendertype);
 
@@ -630,16 +646,17 @@ public class MultiLimbedModel
     public void calculateEyeHeight()
     {
         PoseStack stack2 = new PoseStack();
-        getViewPoint().translatePoseStackToThis(stack2);
+        getViewPoint().parent.translatePoseStackToThis(stack2);
 
-        Vec3 move = getViewPoint().translateRelativePosition(getViewPoint().getRotationPoint()).scale(sizeScale/8f);
-        move = move.subtract(getViewPoint().fixedPosition.scale(sizeScale/16f));
+        Vec3 move = getViewPoint().parent.translateRelativePosition(getViewPoint().relativePosition);
+        move = move.subtract(getViewPoint().fixedPosition);
+        move = move.scale(sizeScale/16f);
         stack2.translate(move.x, move.y, move.z);
 
-        Vector4f testVec = new Vector4f(0f, 0f, 0f, 2f);
+        Vector4f testVec = new Vector4f(0f, 0f, 0f, 1f);
         testVec.transform(stack2.last().pose());
 
-        eyeHeight = (testVec.y() / 2f) - getHeightAdjustment();
+        eyeHeight = testVec.y() - getHeightAdjustment() - (float)(getViewPoint().getSize().y() * 0.3f);
 
         // Check to make sure the eye height is not higher than the hitbox
         float height = getHeight();
@@ -670,6 +687,9 @@ public class MultiLimbedModel
         // Only calculate sizes at 90 degree angles
         float rotation = (int)((Mth.wrapDegrees(player.yBodyRot) + 45) / 90) * 90;
 
+        float oldWidth = player.getBbWidth();
+        float oldHeight = player.getBbHeight();
+
         size = body.calculateMinHeight(new PoseStack(), rotation * -1);
 
         size.scaleValues(sizeScale / 16f);
@@ -677,9 +697,6 @@ public class MultiLimbedModel
 
         for (ExtendableModelRenderer model : firstPersonLimbs.values())
             model.calculateMinHeight(new PoseStack(), 0);
-
-        float oldWidth = player.getBbWidth();
-        float oldHeight = player.getBbHeight();
 
         float heightSpacing = 1.0f/16.0f;
 
@@ -692,11 +709,9 @@ public class MultiLimbedModel
         Reflection.setDimensions(player, new EntityDimensions(size.getSmallestWidth(), size.getHeight(), false));
         player.setBoundingBox(size.makeBoundingBox(player.position()));
 
-        // Send the updated bounding box to the server if it has changed size
+        // Mark the bounding box as changed if it has changed size
         if (player.isLocalPlayer() && (oldWidth != player.getBbWidth() || oldHeight != player.getBbHeight()))
-        {
-            PacketHandler.sendBoundingBoxToServer(size.minSize, size.maxSize);
-        }
+            bbchange = true;
     }
 
     public MultiLimbedDimensions getSize()

@@ -1,7 +1,7 @@
 package DaoOfModding.mlmanimator.Server;
 
+import DaoOfModding.mlmanimator.Client.Models.MultiLimbedDimensions;
 import DaoOfModding.mlmanimator.Common.Reflection;
-import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.HashMap;
@@ -9,15 +9,15 @@ import java.util.UUID;
 
 public class ServerBoundingBoxHandler
 {
-    protected static HashMap<UUID, EntityDimensions> playerDimensions = new HashMap<UUID, EntityDimensions>();
+    protected static HashMap<UUID, MultiLimbedDimensions> playerDimensions = new HashMap<UUID, MultiLimbedDimensions>();
     protected static HashMap<UUID, Float> playerEyeHeight = new HashMap<UUID, Float>();
 
-    public static void setDimensions(UUID player, EntityDimensions dimensions)
+    public static void setDimensions(UUID player, MultiLimbedDimensions dimensions)
     {
-        playerDimensions.put(player, dimensions);
+        playerDimensions.put(player, new MultiLimbedDimensions(dimensions));
     }
 
-    public static EntityDimensions getDimensions(UUID player)
+    public static MultiLimbedDimensions getDimensions(UUID player)
     {
         return playerDimensions.get(player);
     }
@@ -40,7 +40,7 @@ public class ServerBoundingBoxHandler
 
     public static void updateDimensions(Player player)
     {
-        EntityDimensions dims = getDimensions(player.getUUID());
+        MultiLimbedDimensions dims = getDimensions(player.getUUID());
 
         if (dims != null)
         {

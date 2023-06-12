@@ -65,6 +65,8 @@ public class ClientListeners
             if (tickSinceStart < 60)
                 return;
 
+            handler.getPlayerModel().handleBBChange(event.player);
+
             // If player is crawling
             if (event.player.hasPose(Pose.SWIMMING) && !event.player.isSwimming())
             {

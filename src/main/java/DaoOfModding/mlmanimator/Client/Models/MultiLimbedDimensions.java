@@ -104,23 +104,19 @@ public class MultiLimbedDimensions extends EntityDimensions
 
     public void updateSize(Vector3f point)
     {
-        Vector3f newPoint = new Vector3f(point.x(), (point.y()), point.z());
+        if (minSize.x() > point.x())
+            minSize.setX(point.x());
+        if (minSize.y() < point.y())
+            minSize.setY(point.y());
+        if (minSize.z() > point.z())
+            minSize.setZ(point.z());
 
-        if (minSize.x() > newPoint.x())
-            minSize.setX(newPoint.x());
-        if (minSize.y() < newPoint.y())
-            minSize.setY(newPoint.y());
-        if (minSize.z() > newPoint.z())
-            minSize.setZ(newPoint.z());
-
-        newPoint = new Vector3f(point.x(), (point.y()), point.z());
-
-        if (maxSize.x() < newPoint.x())
-            maxSize.setX(newPoint.x());
-        if (maxSize.y() > newPoint.y())
-            maxSize.setY(newPoint.y());
-        if (maxSize.z() < newPoint.z())
-            maxSize.setZ(newPoint.z());
+        if (maxSize.x() < point.x())
+            maxSize.setX(point.x());
+        if (maxSize.y() > point.y())
+            maxSize.setY(point.y());
+        if (maxSize.z() < point.z())
+            maxSize.setZ(point.z());
     }
 
     public float getMinHeight()

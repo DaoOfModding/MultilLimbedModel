@@ -1,13 +1,11 @@
 package DaoOfModding.mlmanimator.Network.Packets;
 
 import DaoOfModding.mlmanimator.Client.Models.MultiLimbedDimensions;
-import DaoOfModding.mlmanimator.Common.Reflection;
 import DaoOfModding.mlmanimator.Server.ServerBoundingBoxHandler;
 import DaoOfModding.mlmanimator.mlmanimator;
 import com.mojang.math.Vector3f;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.EntityDimensions;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.network.NetworkEvent;
 
