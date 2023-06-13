@@ -662,9 +662,13 @@ public class PlayerPoseHandler
             if (getDeltaMovement().x != 0 || getDeltaMovement().z != 0)
             {
                 addPose(GenericPoses.CrawlingWalk);
+                lockLegPose(GenericPoses.Crawling);
             }
             else
+            {
                 addPose(GenericPoses.Crawling);
+                lockLegPose(GenericPoses.Crawling);
+            }
         }
         else if (player.isSwimming())
         {
