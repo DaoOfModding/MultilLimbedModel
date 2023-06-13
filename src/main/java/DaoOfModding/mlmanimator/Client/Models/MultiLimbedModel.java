@@ -1,6 +1,9 @@
 package DaoOfModding.mlmanimator.Client.Models;
 
 import DaoOfModding.mlmanimator.Client.MultiLimbedRenderer;
+import DaoOfModding.mlmanimator.Client.Poses.PlayerPoseHandler;
+import DaoOfModding.mlmanimator.Client.Poses.PoseHandler;
+import DaoOfModding.mlmanimator.Common.PlayerUtils;
 import DaoOfModding.mlmanimator.Common.Reflection;
 import DaoOfModding.mlmanimator.Network.PacketHandler;
 import com.mojang.authlib.GameProfile;
@@ -34,6 +37,8 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.block.AbstractSkullBlock;
 import net.minecraft.world.level.block.SkullBlock;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.*;
 
@@ -492,14 +497,23 @@ public class MultiLimbedModel
         return new Vec3(getLookVector().x() / 1.5, getLookVector().y(), getLookVector().z());
     }
 
-    public void handleBBChange(Player player)
+    public void handleBBChange(Player player, boolean handleCollisions)
     {
         if (!bbchange)
             return;
 
-        //System.out.println(size.minSize + " - " + size.maxSize);
-        System.out.println("CHANGED - " + player.level.noCollision(player, player.getBoundingBox()));
+        // Move the player so they are not colliding with anything
+        if (handleCollisions)
+        {
+            VoxelShape voxelshape = Shapes.create(player.getBoundingBox());
+            Vec3 vec3 = player.position().add(0.0D, (double) size.getHeight() / 2.0D, 0.0D);
 
+            player.level.findFreePosition(player, voxelshape, vec3, (double) size.getWidth(), (double) size.getHeight(), (double) size.getDepth()).ifPresent((p_185956_) -> {
+                player.setPos(p_185956_.add(0.0D, (double) (-size.getHeight()) / 2.0D, 0.0D));
+            });
+        }
+
+        // Send the changed bounding box to the server
         PacketHandler.sendBoundingBoxToServer(size.minSize, size.maxSize);
         bbchange = false;
     }

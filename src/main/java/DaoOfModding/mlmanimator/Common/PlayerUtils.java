@@ -3,8 +3,12 @@ package DaoOfModding.mlmanimator.Common;
 import DaoOfModding.mlmanimator.Client.Poses.PoseHandler;
 import com.mojang.math.Vector3f;
 import net.minecraft.core.Direction;
+import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class PlayerUtils
 {
