@@ -1,5 +1,6 @@
 package DaoOfModding.mlmanimator;
 
+import DaoOfModding.mlmanimator.Client.ClientReflection;
 import DaoOfModding.mlmanimator.Client.Poses.GenericPoses;
 import DaoOfModding.mlmanimator.Client.MultiLimbedRenderer;
 import DaoOfModding.mlmanimator.Common.Reflection;
@@ -39,5 +40,6 @@ public class mlmanimator {
     protected void clientInit(final FMLClientSetupEvent event)
     {
         MultiLimbedRenderer.setup();
+        ClientReflection.setup();
     }
 }

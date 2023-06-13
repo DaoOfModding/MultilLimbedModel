@@ -38,15 +38,19 @@ public class ServerListeners
                 // If the player is crawling and doesn't have to be, set to be standing
                 if (event.player.level.noCollision(event.player, event.player.getBoundingBox()) && !isCrawling(event.player.getUUID()))
                 {
-                    event.player.setPose(Pose.STANDING);
+                    if (event.player.isShiftKeyDown())
+                        event.player.setPose(Pose.CROUCHING);
+                    else
+                        event.player.setPose(Pose.STANDING);
 
                     // Maybe pointless?
                     event.player.getEntityData().clearDirty();
 
-                    ServerBoundingBoxHandler.updateDimensions(event.player);
+                    // ServerBoundingBoxHandler.updateDimensions(event.player);
                 }
             }
         }
+
     }
 
     @SubscribeEvent

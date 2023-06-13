@@ -65,13 +65,24 @@ public class ClientListeners
             if (tickSinceStart < 60)
                 return;
 
+            System.out.println(event.player.isSwimming());
+
             // If player is crawling
             if (event.player.hasPose(Pose.SWIMMING) && !event.player.isSwimming())
             {
                 // If player doesn't NEED to crawl then cancel the crawl
                 if (event.player.level.noCollision(event.player, event.player.getBoundingBox()) && !handler.isCrawling())
                 {
-                    event.player.setPose(Pose.STANDING);
+                    if (event.player.isShiftKeyDown())
+                    {
+                        // Leave as the swimming pose so that the player remains moving slowly even when crouch gets overridden
+                        if (event.player instanceof LocalPlayer)
+                            ClientReflection.setCrouch((LocalPlayer) event.player, true);
+                        else
+                            event.player.setPose(Pose.CROUCHING);
+                    }
+                    else
+                        event.player.setPose(Pose.STANDING);
                 }
                 else
                 {
@@ -100,6 +111,9 @@ public class ClientListeners
     @SubscribeEvent
     public static void entityTick(TickEvent.ClientTickEvent event)
     {
+        if (Minecraft.getInstance() == null)
+            return;
+
         if (event.phase == TickEvent.Phase.END)
         {
             // Cancel player repositioning when riding

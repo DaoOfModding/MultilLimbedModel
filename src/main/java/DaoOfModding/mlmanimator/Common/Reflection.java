@@ -29,7 +29,7 @@ public class Reflection
         }
         catch (Exception e)
         {
-            mlmanimator.LOGGER.error("Error setting dimensions at field " + dimensions.getName() + " in " + dimensions.toString() + ": " + e);
+            mlmanimator.LOGGER.error("Error setting dimensions at field " + dimensions.getName() + " in " + entity.toString() + ": " + e);
         }
     }
 

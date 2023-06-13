@@ -508,7 +508,7 @@ public class MultiLimbedModel
             VoxelShape voxelshape = Shapes.create(player.getBoundingBox());
             Vec3 vec3 = player.position().add(0.0D, (double) size.getHeight() / 2.0D, 0.0D);
 
-            player.level.findFreePosition(player, voxelshape, vec3, (double) size.getWidth(), (double) size.getHeight(), (double) size.getDepth()).ifPresent((p_185956_) -> {
+            player.level.findFreePosition(player, voxelshape, vec3, size.getWidth(), size.getHeight(), size.getDepth()).ifPresent((p_185956_) -> {
                 player.setPos(p_185956_.add(0.0D, (double) (-size.getHeight()) / 2.0D, 0.0D));
             });
         }
