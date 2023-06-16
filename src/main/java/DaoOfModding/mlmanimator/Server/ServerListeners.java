@@ -46,7 +46,7 @@ public class ServerListeners
                     // Maybe pointless?
                     event.player.getEntityData().clearDirty();
 
-                    // ServerBoundingBoxHandler.updateDimensions(event.player);
+                    ServerBoundingBoxHandler.updateDimensions(event.player);
                 }
             }
         }

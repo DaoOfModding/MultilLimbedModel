@@ -71,6 +71,8 @@ public class ClientListeners
                 // If player doesn't NEED to crawl then cancel the crawl
                 if (event.player.level.noCollision(event.player, event.player.getBoundingBox()) && !handler.isCrawling())
                 {
+                    handler.setCrawling(false);
+
                     if (event.player.isShiftKeyDown())
                     {
                         // Leave as the swimming pose so that the player remains moving slowly even when crouch gets overridden
@@ -91,7 +93,7 @@ public class ClientListeners
                 handler.setCrawling(false);
 
 
-            handler.getPlayerModel().handleBBChange(event.player, handler.isCrawling());
+            handler.getPlayerModel().handleBBChange(event.player, !handler.isCrawling());
         }
     }
 
@@ -123,7 +125,6 @@ public class ClientListeners
                         // TODO - Ensure this doesn't need another offset based on model height
 
                         player.setPosRaw(player.position().x, player.position().y - player.getMyRidingOffset(), player.position().z);
-
                     }
         }
     }
