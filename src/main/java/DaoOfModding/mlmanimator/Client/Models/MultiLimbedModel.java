@@ -502,13 +502,9 @@ public class MultiLimbedModel
         if (!bbchange)
             return;
 
-        System.out.println("HANDLE");
-
         // Move the player so they are not colliding with anything
         if (handleCollisions)
         {
-            System.out.println("COLLISIONS");
-
             VoxelShape voxelshape = Shapes.create(player.getBoundingBox());
             Vec3 vec3 = player.position().add(0.0D, (double) size.getHeight() / 2.0D, 0.0D);
 
