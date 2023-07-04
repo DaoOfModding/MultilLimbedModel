@@ -715,9 +715,6 @@ public class PlayerPoseHandler
 
         for (Arm arm : arms)
             doArmPose(player, arm);
-
-        // Update the PoseHandler
-        updateRenderPose();
     }
 
     public void lockLegPose(PlayerPose pose)

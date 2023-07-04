@@ -58,6 +58,9 @@ public class ClientListeners
         }
         else if (event.phase == TickEvent.Phase.END)
         {
+            // Update the PoseHandler
+            handler.updateRenderPose();
+
             // Delay crawl calculations slightly on game load
             if (event.player.getUUID().compareTo(Minecraft.getInstance().player.getUUID()) == 0)
             tickSinceStart++;
