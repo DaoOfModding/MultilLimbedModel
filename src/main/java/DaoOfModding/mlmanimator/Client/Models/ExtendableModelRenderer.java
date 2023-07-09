@@ -605,9 +605,11 @@ public class ExtendableModelRenderer
             mPart.z = (float)pos.z;
         }
 
-        mPart.x += fixedPosition.x;
-        mPart.y += fixedPosition.y;
-        mPart.z += fixedPosition.z;
+        Vec3 rsize = getResize();
+
+        mPart.x += fixedPosition.x * rsize.x;
+        mPart.y += fixedPosition.y * rsize.y;
+        mPart.z += fixedPosition.z * rsize.z;
     }
 
     // Render all children for this model, but not the model itself

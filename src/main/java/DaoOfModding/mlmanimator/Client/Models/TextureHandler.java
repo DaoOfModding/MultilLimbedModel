@@ -160,7 +160,14 @@ public class TextureHandler
 
         String s1 = String.format(java.util.Locale.ROOT, "%s:textures/models/armor/%s_layer_%d%s.png", domain, texture, inner, "");
 
-        s1 = net.minecraftforge.client.ForgeHooksClient.getArmorTexture(entity, stack, s1, slot, "");
+        try
+        {
+            s1 = net.minecraftforge.client.ForgeHooksClient.getArmorTexture(entity, stack, s1, slot, "");
+        }
+        catch (NullPointerException e)
+        {
+            return null;
+        }
 
         return new ResourceLocation(s1);
     }

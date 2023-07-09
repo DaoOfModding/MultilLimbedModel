@@ -1,9 +1,6 @@
 package DaoOfModding.mlmanimator.Client.Models;
 
 import DaoOfModding.mlmanimator.Client.MultiLimbedRenderer;
-import DaoOfModding.mlmanimator.Client.Poses.PlayerPoseHandler;
-import DaoOfModding.mlmanimator.Client.Poses.PoseHandler;
-import DaoOfModding.mlmanimator.Common.PlayerUtils;
 import DaoOfModding.mlmanimator.Common.Reflection;
 import DaoOfModding.mlmanimator.Network.PacketHandler;
 import com.mojang.authlib.GameProfile;
