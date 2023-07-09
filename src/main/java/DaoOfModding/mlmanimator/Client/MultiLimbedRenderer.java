@@ -254,6 +254,9 @@ public class MultiLimbedRenderer
 
     public static boolean renderFirstPerson(AbstractClientPlayer entityIn, float partialTicks, PoseStack PoseStackIn, MultiBufferSource bufferIn, int packedLightIn)
     {
+        // Pop the view bobbing pose so view bobbing doesn't mess with first person models
+        PoseStackIn.popPose();
+
         PlayerPoseHandler handler = PoseHandler.getPlayerPoseHandler(entityIn.getUUID());
 
         if(!enableFullBodyFirstPerson)
@@ -262,6 +265,9 @@ public class MultiLimbedRenderer
         render2FirstPerson(handler.getPlayerModel(), entityIn, partialTicks, PoseStackIn, bufferIn, packedLightIn);
 
         adjustEyeHeight(entityIn, handler);
+
+        // Push the pose again so there are the right number of stacks
+        PoseStackIn.pushPose();
 
         return enableFullBodyFirstPerson;
     }
