@@ -69,7 +69,7 @@ public class MultiLimbedModel
 
     protected boolean lock = false;
 
-    ArrayList<ExtendableModelRenderer> hands = new ArrayList<>();
+    ExtendableModelRenderer[] hands = new ExtendableModelRenderer[2];
 
     TextureHandler textures = new TextureHandler();
 
@@ -250,15 +250,28 @@ public class MultiLimbedModel
 
     public void setHand(int slot, ExtendableModelRenderer hand)
     {
-        hands.add(slot, hand);
+        if (hands.length < slot)
+            expandHands(slot);
+
+        hands[slot] = hand;
+    }
+
+    protected void expandHands(int size)
+    {
+        ExtendableModelRenderer[] newHands = new ExtendableModelRenderer[size];
+
+        for (int i = 0; i < hands.length; i++)
+            newHands[i] = hands[i];
+
+        hands = newHands;
     }
 
     public ExtendableModelRenderer getHand(int slot)
     {
-        return hands.get(slot);
+        return hands[slot];
     }
 
-    public ArrayList<ExtendableModelRenderer> getHands()
+    public ExtendableModelRenderer[] getHands()
     {
         return hands;
     }
@@ -633,7 +646,7 @@ public class MultiLimbedModel
             return;
 
         // Don't do anything if this hand doesn't exist
-        ExtendableModelRenderer hand = hands.get(slot);
+        ExtendableModelRenderer hand = hands[slot];
         if (hand == null)
             return;
 
