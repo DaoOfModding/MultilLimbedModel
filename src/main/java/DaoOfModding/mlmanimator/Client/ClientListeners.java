@@ -4,6 +4,7 @@ import DaoOfModding.mlmanimator.Client.Models.MultiLimbedModel;
 import DaoOfModding.mlmanimator.Client.Poses.GenericPoses;
 import DaoOfModding.mlmanimator.Client.Poses.PlayerPoseHandler;
 import DaoOfModding.mlmanimator.Client.Poses.PoseHandler;
+import DaoOfModding.mlmanimator.Common.Config;
 import DaoOfModding.mlmanimator.Common.Reflection;
 import DaoOfModding.mlmanimator.mlmanimator;
 import net.minecraft.client.Minecraft;
@@ -19,6 +20,8 @@ import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.MapItem;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.*;
@@ -137,11 +140,21 @@ public class ClientListeners
     @SubscribeEvent
     public static void renderFirstPerson(RenderHandEvent event)
     {
+        // TODO: TEMP fix
+        if (Minecraft.getInstance().player.getMainHandItem().getItem() instanceof MapItem)
+        {
+            MultiLimbedRenderer.enableFirstPersonHands = true;
+        }
+        else
+            MultiLimbedRenderer.enableFirstPersonHands = Config.Client.enableFirstPersonHands.get();
+
         // Do nothing unless this is trying to render the main hand
         // Otherwise this will run twice at render
         if (event.getHand() != InteractionHand.MAIN_HAND)
         {
-            event.setCanceled(true);
+            if (!MultiLimbedRenderer.shouldRenderHands())
+                event.setCanceled(true);
+
             return;
         }
 

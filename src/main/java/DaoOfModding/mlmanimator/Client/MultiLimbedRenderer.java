@@ -3,17 +3,16 @@ package DaoOfModding.mlmanimator.Client;
 import DaoOfModding.mlmanimator.Client.Models.MultiLimbedModel;
 import DaoOfModding.mlmanimator.Client.Poses.PlayerPoseHandler;
 import DaoOfModding.mlmanimator.Client.Poses.PoseHandler;
+import DaoOfModding.mlmanimator.Common.Config;
 import DaoOfModding.mlmanimator.Common.Reflection;
 import DaoOfModding.mlmanimator.Network.PacketHandler;
 import DaoOfModding.mlmanimator.mlmanimator;
-import com.google.common.collect.ImmutableMap;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.ParrotModel;
 import net.minecraft.client.model.SkullModelBase;
-import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.Camera;
 import net.minecraft.client.player.LocalPlayer;
@@ -29,7 +28,6 @@ import net.minecraft.world.entity.*;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.SkullBlock;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.client.event.ViewportEvent;
@@ -37,7 +35,6 @@ import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Map;
 
@@ -65,6 +62,7 @@ public class MultiLimbedRenderer
     protected static boolean fakeThird = false;
 
     protected static boolean enableFullBodyFirstPerson = true;
+    public static boolean enableFirstPersonHands = false;
 
     public static void setup()
     {
@@ -86,6 +84,10 @@ public class MultiLimbedRenderer
 
         // skullModels - d - f_174473_
         skullModels = ObfuscationReflectionHelper.findField(CustomHeadLayer.class,"f_174473_");
+
+        enableFullBodyFirstPerson = Config.Client.enableFullBodyFirstPerson.get();
+        enableFirstPersonHands = Config.Client.enableFirstPersonHands.get();
+
     }
 
     public static void rotateCamera(ViewportEvent.ComputeCameraAngles event)
@@ -259,8 +261,8 @@ public class MultiLimbedRenderer
 
         PlayerPoseHandler handler = PoseHandler.getPlayerPoseHandler(entityIn.getUUID());
 
-        if(!enableFullBodyFirstPerson)
-            doModelCalculations(entityIn, PoseStackIn, partialTicks, handler);
+        //if(!enableFullBodyFirstPerson)
+        //    doModelCalculations(entityIn, PoseStackIn, partialTicks, handler);
 
         render2FirstPerson(handler.getPlayerModel(), entityIn, partialTicks, PoseStackIn, bufferIn, packedLightIn);
 
@@ -269,7 +271,14 @@ public class MultiLimbedRenderer
         // Push the pose again so there are the right number of stacks
         PoseStackIn.pushPose();
 
-        return enableFullBodyFirstPerson;
+        ClientReflection.doBob(PoseStackIn);
+
+        return !enableFirstPersonHands;
+    }
+
+    public static boolean shouldRenderHands()
+    {
+        return enableFirstPersonHands;
     }
 
     public static void adjustEyeHeight(AbstractClientPlayer player, PlayerPoseHandler handler)
@@ -314,7 +323,12 @@ public class MultiLimbedRenderer
 
         PlayerPoseHandler handler = PoseHandler.getPlayerPoseHandler(entityIn.getUUID());
 
-        render2(handler, entityIn, partialTicks, PoseStackIn, bufferIn, packedLightIn);
+        boolean hideHands = shouldRenderHands();
+
+        if (!rememberingFake || entityIn.getUUID().compareTo(Minecraft.getInstance().player.getUUID()) != 0)
+            hideHands = false;
+
+        render2(handler, entityIn, partialTicks, PoseStackIn, bufferIn, packedLightIn, hideHands);
 
         adjustEyeHeight(entityIn, handler);
 
@@ -325,7 +339,7 @@ public class MultiLimbedRenderer
         return true;
     }
 
-    public static void render2(PlayerPoseHandler handler, AbstractClientPlayer entityIn, float partialTicks, PoseStack PoseStackIn, MultiBufferSource bufferIn, int packedLightIn)
+    public static void render2(PlayerPoseHandler handler, AbstractClientPlayer entityIn, float partialTicks, PoseStack PoseStackIn, MultiBufferSource bufferIn, int packedLightIn, boolean hideHands)
     {
         PoseStackIn.pushPose();
 
@@ -413,8 +427,11 @@ public class MultiLimbedRenderer
 
         entityModel.renderShoulder(PoseStackIn, bufferSource, packedLightIn,1.0F, 1.0F, 1.0F, 1.0F, entityIn.tickCount);
 
-        entityModel.renderHandItem(false, 0, entityIn, entityIn.getMainHandItem(), PoseStackIn, bufferSource, packedLightIn);
-        entityModel.renderHandItem(true, 1, entityIn, entityIn.getOffhandItem(), PoseStackIn, bufferSource, packedLightIn);
+        if (!hideHands)
+        {
+            entityModel.renderHandItem(false, 0, entityIn, entityIn.getMainHandItem(), PoseStackIn, bufferSource, packedLightIn);
+            entityModel.renderHandItem(true, 1, entityIn, entityIn.getOffhandItem(), PoseStackIn, bufferSource, packedLightIn);
+        }
 
         entityModel.unlock();
 

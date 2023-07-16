@@ -72,6 +72,8 @@ public class ExtendableModelRenderer
     protected boolean lockBBAnimation = false;
     protected Vec3 lockedAnimation = new Vec3(0, 0, 0);
 
+    protected boolean areHands = false;
+
     public ExtendableModelRenderer(String limbName)
     {
         name = limbName;
@@ -90,6 +92,11 @@ public class ExtendableModelRenderer
         copy(copy, nameAddition);
 
         return copy;
+    }
+
+    public void setHands(boolean on)
+    {
+        areHands = on;
     }
 
     public ModelPart getModelPart()
@@ -157,6 +164,8 @@ public class ExtendableModelRenderer
         copy.hasHitbox = hasHitbox;
 
         copy.usedSize = usedSize;
+
+        copy.areHands = areHands;
 
         for (ExtendableModelLayer layer : layers)
             copy.layers.add(layer.clone());
@@ -519,7 +528,7 @@ public class ExtendableModelRenderer
         mPart.zRot += rotationOffset.z;
 
         // If rendering in first person and this model is set not to render in first person, just render it's children
-        if (MultiLimbedRenderer.isFakeThirdPerson() && !renderFirstPerson)
+        if (MultiLimbedRenderer.isFakeThirdPerson() && (!renderFirstPerson || (MultiLimbedRenderer.shouldRenderHands() && areHands)))
             fakerender(PoseStackIn, packedLightIn, packedOverlayIn, red, green, blue, alpha, textures);
         else
         {

@@ -142,6 +142,8 @@ public class MultiLimbedModel
         }
 
         rightArm.setHitbox(false);
+        rightArm.setHands(true);
+        rightArm.getChildren().get(0).setHands(true);
 
         ExtendableModelRenderer leftArm = new ExtendableModelRenderer(GenericLimbNames.leftArm);
         GenericTextureValues.addGenericLeftArmLayers(leftArm);
@@ -159,6 +161,8 @@ public class MultiLimbedModel
         }
 
         leftArm.setHitbox(false);
+        leftArm.setHands(true);
+        leftArm.getChildren().get(0).setHands(true);
 
         ExtendableModelRenderer rightLeg = new ExtendableModelRenderer(GenericLimbNames.rightLeg);
         GenericTextureValues.addGenericRightLegLayers(rightLeg);
@@ -533,6 +537,12 @@ public class MultiLimbedModel
         PoseStackIn.popPose();
 
         unlock();
+    }
+
+    public void hideHands(Boolean on)
+    {
+        for (ExtendableModelRenderer hand : hands)
+            hand.setFirstPersonRender(!on);
     }
 
     public void render(PoseStack PoseStackIn, int packedLightIn, int packedOverlayIn, float red, float green, float blue, float alpha)
