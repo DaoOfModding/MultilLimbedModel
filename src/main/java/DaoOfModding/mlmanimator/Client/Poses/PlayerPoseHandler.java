@@ -697,7 +697,11 @@ public class PlayerPoseHandler
             else
                 addPose(GenericPoses.Jumping);
         }
-        else if (player.isCrouching() && player.isOnGround())
+        // If player is moving add the walking pose to the PoseHandler
+        else if ((player.isOnGround() || player.isInWater()) && (getDeltaMovement().x != 0 || getDeltaMovement().z != 0))
+            addPose(GenericPoses.getWalkingPose(player));
+
+        if (player.isCrouching() && !player.isSwimming())
         {
             lockLegPose(GenericPoses.Crouching);
 
@@ -709,9 +713,6 @@ public class PlayerPoseHandler
             else
                 addPose(GenericPoses.Crouching);
         }
-        // If player is moving add the walking pose to the PoseHandler
-        else if ((player.isOnGround() || player.isInWater()) && (getDeltaMovement().x != 0 || getDeltaMovement().z != 0))
-            addPose(GenericPoses.getWalkingPose(player));
 
         for (Arm arm : arms)
             doArmPose(player, arm);
