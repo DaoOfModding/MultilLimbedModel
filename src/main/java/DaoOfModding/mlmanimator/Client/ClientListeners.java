@@ -146,7 +146,7 @@ public class ClientListeners
             MultiLimbedRenderer.enableFirstPersonHands = true;
         }
         else
-            MultiLimbedRenderer.enableFirstPersonHands = Config.Client.enableFirstPersonHands.get();
+            MultiLimbedRenderer.enableFirstPersonHands = Config.Client.vanillaHands();
 
         // Do nothing unless this is trying to render the main hand
         // Otherwise this will run twice at render

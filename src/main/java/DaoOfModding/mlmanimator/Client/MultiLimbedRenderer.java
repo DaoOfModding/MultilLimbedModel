@@ -86,7 +86,7 @@ public class MultiLimbedRenderer
         skullModels = ObfuscationReflectionHelper.findField(CustomHeadLayer.class,"f_174473_");
 
         enableFullBodyFirstPerson = Config.Client.enableFullBodyFirstPerson.get();
-        enableFirstPersonHands = Config.Client.enableFirstPersonHands.get();
+        enableFirstPersonHands = Config.Client.vanillaHands();
 
     }
 
@@ -194,11 +194,16 @@ public class MultiLimbedRenderer
 
     public static void doModelCalculations(AbstractClientPlayer entityIn, PoseStack PoseStackIn, float partialTicks, PlayerPoseHandler handler)
     {
+        // Push and pop the pose so that these calculations do not effect render position
+        PoseStackIn.pushPose();
+
         PoseHandler.applyRotations(entityIn, PoseStackIn, 0, partialTicks);
 
         PoseHandler.doPose(entityIn.getUUID(), partialTicks);
 
         handler.getPlayerModel().calculateHeightAdjustment(entityIn);
+
+        PoseStackIn.popPose();
     }
 
     public static ParrotModel getParrotModel(PlayerRenderer render)
@@ -261,8 +266,8 @@ public class MultiLimbedRenderer
 
         PlayerPoseHandler handler = PoseHandler.getPlayerPoseHandler(entityIn.getUUID());
 
-        //if(!enableFullBodyFirstPerson)
-        //    doModelCalculations(entityIn, PoseStackIn, partialTicks, handler);
+        if(!enableFullBodyFirstPerson)
+            doModelCalculations(entityIn, PoseStackIn, partialTicks, handler);
 
         render2FirstPerson(handler.getPlayerModel(), entityIn, partialTicks, PoseStackIn, bufferIn, packedLightIn);
 
@@ -270,7 +275,6 @@ public class MultiLimbedRenderer
 
         // Push the pose again so there are the right number of stacks
         PoseStackIn.pushPose();
-
         ClientReflection.doBob(PoseStackIn);
 
         return !enableFirstPersonHands;

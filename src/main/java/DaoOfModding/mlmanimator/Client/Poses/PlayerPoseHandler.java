@@ -701,7 +701,7 @@ public class PlayerPoseHandler
         else if ((player.isOnGround() || player.isInWater()) && (getDeltaMovement().x != 0 || getDeltaMovement().z != 0))
             addPose(GenericPoses.getWalkingPose(player));
 
-        if (player.isCrouching() && !player.isSwimming())
+        if (player.isCrouching() && !player.isSwimming() && (player.isOnGround() || !player.isInWater()))
         {
             lockLegPose(GenericPoses.Crouching);
 
