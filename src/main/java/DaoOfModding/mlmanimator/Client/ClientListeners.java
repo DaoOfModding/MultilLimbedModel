@@ -6,6 +6,7 @@ import DaoOfModding.mlmanimator.Client.Poses.PlayerPoseHandler;
 import DaoOfModding.mlmanimator.Client.Poses.PoseHandler;
 import DaoOfModding.mlmanimator.Common.Config;
 import DaoOfModding.mlmanimator.Common.Reflection;
+import DaoOfModding.mlmanimator.Server.ServerBoundingBoxHandler;
 import DaoOfModding.mlmanimator.mlmanimator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ArmorStandArmorModel;
@@ -14,6 +15,7 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Pose;
@@ -22,6 +24,7 @@ import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.MapItem;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.*;
@@ -43,6 +46,7 @@ import java.util.Locale;
 public class ClientListeners
 {
     protected static int tickSinceStart = 0;
+    protected static boolean collision = false;
 
     @SubscribeEvent
     public static void playerTick(TickEvent.PlayerTickEvent event)
@@ -56,10 +60,20 @@ public class ClientListeners
         if (handler == null)
             return;
 
+        collision = handler.collision;
+        handler.collision = false;
+
         if (event.phase == TickEvent.Phase.START)
         {
+            // If there is a collision and the player was crouching in the last few ticks, remain crouching
+            if (collision && handler.wasCrouching())
+            {
+                setCrouch(event.player, true);
+                handler.setCrouching(event.player.isCrouching());
+            }
+
             handler.doDefaultPoses(event.player);
-            handler.getPlayerModel().tick((AbstractClientPlayer)event.player);
+            handler.tick((AbstractClientPlayer)event.player);
         }
         else if (event.phase == TickEvent.Phase.END)
         {
@@ -68,27 +82,25 @@ public class ClientListeners
 
             // Delay crawl calculations slightly on game load
             if (event.player.getUUID().compareTo(Minecraft.getInstance().player.getUUID()) == 0)
-            tickSinceStart++;
 
             if (tickSinceStart < 60)
+            {
+                tickSinceStart++;
                 return;
+            }
 
             // If player is crawling
             if (event.player.hasPose(Pose.SWIMMING) && !event.player.isSwimming())
             {
+                Boolean crawlNoCollision = event.player.level.noCollision(event.player, event.player.getBoundingBox());
+
                 // If player doesn't NEED to crawl then cancel the crawl
-                if (event.player.level.noCollision(event.player, event.player.getBoundingBox()) && !handler.isCrawling())
+                if (crawlNoCollision && !handler.isCrawling())
                 {
                     handler.setCrawling(false);
 
                     if (event.player.isShiftKeyDown())
-                    {
-                        // Leave as the swimming pose so that the player remains moving slowly even when crouch gets overridden
-                        if (event.player instanceof LocalPlayer)
-                            ClientReflection.setCrouch((LocalPlayer) event.player, true);
-                        else
-                            event.player.setPose(Pose.CROUCHING);
-                    }
+                        setCrouch(event.player, true);
                     else
                         event.player.setPose(Pose.STANDING);
                 }
@@ -100,8 +112,43 @@ public class ClientListeners
             else
                 handler.setCrawling(false);
 
+            handler.setCrouching(event.player.isCrouching());
 
             handler.getPlayerModel().handleBBChange(event.player, !handler.isCrawling());
+        }
+    }
+
+    protected static void setCrouch(Player player, boolean on)
+    {
+        if (player instanceof LocalPlayer)
+            ClientReflection.setCrouch((LocalPlayer) player, on);
+        else if (on)
+            player.setPose(Pose.CROUCHING);
+        else
+            player.setPose(Pose.STANDING);
+    }
+
+    @SubscribeEvent
+    public static void movement(MovementInputUpdateEvent event)
+    {
+        if (event.getEntity() instanceof Player)
+        {
+            PlayerPoseHandler handler = PoseHandler.getPlayerPoseHandler(event.getEntity().getUUID());
+
+            // Cancel crouching if the player was not previously crouching and is not holding shift
+            if (event.getEntity().isCrouching() && !handler.wasCrouching() && !event.getEntity().isShiftKeyDown())
+                setCrouch(event.getEntity(), false);
+
+            // If the player is neither crouching or crawling then cancel movement slowdown
+            if (!event.getEntity().isCrouching() && !handler.wasCrouching() && !handler.isCrawling())
+                event.getInput().tick(false, 1);
+
+            // Otherwise ensure it is applied
+            else
+            {
+                float f = Mth.clamp(0.3F + EnchantmentHelper.getSneakingSpeedBonus(event.getEntity()), 0.0F, 1.0F);
+                event.getInput().tick(true, f);
+            }
         }
     }
 

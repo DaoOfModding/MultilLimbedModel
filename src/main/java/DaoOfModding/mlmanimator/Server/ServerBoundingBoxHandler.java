@@ -9,33 +9,39 @@ import java.util.UUID;
 
 public class ServerBoundingBoxHandler
 {
-    protected static HashMap<UUID, MultiLimbedDimensions> playerDimensions = new HashMap<UUID, MultiLimbedDimensions>();
-    protected static HashMap<UUID, Float> playerEyeHeight = new HashMap<UUID, Float>();
+    protected static HashMap<UUID, PlayerBoundBoxData> playerData = new HashMap<UUID, PlayerBoundBoxData>();
+
+    protected static PlayerBoundBoxData getPlayerData(UUID player)
+    {
+        if (!playerData.containsKey(player))
+            playerData.put(player, new PlayerBoundBoxData());
+
+        return playerData.get(player);
+    }
 
     public static void setDimensions(UUID player, MultiLimbedDimensions dimensions)
     {
-        playerDimensions.put(player, new MultiLimbedDimensions(dimensions));
+        getPlayerData(player).playerDimensions = new MultiLimbedDimensions(dimensions);
     }
 
     public static MultiLimbedDimensions getDimensions(UUID player)
     {
-        return playerDimensions.get(player);
+        return getPlayerData(player).playerDimensions;
     }
 
     public static void setEyeHeight(UUID player, float height)
     {
-        playerEyeHeight.put(player, height);
+        getPlayerData(player).playerEyeHeight = height;
     }
 
     public static float getEyeHeight(UUID player)
     {
-        return playerEyeHeight.get(player);
+        return getPlayerData(player).playerEyeHeight;
     }
 
     public static void removePlayer(UUID player)
     {
-        playerDimensions.remove(player);
-        playerEyeHeight.remove(player);
+        playerData.remove(player);
     }
 
     public static void updateDimensions(Player player)
@@ -48,7 +54,6 @@ public class ServerBoundingBoxHandler
             player.setBoundingBox(dims.makeBoundingBox(player.position()));
         }
 
-        if (playerEyeHeight.containsKey(player.getUUID()))
-            Reflection.adjustEyeHeight(player, getEyeHeight(player.getUUID()));
+        Reflection.adjustEyeHeight(player, getEyeHeight(player.getUUID()));
     }
 }

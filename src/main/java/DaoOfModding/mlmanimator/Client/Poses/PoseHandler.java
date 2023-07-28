@@ -111,6 +111,14 @@ public class PoseHandler
             handler.doPose(partialTicks);
     }
 
+    public static void revertPose(UUID playerID)
+    {
+        PlayerPoseHandler handler = getPlayerPoseHandler(playerID);
+
+        if (handler != null)
+            handler.revertPose();
+    }
+
     public static void addPose(UUID PlayerID, PlayerPose pose)
     {
         PlayerPoseHandler handler = getPlayerPoseHandler(PlayerID);

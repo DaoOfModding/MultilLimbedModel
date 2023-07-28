@@ -33,10 +33,12 @@ public class ServerListeners
 
         if (event.phase == TickEvent.Phase.END)
         {
+            Boolean noCollision = event.player.level.noCollision(event.player, event.player.getBoundingBox());
+
             if (event.player.hasPose(Pose.SWIMMING) && !event.player.isSwimming())
             {
                 // If the player is crawling and doesn't have to be, set to be standing
-                if (event.player.level.noCollision(event.player, event.player.getBoundingBox()) && !isCrawling(event.player.getUUID()))
+                if (noCollision && !isCrawling(event.player.getUUID()))
                 {
                     if (event.player.isShiftKeyDown())
                         event.player.setPose(Pose.CROUCHING);

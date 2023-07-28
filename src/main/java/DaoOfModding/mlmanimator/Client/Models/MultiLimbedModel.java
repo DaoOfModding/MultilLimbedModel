@@ -81,6 +81,7 @@ public class MultiLimbedModel
     RenderType skullrendertype = null;
 
     protected boolean bbchange = false;
+    protected int bbecho = -1;
 
     float eyeHeight = 0;
 
@@ -513,11 +514,12 @@ public class MultiLimbedModel
 
     public void handleBBChange(Player player, boolean handleCollisions)
     {
-        if (!bbchange)
-            return;
+        bbecho -= 1;
+        if (bbchange)
+            bbecho = 10;
 
         // Move the player so they are not colliding with anything
-        if (handleCollisions)
+        if (handleCollisions && bbchange)
         {
             VoxelShape voxelshape = Shapes.create(player.getBoundingBox());
             Vec3 vec3 = player.position().add(0.0D, (double) size.getHeight() / 2.0D, 0.0D);
@@ -526,6 +528,17 @@ public class MultiLimbedModel
                 player.setPos(p_185956_.add(0.0D, (double) (-size.getHeight()) / 2.0D, 0.0D));
             });
         }
+
+        // Resend bounding box to server 10 ticks after last change
+        if (bbecho == 0)
+        {
+            PacketHandler.sendBoundingBoxToServer(size.minSize, size.maxSize);
+            bbecho = -1;
+            return;
+        }
+
+        if (!bbchange)
+            return;
 
         // Send the changed bounding box to the server
         PacketHandler.sendBoundingBoxToServer(size.minSize, size.maxSize);

@@ -199,11 +199,26 @@ public class MultiLimbedRenderer
 
         PoseHandler.applyRotations(entityIn, PoseStackIn, 0, partialTicks);
 
+        doPose(entityIn, partialTicks, handler);
+
+        PoseStackIn.popPose();
+    }
+
+    public static void doPose(AbstractClientPlayer entityIn, float partialTicks, PlayerPoseHandler handler)
+    {
+        boolean noCollision = entityIn.level.noCollision(entityIn, entityIn.getBoundingBox());
+
         PoseHandler.doPose(entityIn.getUUID(), partialTicks);
 
         handler.getPlayerModel().calculateHeightAdjustment(entityIn);
 
-        PoseStackIn.popPose();
+        // If the new pose causes a collision then cancel the pose change
+        if (noCollision && !entityIn.level.noCollision(entityIn, entityIn.getBoundingBox()))
+        {
+            PoseHandler.revertPose(entityIn.getUUID());
+            handler.getPlayerModel().calculateHeightAdjustment(entityIn);
+            handler.collision = true;
+        }
     }
 
     public static ParrotModel getParrotModel(PlayerRenderer render)
@@ -392,9 +407,8 @@ public class MultiLimbedRenderer
 
         entityModel.setupAnim(f2, f6);
 
-        PoseHandler.doPose(entityIn.getUUID(), partialTicks);
+        doPose(entityIn, partialTicks, handler);
 
-        entityModel.calculateHeightAdjustment(entityIn);
         double height = entityModel.getHeightAdjustment();
 
         PoseStackIn.scale(-1.0F, -1.0F, 1.0F);
@@ -423,6 +437,10 @@ public class MultiLimbedRenderer
             }
 
             int i = LivingEntityRenderer.getOverlayCoords(entityIn, 0);
+
+            // Cancel out the vanilla model repositioning when crouching
+            if (entityIn.isCrouching())
+                PoseStackIn.translate(0, -0.125, 0);
 
             entityModel.render(PoseStackIn, packedLightIn, i, 1.0F, 1.0F, 1.0F, 1.0F);
         }

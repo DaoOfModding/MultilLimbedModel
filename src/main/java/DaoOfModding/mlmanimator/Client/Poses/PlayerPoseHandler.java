@@ -7,10 +7,9 @@ import DaoOfModding.mlmanimator.Client.Models.MultiLimbedModel;
 import DaoOfModding.mlmanimator.Client.MultiLimbedRenderer;
 import DaoOfModding.mlmanimator.Network.PacketHandler;
 import net.minecraft.client.model.PlayerModel;
-import net.minecraft.core.Direction;
+import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.CrossbowItem;
 import net.minecraft.world.item.ItemStack;
@@ -29,8 +28,17 @@ public class PlayerPoseHandler
     PlayerPose renderPose = new PlayerPose();
     PlayerPose oldRenderPose = new PlayerPose();
     PlayerPose animatingPose = new PlayerPose();
+    PlayerPose backupPose = new PlayerPose();
+
+    PlayerPose legLockPose = new PlayerPose();
+    PlayerPose oldLegLockPose = new PlayerPose();
+
     boolean locked = false;
     boolean crawling = false;
+
+    boolean crouching = false;
+    int crouchingCooldown = 0;
+    int forcedCrouchCooldown = 0;
 
     protected boolean isJumping = false;
     // Ticks before allowing jump to be set to False
@@ -61,6 +69,8 @@ public class PlayerPoseHandler
     public static double oneEighty = Math.toRadians(180);
     public static double threeSixty = Math.toRadians(360);
 
+    public boolean collision = false;
+
 
     public PlayerPoseHandler(Player player, PlayerModel playerModel)
     {
@@ -85,6 +95,54 @@ public class PlayerPoseHandler
 
         arms.add(Main);
         arms.add(Off);
+    }
+
+    public void tick(AbstractClientPlayer player)
+    {
+        if (crouchingCooldown > 0)
+        {
+            crouchingCooldown--;
+
+            if (crouchingCooldown == 0)
+                crouching = false;
+        }
+
+        if (forcedCrouchCooldown > 0)
+            forcedCrouchCooldown--;
+
+        getPlayerModel().tick(player);
+    }
+
+    public void setForcedCrouch()
+    {
+        forcedCrouchCooldown = 10;
+    }
+
+    public boolean isForcedCrouch()
+    {
+        return forcedCrouchCooldown > 0;
+    }
+
+    public void setCrouching(boolean on)
+    {
+        if (on)
+        {
+                crouchingCooldown = 4;
+
+            crouching = true;
+        }
+        else
+            crouching = false;
+    }
+
+    public boolean wasCrouching()
+    {
+        return crouchingCooldown > 0;
+    }
+
+    public boolean isCrouching()
+    {
+        return crouching;
     }
 
     public void resize(Vec3 resize)
@@ -285,6 +343,25 @@ public class PlayerPoseHandler
         locked = false;
     }
 
+    // Revert the last animatingPose change
+    public void revertPose()
+    {
+        // Reset aLocks
+        aLockedFrame = new HashMap<Integer, Integer>();
+
+        animatingPose = backupPose;
+        currentPose = new PlayerPose();
+        renderPose = oldRenderPose;
+
+        lockLegPose(oldLegLockPose);
+
+        resizeLimbs(animatingPose.getSizes());
+
+        // Rotate each limb to the angle stored in the animating pose plus any offset angles
+        for(String limb : animatingPose.getLimbs())
+            model.rotateLimb(limb, animatingPose.getAngle(limb).add(animatingPose.getOffset(limb)));
+    }
+
     // Animate the model as defined in the animatingPose
     public void doPose(float partialTicks)
     {
@@ -363,6 +440,7 @@ public class PlayerPoseHandler
         for (String limb : limbs)
             animationTime.put(limb, animationTime.get(limb) + partialTicks);
 
+        backupPose = animatingPose;
         animatingPose = newRender;
 
         unlock();
@@ -625,6 +703,9 @@ public class PlayerPoseHandler
 
     public void doDefaultPoses(Player player)
     {
+        oldLegLockPose = legLockPose;
+        legLockPose = null;
+
         calculateDelta(player);
 
         addPose(GenericPoses.Idle);
@@ -720,6 +801,8 @@ public class PlayerPoseHandler
 
     public void lockLegPose(PlayerPose pose)
     {
+        legLockPose = pose;
+
         for (String leg : GenericPoses.getLegs())
         {
             if (model.hasLimb(leg))
