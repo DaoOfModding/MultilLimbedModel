@@ -48,12 +48,11 @@ public class ServerBoundingBoxHandler
     {
         MultiLimbedDimensions dims = getDimensions(player.getUUID());
 
-        if (dims != null)
-        {
-            Reflection.setDimensions(player, dims);
-            player.setBoundingBox(dims.makeBoundingBox(player.position()));
-        }
+        if (dims == null)
+            return;
 
+        Reflection.setDimensions(player, dims);
+        player.setBoundingBox(dims.makeBoundingBox(player.position()));
         Reflection.adjustEyeHeight(player, getEyeHeight(player.getUUID()));
     }
 }

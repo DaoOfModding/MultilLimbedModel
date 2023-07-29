@@ -45,7 +45,6 @@ import java.util.Locale;
 @Mod.EventBusSubscriber(value = Dist.CLIENT)
 public class ClientListeners
 {
-    protected static int tickSinceStart = 0;
     protected static boolean collision = false;
 
     @SubscribeEvent
@@ -81,13 +80,7 @@ public class ClientListeners
             handler.updateRenderPose();
 
             // Delay crawl calculations slightly on game load
-            if (event.player.getUUID().compareTo(Minecraft.getInstance().player.getUUID()) == 0)
-
-            if (tickSinceStart < 60)
-            {
-                tickSinceStart++;
-                return;
-            }
+            //if (event.player.getUUID().compareTo(Minecraft.getInstance().player.getUUID()) == 0)
 
             // If player is crawling
             if (event.player.hasPose(Pose.SWIMMING) && !event.player.isSwimming())
@@ -134,6 +127,9 @@ public class ClientListeners
         if (event.getEntity() instanceof Player)
         {
             PlayerPoseHandler handler = PoseHandler.getPlayerPoseHandler(event.getEntity().getUUID());
+
+            if (handler == null)
+                return;
 
             // Cancel crouching if the player was not previously crouching and is not holding shift
             if (event.getEntity().isCrouching() && !handler.wasCrouching() && !event.getEntity().isShiftKeyDown())
@@ -219,9 +215,6 @@ public class ClientListeners
         // Do nothing if pose handler does not exist or can't be setup
         if (!PoseHandler.setupPoseHandler((AbstractClientPlayer)event.getEntity()))
             return;
-/*
-        // Update the players bounding box
-        PoseHandler.getPlayerPoseHandler(event.getEntity().getUUID()).getPlayerModel().updateBoundingBox(event.getEntity());*/
 
         MultiLimbedRenderer.handleLayers((AbstractClientPlayer)event.getEntity(), event.getRenderer());
 
@@ -260,7 +253,6 @@ public class ClientListeners
     {
         if (event.getEntity().getUUID().compareTo(Minecraft.getInstance().player.getUUID()) == 0)
         {
-            tickSinceStart = 0;
             PoseHandler.clear();
         }
     }

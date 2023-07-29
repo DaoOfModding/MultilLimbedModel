@@ -27,8 +27,6 @@ public class ServerListeners
             return;
 
         // Update the bounding box in case it's been modified to use pose dimensions
-        //event.player.setBoundingBox(Reflection.getDimensions(event.player).makeBoundingBox(event.player.position()));
-
         ServerBoundingBoxHandler.updateDimensions(event.player);
 
         if (event.phase == TickEvent.Phase.END)
