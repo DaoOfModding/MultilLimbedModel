@@ -9,6 +9,7 @@ import DaoOfModding.mlmanimator.Common.Reflection;
 import DaoOfModding.mlmanimator.Server.ServerBoundingBoxHandler;
 import DaoOfModding.mlmanimator.mlmanimator;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.model.ArmorStandArmorModel;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -219,7 +220,7 @@ public class ClientListeners
         MultiLimbedRenderer.handleLayers((AbstractClientPlayer)event.getEntity(), event.getRenderer());
 
         // If MultiLimbedRenderer renders the player, cancel the render event
-        event.setCanceled(MultiLimbedRenderer.render((AbstractClientPlayer)event.getEntity(), event.getPartialTick(), event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight()));
+        event.setCanceled(MultiLimbedRenderer.render((AbstractClientPlayer)event.getEntity(), event.getPartialTick(), event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(), ClientReflection.isRenderingInventory()));
     }
 
     @SubscribeEvent

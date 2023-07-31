@@ -1,7 +1,11 @@
 package DaoOfModding.mlmanimator.Client;
 
 import DaoOfModding.mlmanimator.mlmanimator;
+import com.mojang.blaze3d.platform.Lighting;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
@@ -17,6 +21,11 @@ public class ClientReflection
     protected static Method bobView;
     protected static Method bobHurt;
 
+    protected static Field shaderLightDirections;
+
+    protected static final Vector3f INVENTORY_DIFFUSE_LIGHT_0 = Util.make(new Vector3f(0.2F, -1.0F, -1.0F), Vector3f::normalize);
+    protected static final Vector3f INVENTORY_DIFFUSE_LIGHT_1 = Util.make(new Vector3f(-0.2F, -1.0F, 0.0F), Vector3f::normalize);
+
     public static void setup()
     {
         // crouch - cM - f_108601_
@@ -24,6 +33,26 @@ public class ClientReflection
 
         bobView = ObfuscationReflectionHelper.findMethod(GameRenderer.class,"m_109138_", PoseStack.class, float.class);
         bobHurt = ObfuscationReflectionHelper.findMethod(GameRenderer.class,"m_109117_", PoseStack.class, float.class);
+
+        shaderLightDirections = ObfuscationReflectionHelper.findField(RenderSystem.class,"f_157150_");
+    }
+
+    // Check if the lighting is setup for rending an entity in the inventory
+    public static boolean isRenderingInventory()
+    {
+        try
+        {
+            Vector3f[] directions = (Vector3f[])shaderLightDirections.get(RenderSystem.class);
+
+            if (directions[0].equals(INVENTORY_DIFFUSE_LIGHT_0) && directions[1].equals(INVENTORY_DIFFUSE_LIGHT_1))
+                return true;
+        }
+        catch (Exception e)
+        {
+            mlmanimator.LOGGER.error("Error checking shaderLightDirections: " + e);
+        }
+
+        return false;
     }
 
     public static void setCrouch(LocalPlayer player, boolean crouch)

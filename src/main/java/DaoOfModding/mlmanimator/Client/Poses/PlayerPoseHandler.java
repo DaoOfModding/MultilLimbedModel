@@ -50,8 +50,6 @@ public class PlayerPoseHandler
     protected HashMap<String, Float> animationTime = new HashMap<String, Float>();
     protected HashMap<Integer, Integer> aLockedFrame = new HashMap<Integer, Integer>();
 
-    protected HashMap<String, Float> animationResizeTime = new HashMap<String, Float>();
-
     public float fov = 1;
 
 
@@ -243,6 +241,7 @@ public class PlayerPoseHandler
 
         return test;
     }
+
     // Updated each ExtendableModel in the player model to be looking in the direction of the player if it is set to do so
     protected void updateHeadLook(boolean lookWithCamera)
     {

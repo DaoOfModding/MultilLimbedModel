@@ -501,6 +501,11 @@ public class MultiLimbedModel
         // baseModel.setupAnim(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
     }
 
+    public void setupLookVector(Vec3 newLookVector)
+    {
+        lookVector = newLookVector;
+    }
+
     public Vec3 getLookVector()
     {
         return lookVector;
@@ -516,7 +521,7 @@ public class MultiLimbedModel
     {
         bbecho -= 1;
         if (bbchange)
-            bbecho = 10;
+            bbecho = 20;
 
 
         // Move the player so they are not colliding with anything
@@ -530,11 +535,11 @@ public class MultiLimbedModel
             });
         }
 
-        // Resend bounding box to server 10 ticks after last change
+        // Resend bounding box to server 20 ticks after last send
         if (bbecho == 0)
         {
             PacketHandler.sendBoundingBoxToServer(size.minSize, size.maxSize);
-            bbecho = -1;
+            bbecho = 20;
             return;
         }
 

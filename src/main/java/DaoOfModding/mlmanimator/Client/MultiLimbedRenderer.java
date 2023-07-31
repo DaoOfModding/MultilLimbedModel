@@ -333,7 +333,7 @@ public class MultiLimbedRenderer
         PoseStackIn.popPose();
     }
 
-    public static boolean render(AbstractClientPlayer entityIn, float partialTicks, PoseStack PoseStackIn, MultiBufferSource bufferIn, int packedLightIn)
+    public static boolean render(AbstractClientPlayer entityIn, float partialTicks, PoseStack PoseStackIn, MultiBufferSource bufferIn, int packedLightIn, boolean inInventory)
     {
         // Toggle off fake third person if this isn't the player entity
         boolean rememberingFake = isFakeThirdPerson();
@@ -344,12 +344,13 @@ public class MultiLimbedRenderer
 
         boolean hideHands = shouldRenderHands();
 
-        if (!rememberingFake || entityIn.getUUID().compareTo(Minecraft.getInstance().player.getUUID()) != 0)
+        if (!rememberingFake || entityIn.getUUID().compareTo(Minecraft.getInstance().player.getUUID()) != 0 || inInventory)
             hideHands = false;
 
-        render2(handler, entityIn, partialTicks, PoseStackIn, bufferIn, packedLightIn, hideHands);
+        render2(handler, entityIn, partialTicks, PoseStackIn, bufferIn, packedLightIn, hideHands, inInventory);
 
-        adjustEyeHeight(entityIn, handler);
+        if (!inInventory)
+            adjustEyeHeight(entityIn, handler);
 
         // Toggle fake third person back on if necessary
         if (rememberingFake)
@@ -358,7 +359,7 @@ public class MultiLimbedRenderer
         return true;
     }
 
-    public static void render2(PlayerPoseHandler handler, AbstractClientPlayer entityIn, float partialTicks, PoseStack PoseStackIn, MultiBufferSource bufferIn, int packedLightIn, boolean hideHands)
+    public static void render2(PlayerPoseHandler handler, AbstractClientPlayer entityIn, float partialTicks, PoseStack PoseStackIn, MultiBufferSource bufferIn, int packedLightIn, boolean hideHands, boolean inInventory)
     {
         PoseStackIn.pushPose();
 
@@ -407,9 +408,12 @@ public class MultiLimbedRenderer
 
         entityModel.setupAnim(f2, f6);
 
-        doPose(entityIn, partialTicks, handler);
+        // Do not update the pose handler if in inventory
+        if (!inInventory)
+            doPose(entityIn, partialTicks, handler);
 
         double height = entityModel.getHeightAdjustment();
+
 
         PoseStackIn.scale(-1.0F, -1.0F, 1.0F);
         PoseStackIn.translate(0.0D, 0 - height, 0.0D);
