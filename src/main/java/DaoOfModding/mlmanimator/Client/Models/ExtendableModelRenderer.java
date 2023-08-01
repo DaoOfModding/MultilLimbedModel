@@ -228,6 +228,11 @@ public class ExtendableModelRenderer
         name = newName;
     }
 
+    public String getName()
+    {
+        return name;
+    }
+
     public void addQuadLinkage(QuadLinkage link)
     {
         if (!hasQuadLinkage(link))
