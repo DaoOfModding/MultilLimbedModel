@@ -28,6 +28,7 @@ public class Quad
     protected Vec3 normal[] = new Vec3[4];
     protected ArrayList<ExtendableModelLayer> layers = new ArrayList<ExtendableModelLayer>();
     protected float alpha = 1;
+    protected boolean renderFirstPerson = false;
 
     public Quad(Vec3 topLeft, Vec3 topRight, Vec3 bottomRight, Vec3 bottomLeft)
     {
@@ -47,6 +48,16 @@ public class Quad
     public void setAlpha(float value)
     {
         alpha = value;
+    }
+
+    public void setRenderFirstPerson(boolean on)
+    {
+        renderFirstPerson = on;
+    }
+
+    public boolean getRenderFirstPerson()
+    {
+        return renderFirstPerson;
     }
 
     public Vec3 getPos(Quad.QuadVertex vertex)
@@ -152,6 +163,10 @@ public class Quad
 
     public void render(PoseStack PoseStackIn, int packedLightIn, int packedOverlayIn, TextureHandler textures)
     {
+        // Do not render if in first person and set not to render there
+        if (MultiLimbedRenderer.isFakeThirdPerson() && (!renderFirstPerson))
+            return;
+
         // Draw each model layer
         for (ExtendableModelLayer layer : layers)
         {
