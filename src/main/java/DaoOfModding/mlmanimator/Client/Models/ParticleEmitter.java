@@ -55,14 +55,14 @@ public class ParticleEmitter extends ExtendableModelRenderer
 
         if (tick >= interval)
         {
-            spawnParticle(player);
+            spawnParticle(player, particle);
             tick = 0;
         }
         else
             tick++;
     }
 
-    protected void spawnParticle(Player player)
+    public void spawnParticle(Player player, ParticleOptions toSpawn)
     {
         // Rotate spawnPos based on player rotation
         Vec3 pos = PlayerUtils.rotateAroundY(spawnPos.scale(1.0/16.0), 360-player.yBodyRot);
@@ -72,7 +72,7 @@ public class ParticleEmitter extends ExtendableModelRenderer
 
         Vec3 vel = PlayerUtils.rotateAroundY(Velocity, 360-player.yBodyRot);
 
-        Minecraft.getInstance().particleEngine.createParticle(particle, pos.x, pos.y, pos.z, vel.x, vel.y, vel.z);
+        Minecraft.getInstance().particleEngine.createParticle(toSpawn, pos.x, pos.y, pos.z, vel.x, vel.y, vel.z);
     }
 
     @Override
