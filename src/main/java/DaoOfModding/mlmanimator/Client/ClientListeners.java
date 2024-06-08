@@ -16,8 +16,11 @@ import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -172,8 +175,7 @@ public class ClientListeners
             // Cancel player repositioning when riding
             if (Minecraft.getInstance().level != null)
                 for (Player player : Minecraft.getInstance().level.players())
-                    if (player.isPassenger())
-                    {
+                    if (player.isPassenger()) {
                         // TODO - Ensure this doesn't need another offset based on model height
 
                         player.setPosRaw(player.position().x, player.position().y - player.getMyRidingOffset(), player.position().z);

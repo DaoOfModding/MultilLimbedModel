@@ -7,6 +7,8 @@ import DaoOfModding.mlmanimator.Common.Config;
 import DaoOfModding.mlmanimator.Common.Reflection;
 import DaoOfModding.mlmanimator.Network.PacketHandler;
 import DaoOfModding.mlmanimator.mlmanimator;
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
@@ -16,8 +18,7 @@ import net.minecraft.client.model.SkullModelBase;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.Camera;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
@@ -56,6 +57,8 @@ public class MultiLimbedRenderer
     protected static Field parrotModel;
     protected static Field skullModels;
 
+    protected static Field buffers;
+
     protected static final double defaultCameraDistance = 0.3f;
     protected static double decayingDistance = defaultCameraDistance;
 
@@ -85,6 +88,9 @@ public class MultiLimbedRenderer
         // skullModels - d - f_174473_
         skullModels = ObfuscationReflectionHelper.findField(CustomHeadLayer.class,"f_174473_");
 
+        // skullModels - d - f_174473_
+        buffers = ObfuscationReflectionHelper.findField(LevelRenderer.class,"f_109464_");
+
         enableFullBodyFirstPerson = Config.Client.enableFullBodyFirstPerson.get();
         enableFirstPersonHands = Config.Client.vanillaHands();
 
@@ -94,7 +100,7 @@ public class MultiLimbedRenderer
     {
         if (!fakeThird)
             return;
-        
+
         AbstractClientPlayer player = Minecraft.getInstance().player;
         PlayerPoseHandler handler = PoseHandler.getPlayerPoseHandler(player.getUUID());
 
@@ -263,6 +269,19 @@ public class MultiLimbedRenderer
         return null;
     }
 
+    public static RenderBuffers getBuffers(LevelRenderer level)
+    {
+        try
+        {
+            return (RenderBuffers)buffers.get(level);
+        }
+        catch(Exception e)
+        {
+            mlmanimator.LOGGER.error("Error acquiring render buffers");
+            return null;
+        }
+    }
+
     public static void handleLayers(AbstractClientPlayer player, PlayerRenderer renderer)
     {
         PlayerPoseHandler handler = PoseHandler.getPlayerPoseHandler(player.getUUID());
@@ -428,6 +447,26 @@ public class MultiLimbedRenderer
 
         entityModel.lock();
 
+        //renderModel(entityModel, entityIn, PoseStackIn, packedLightIn, rendertype.outline().get());
+        renderModel(entityModel, entityIn, PoseStackIn, packedLightIn, rendertype);
+
+        MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
+
+        entityModel.renderShoulder(PoseStackIn, bufferSource, packedLightIn,1.0F, 1.0F, 1.0F, 1.0F, entityIn.tickCount);
+
+        if (!hideHands)
+        {
+            entityModel.renderHandItem(false, 0, entityIn, entityIn.getMainHandItem(), PoseStackIn, bufferSource, packedLightIn);
+            entityModel.renderHandItem(true, 1, entityIn, entityIn.getOffhandItem(), PoseStackIn, bufferSource, packedLightIn);
+        }
+
+        entityModel.unlock();
+
+        PoseStackIn.popPose();
+    }
+
+    protected static void renderModel(MultiLimbedModel entityModel, AbstractClientPlayer entityIn, PoseStack PoseStackIn, int packedLightIn, RenderType rendertype)
+    {
         if (rendertype != null)
         {
             // Push the model back so it's not directly below the camera in first person
@@ -448,20 +487,6 @@ public class MultiLimbedRenderer
 
             entityModel.render(PoseStackIn, packedLightIn, i, 1.0F, 1.0F, 1.0F, 1.0F);
         }
-
-        MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
-
-        entityModel.renderShoulder(PoseStackIn, bufferSource, packedLightIn,1.0F, 1.0F, 1.0F, 1.0F, entityIn.tickCount);
-
-        if (!hideHands)
-        {
-            entityModel.renderHandItem(false, 0, entityIn, entityIn.getMainHandItem(), PoseStackIn, bufferSource, packedLightIn);
-            entityModel.renderHandItem(true, 1, entityIn, entityIn.getOffhandItem(), PoseStackIn, bufferSource, packedLightIn);
-        }
-
-        entityModel.unlock();
-
-        PoseStackIn.popPose();
     }
 
     public static Vec3 getCameraDistance()

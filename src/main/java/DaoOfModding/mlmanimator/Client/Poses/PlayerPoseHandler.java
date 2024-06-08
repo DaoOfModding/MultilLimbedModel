@@ -108,6 +108,8 @@ public class PlayerPoseHandler
         if (forcedCrouchCooldown > 0)
             forcedCrouchCooldown--;
 
+        size = new Vec3(0, 0, 0);
+
         getPlayerModel().tick(player);
     }
 
@@ -145,7 +147,7 @@ public class PlayerPoseHandler
 
     public void resize(Vec3 resize)
     {
-        size = resize;
+        size = size.add(resize);
     }
 
     public void setCrawling(boolean on)
