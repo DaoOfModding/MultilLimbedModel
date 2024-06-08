@@ -29,6 +29,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.MapItem;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.*;
@@ -77,6 +78,7 @@ public class ClientListeners
 
             handler.doDefaultPoses(event.player);
             handler.tick((AbstractClientPlayer)event.player);
+            handler.resize(new Vec3(2, 2, 2));
         }
         else if (event.phase == TickEvent.Phase.END)
         {

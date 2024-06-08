@@ -447,7 +447,7 @@ public class ExtendableModelRenderer
 
     public void addToResizeForThisAndChildren(Vec3 addTo)
     {
-        resize(thisSize.add(addTo));
+        resize(thisSize.multiply(addTo));
 
         for (ExtendableModelRenderer children : child)
             children.addToResizeForThisAndChildren(addTo);

@@ -108,7 +108,7 @@ public class PlayerPoseHandler
         if (forcedCrouchCooldown > 0)
             forcedCrouchCooldown--;
 
-        size = new Vec3(0, 0, 0);
+        size = new Vec3(1, 1, 1);
 
         getPlayerModel().tick(player);
     }
@@ -147,7 +147,7 @@ public class PlayerPoseHandler
 
     public void resize(Vec3 resize)
     {
-        size = size.add(resize);
+        size = size.multiply(resize);
     }
 
     public void setCrawling(boolean on)
@@ -487,7 +487,10 @@ public class PlayerPoseHandler
         if (limbModel == null)
             limbModel = model.getFirstPersonLimb(limb);
 
-        return limbModel.getSize().subtract(size);
+        Vec3 limbSize = limbModel.getSize();
+        limbSize = new Vec3(limbSize.x / size.x, limbSize.y / size.y,limbSize.z / size.z);
+
+        return limbSize;
     }
 
     protected void calculateAnimationLocks(String limb, Vec3 current, float partialTicks)
