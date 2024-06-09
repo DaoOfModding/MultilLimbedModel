@@ -42,6 +42,7 @@ import java.util.*;
 public class MultiLimbedModel
 {
     protected float sizeScale = 1;
+    protected Vec3 itemScale = new Vec3(1, 1, 1);
     protected double defaultHeight = 1.5;
 
     protected float eyeHeightAdjustment = 0.15f;
@@ -255,6 +256,16 @@ public class MultiLimbedModel
             expandHands(slot);
 
         hands[slot] = hand;
+    }
+
+    public void scaleItem(Vec3 scale)
+    {
+        itemScale = itemScale.multiply(scale);
+    }
+
+    public void resetItemScale()
+    {
+        itemScale = new Vec3(1, 1, 1);
     }
 
     protected void expandHands(int size)
@@ -680,7 +691,7 @@ public class MultiLimbedModel
 
         // If the item being held is a used spyglass, attach to the head instead
         if (entityIn.getUseItemRemainingTicks() > 0 && item.getUseAnimation() == UseAnim.SPYGLASS)
-                getViewPoint().moveToThisModel(PoseStackIn, new Vec3(-0.25, -0.5, -1));
+            getViewPoint().moveToThisModel(PoseStackIn, new Vec3(-0.25, -0.5, -1));
         // Rotate the item to the hand
         else
             hand.moveToThisModel(PoseStackIn, new Vec3(0, 1, -1));
@@ -688,6 +699,8 @@ public class MultiLimbedModel
         // Turn the item around to fit in the hand
         PoseStackIn.mulPose(Vector3f.XP.rotationDegrees(-90.0F));
         PoseStackIn.mulPose(Vector3f.YP.rotationDegrees(180.0F));
+
+        PoseStackIn.scale((float)itemScale.x, (float)itemScale.y, (float)itemScale.z);
 
         // Render the item
         Minecraft.getInstance().gameRenderer.itemInHandRenderer.renderItem(entityIn, item, cameraTransform, left, PoseStackIn, renderTypeBuffer, packedLightIn);

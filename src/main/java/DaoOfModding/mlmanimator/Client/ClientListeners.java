@@ -78,7 +78,7 @@ public class ClientListeners
 
             handler.doDefaultPoses(event.player);
             handler.tick((AbstractClientPlayer)event.player);
-            handler.resize(new Vec3(2, 2, 2));
+            handler.getPlayerModel().resetItemScale();
         }
         else if (event.phase == TickEvent.Phase.END)
         {
